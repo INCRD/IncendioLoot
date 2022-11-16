@@ -7,3 +7,4 @@
 embeds.xml
 src/IncendioLoot.lua
 src/LootCouncil.lua
+src/LootVoting.lua 
