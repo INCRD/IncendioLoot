@@ -5,14 +5,28 @@ local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEv
 local LootVotingGUI = LibStub("AceGUI-3.0")
 local MainFrameInit = false
 local DebugMode = false
-local InRaid = UnitInRaid("player")
+local rollStates = {
+    {type = "BIS", name = "BIS"},
+    {type = "UPGRADE", name = "Upgrade"},
+    {type = "SECOND", name = "Secondspeck"},
+    {type = "OTHER", name = "Anderes"},
+    {type = "TRANSMOG", name = "Transmog"},
+}
 
 local function ResetMainFrameStatus()
     MainFrameInit = false
 end
 
+local function CreateRollButton(rollState)
+    local button = LootVotingGUI:Create("Button")
+    button:SetText(rollState.name)
+    button:SetCallback("OnClick", function() LootVoting:SendMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, { ItemLink = ItemLink, rollType = rollState.type }) end)
+    button:SetWidth(100)
+    return button
+end
+
 function LootVoting:HandleLooted()
-    if not InRaid and not DebugMode then 
+    if not UnitInRaid("player") and not DebugMode then 
         return
     end
     
@@ -29,6 +43,7 @@ function LootVoting:HandleLooted()
     
     --Init frame
     local LootVotingMainFrame = LootVotingGUI:Create("Frame")
+    MainFrameInit = true
 
     LootVotingMainFrame:SetTitle("Incendio Loot")
     LootVotingMainFrame:SetStatusText("Wähl den Loot aus, mann")
@@ -38,6 +53,7 @@ function LootVoting:HandleLooted()
         local ItemName
         local locked
         local ItemLink
+        
 
         if (GetLootSlotType(counter) == Enum.LootSlotType.Item) then
 
@@ -63,41 +79,17 @@ function LootVoting:HandleLooted()
                 GameTooltip:Show();
             end);
 
-            local BISButton = LootVotingGUI:Create("Button")
-            BISButton:SetText("BIS")
-            BISButton:SetCallback("OnClick", function() LootVoting:SendMessage("IL_BIS", ItemLink) end)
-            BISButton:SetWidth(100)
-            ItemGroup:AddChild(BISButton)
-
-            local UpgradeButton = LootVotingGUI:Create("Button")
-            UpgradeButton:SetText("Upgrade")
-            UpgradeButton:SetCallback("OnClick", function() LootVoting:SendMessage("IL_UPG", ItemLink) end)
-            UpgradeButton:SetWidth(100)
-            ItemGroup:AddChild(UpgradeButton)
-
-            local SecondSpeckButton = LootVotingGUI:Create("Button")
-            SecondSpeckButton:SetText("Secondspeck")
-            SecondSpeckButton:SetCallback("OnClick", function() LootVoting:SendMessage("IL_SND", ItemLink) end)
-            SecondSpeckButton:SetWidth(100)
-            ItemGroup:AddChild(SecondSpeckButton)
-
-            local AndereButton = LootVotingGUI:Create("Button")
-            AndereButton:SetText("Anderes")
-            AndereButton:SetCallback("OnClick", function() LootVoting:SendMessage("IL_OTH", ItemLink) end)
-            AndereButton:SetWidth(100)
-            ItemGroup:AddChild(AndereButton)
-
-            local TransmogButton = LootVotingGUI:Create("Button")
-            TransmogButton:SetText("Transmog")
-            TransmogButton:SetCallback("OnClick", function() LootVoting:SendMessage("IL_MOG", ItemLink) end)
-            TransmogButton:SetWidth(100)
-            ItemGroup:AddChild(TransmogButton)
+            for _, rollState in pairs(rollStates) do
+                ItemGroup:AddChild(CreateRollButton(rollState))
+            end
         end;
 
     end
     LootVotingMainFrame:SetLayout("ILVooting")
     LootVotingMainFrame:SetCallback("OnClose", ResetMainFrameStatus)
 end
+
+
 
 LootVotingGUI:RegisterLayout("ILVooting", 
     function(content, children)
