@@ -4,7 +4,7 @@ local IncendioLoot = _G[addonName]
 local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEvent-3.0")
 local LootVotingGUI = LibStub("AceGUI-3.0")
 local MainFrameInit = false
-local DebugMode = false
+local DebugMode = true
 local rollStates = {
     {type = "BIS", name = "BIS"},
     {type = "UPGRADE", name = "Upgrade"},
@@ -87,9 +87,10 @@ function LootVoting:HandleLooted()
     end
     LootVotingMainFrame:SetLayout("ILVooting")
     LootVotingMainFrame:SetCallback("OnClose", ResetMainFrameStatus)
+
+
+    IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,"test","GUILD")
 end
-
-
 
 LootVotingGUI:RegisterLayout("ILVooting", 
     function(content, children)

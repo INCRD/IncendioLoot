@@ -12,8 +12,8 @@ local LibCompress = LibStub:GetLibrary("LibCompress")
     Event handling
 ]] --
 local function HandleLootLootedEvent(prefix, str, distribution, sender)
-    local _, data = LootCouncil:Deserialize(str)
-    AceConsole:Print(data)
+    --local _, data = LootCouncil:Deserialize(str)
+    --AceConsole:Print(data)
 end
 
 local function HandleLootVoteCastEvent(prefix, str, distribution, sender)

@@ -1,8 +1,8 @@
 local addonName, addon = ...
 IncendioLoot = LibStub("AceAddon-3.0"):NewAddon("IncendioLoot",
-                                                "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
+                                                "AceConsole-3.0", "AceEvent-3.0", "AceSerializer-3.0")
 _G[addonName] = IncendioLoot
-IncendioLoot.Version = tonumber(GetAddOnMetadata(addonName, 'Version'))
+IncendioLoot.Version = tostring(GetAddOnMetadata(addonName, 'Version'))
 IncendioLoot.ReceivedOutOfDateMessage = false
 local AceConsole = LibStub("AceConsole-3.0")
 
@@ -22,8 +22,10 @@ IncendioLoot.EVENTS = {
 }
 
 local function HandleVersionCheckEvent(prefix, str, distribution, sender)
-    if (sender == player) then return end
-    local ver, msg, InCombat = IncendioLoot.Version, tonumber(str),
+    if (sender == UnitName("player")) then
+        return 
+    end
+    local ver, msg, InCombat = tonumber(IncendioLoot.Version), tonumber(str),
                                InCombatLockdown()
     if (msg and ver < msg and not IncendioLoot.ReceivedOutOfDateMessage) then
         AceConsole:Print("version_out_of_date: "..msg)
@@ -33,8 +35,8 @@ end
 
 local function HandleGroupRosterUpdate()
     IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_CHECK,
-                                 IncendioLoot.Version,
-                                 IsInRaid() and "RAID" or "PARTY")
+                                IncendioLoot.Version,
+                                IsInRaid() and "RAID" or "PARTY")
 end
 
 --[[
@@ -43,12 +45,7 @@ end
 
 IncendioLoot.LootUtil = {}
 function IncendioLoot.LootUtil:SendLootEvent(item, looter, encounter)
-    if (IsInRaid()) then
-        local data = {item = item, looter = looter, encounter = encounter}
-        local s = IncendioLoot:Serialize(data)
-        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED, s,
-                                     "RAID")
-    end
+   
 end
 
 --[[
@@ -57,5 +54,12 @@ end
 function IncendioLoot:OnInitialize()
     LibStub("AceComm-3.0"):Embed(IncendioLoot)
     self.DB = LibStub("AceDB-3.0"):New("IncendioLootDB")
+end
+
+--[[
+    Enable
+]] --
+function IncendioLoot:OnEnable()
+    IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
 end
