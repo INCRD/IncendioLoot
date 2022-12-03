@@ -4,6 +4,9 @@ IncendioLoot = LibStub("AceAddon-3.0"):NewAddon("IncendioLoot",
 _G[addonName] = IncendioLoot
 IncendioLoot.Version = tostring(GetAddOnMetadata(addonName, 'Version'))
 IncendioLoot.ReceivedOutOfDateMessage = false
+IncendioLoot.AddonActive = false
+IncendioLoot.IsMasterLooter = false
+
 local AceConsole = LibStub("AceConsole-3.0")
 
 local tonumber = tonumber

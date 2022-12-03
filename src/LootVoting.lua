@@ -1,10 +1,10 @@
 local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 
-local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEvent-3.0")
+local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEvent-3.0", "AceSerializer-3.0")
 local LootVotingGUI = LibStub("AceGUI-3.0")
 local MainFrameInit = false
-local DebugMode = true
+local DebugMode = false
 local rollStates = {
     {type = "BIS", name = "BIS"},
     {type = "UPGRADE", name = "Upgrade"},
@@ -17,15 +17,18 @@ local function ResetMainFrameStatus()
     MainFrameInit = false
 end
 
-local function CreateRollButton(rollState)
+local function CreateRollButton(ItemGroup, rollState, ItemLink)
     local button = LootVotingGUI:Create("Button")
     button:SetText(rollState.name)
-    button:SetCallback("OnClick", function() LootVoting:SendMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, { ItemLink = ItemLink, rollType = rollState.type }) end)
+    button:SetCallback("OnClick", function() 
+        LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink, rollType = rollState.type }), "GUILD") 
+        ItemGroup:Release()
+    end)
     button:SetWidth(100)
     return button
 end
 
-function LootVoting:HandleLooted()
+local function HandleLooted(LootTable)
     if not UnitInRaid("player") and not DebugMode then 
         return
     end
@@ -48,48 +51,41 @@ function LootVoting:HandleLooted()
     LootVotingMainFrame:SetTitle("Incendio Loot")
     LootVotingMainFrame:SetStatusText("Wähl den Loot aus, mann")
 
-    for counter = 1, GetNumLootItems(), 1 do
-        local TexturePath
-        local ItemName
+    for key, Item in pairs(LootTable) do
+        local TexturePath = Item.TexturePath
+        local ItemName = Item.ItemName
         local locked
-        local ItemLink
-        
+        local ItemLink = Item.ItemLink
 
-        if (GetLootSlotType(counter) == Enum.LootSlotType.Item) then
+        local ItemGroup = LootVotingGUI:Create("InlineGroup")
+        ItemGroup:SetLayout("Flow") 
+        ItemGroup:SetFullWidth(true)
+        ItemGroup:SetHeight(70)
+        LootVotingMainFrame:AddChild(ItemGroup)
 
-            TexturePath, ItemName = GetLootSlotInfo(counter)
-            ItemLink = GetLootSlotLink(counter)
+        local IconWidget1 = LootVotingGUI:Create("InteractiveLabel")
+        IconWidget1:SetWidth(100)
+        IconWidget1:SetHeight(40)
+        IconWidget1:SetImageSize(40,40)
+        IconWidget1:SetImage(TexturePath)
+        IconWidget1:SetText(ItemName)
+        ItemGroup:AddChild(IconWidget1)
 
-            local ItemGroup = LootVotingGUI:Create("InlineGroup")
-            ItemGroup:SetLayout("Flow") 
-            ItemGroup:SetFullWidth(true)
-            ItemGroup:SetHeight(70)
-            LootVotingMainFrame:AddChild(ItemGroup)
+        IconWidget1:SetCallback("OnEnter", function()
+            GameTooltip:SetHyperlink(ItemLink);
+            GameTooltip:Show();
+        end);
 
-            local IconWidget1 = LootVotingGUI:Create("Icon")
-            IconWidget1:SetWidth(100)
-            IconWidget1:SetHeight(40)
-            IconWidget1:SetImageSize(40,40)
-            IconWidget1:SetImage(TexturePath)
-            IconWidget1:SetLabel(ItemName)
-            ItemGroup:AddChild(IconWidget1)
+        IconWidget1:SetCallback("OnLeave", function()
+            GameTooltip:Hide();
+        end);
 
-            IconWidget1:SetCallback("OnEnter", function()
-                GameTooltip:SetHyperlink(ItemLink);
-                GameTooltip:Show();
-            end);
-
-            for _, rollState in pairs(rollStates) do
-                ItemGroup:AddChild(CreateRollButton(rollState))
-            end
+        for _, rollState in pairs(rollStates) do
+            ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink))
         end;
-
     end
     LootVotingMainFrame:SetLayout("ILVooting")
     LootVotingMainFrame:SetCallback("OnClose", ResetMainFrameStatus)
-
-
-    IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,"test","GUILD")
 end
 
 LootVotingGUI:RegisterLayout("ILVooting", 
@@ -110,11 +106,23 @@ LootVotingGUI:RegisterLayout("ILVooting",
     end
 )
 
+local function HandleLootVoteCastEvent()
+    
+end
+
+local function HandleLootLootedEvent(prefix, str, distribution, sender)
+    local _, LootTable = LootVoting:Deserialize(str)
+    HandleLooted(LootTable)
+end
+
 function LootVoting:OnEnable()
-    --LootVotingMainFrame:Hide()
+    LibStub("AceComm-3.0"):Embed(LootVoting)
+    LootVoting:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
+                            HandleLootLootedEvent)
 end
 
 --Events
+
 
 --Only for Debugging
 LootVoting:RegisterEvent("LOOT_OPENED", function ()
@@ -124,5 +132,7 @@ LootVoting:RegisterEvent("LOOT_OPENED", function ()
 end )
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
+    --MasterLooter Giert
     RollOnLoot(rollID, nil)
 end )
+
