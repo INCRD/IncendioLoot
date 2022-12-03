@@ -5,6 +5,7 @@ local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEv
 local LootVotingGUI = LibStub("AceGUI-3.0")
 local MainFrameInit = false
 local DebugMode = false
+local ChildCount = 0
 local rollStates = {
     {type = "BIS", name = "BIS"},
     {type = "UPGRADE", name = "Upgrade"},
@@ -17,12 +18,18 @@ local function ResetMainFrameStatus()
     MainFrameInit = false
 end
 
-local function CreateRollButton(ItemGroup, rollState, ItemLink)
+local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame)
     local button = LootVotingGUI:Create("Button")
     button:SetText(rollState.name)
     button:SetCallback("OnClick", function() 
         LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink, rollType = rollState.type }), IsInRaid() and "RAID" or "GUILD") 
-        ItemGroup:Release()
+        ChildCount = ChildCount - 1
+        if (ChildCount == 0) then 
+            LootVotingGUI:Release(LootVotingMainFrame)
+            ResetMainFrameStatus()
+        else
+            ItemGroup.frame:Hide()
+        end
     end)
     button:SetWidth(100)
     return button
@@ -45,11 +52,11 @@ local function HandleLooted(LootTable)
     end
     
     --Init frame
-    local LootVotingMainFrame = LootVotingGUI:Create("Frame")
+    local LootVotingMainFrame = LootVotingGUI:Create("Window")
     MainFrameInit = true
 
-    LootVotingMainFrame:SetTitle("Incendio Loot")
-    LootVotingMainFrame:SetStatusText("Wähl den Loot aus, mann")
+    LootVotingMainFrame:SetTitle("Incendio Loot - Wähl den Loot aus, mann")
+    LootVotingMainFrame:EnableResize(false)
 
     for key, Item in pairs(LootTable) do
         local TexturePath = Item.TexturePath
@@ -80,8 +87,9 @@ local function HandleLooted(LootTable)
             GameTooltip:Hide();
         end);
 
+        ChildCount = ChildCount + 1
         for _, rollState in pairs(rollStates) do
-            ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink))
+            ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame))
         end;
     end
     LootVotingMainFrame:SetLayout("ILVooting")
@@ -100,7 +108,7 @@ LootVotingGUI:RegisterLayout("ILVooting",
             end
         end
 
-        FrameObject:SetBackdropBorderColor(0,0,0,0)
+        FrameObject:SetBackdropBorderColor(0,0,1,1)
         FrameObject:SetBackdropColor(0,0,0,0)
         FrameObject:SetHeight(VotingFrameHeight)
     end

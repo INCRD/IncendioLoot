@@ -35,5 +35,4 @@ function LootCouncil:OnInitialize()
                              HandleLootDistributedEvent)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_SESSION_STARTED,
                              HandleLootSessionStartedEvent)
-    IncendioLoot.LootUtil:SendLootEvent("someItem", "somePlayer", "someBoss")
 end
