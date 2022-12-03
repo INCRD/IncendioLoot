@@ -121,7 +121,7 @@ local function HandleLootLootedEvent(prefix, str, distribution, sender)
 
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
         LootCouncilGUI:Serialize(LootTable),
-        "GUILD")
+        "RAID")
     end
 end
 
