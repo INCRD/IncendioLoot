@@ -46,10 +46,6 @@ end
     Loot utils
 ]] --
 
-IncendioLoot.LootUtil = {}
-function IncendioLoot.LootUtil:SendLootEvent(item, looter, encounter)
-   
-end
 
 --[[
     Init

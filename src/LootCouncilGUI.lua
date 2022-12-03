@@ -10,39 +10,6 @@ local function ResetMainFrameStatus()
     MainFrameInit = false;
 end
 
-local function DrawGroup1(container)
-    local desc = LootCouncilAceGUI:Create("Label")
-    desc:SetText("This is Tab 1")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
-
-    local button = LootCouncilAceGUI:Create("Button")
-    button:SetText("Tab 1 Button")
-    button:SetWidth(200)
-    container:AddChild(button)
-end
-      
-local function DrawGroup2(container)
-    local desc = LootCouncilAceGUI:Create("Label")
-    desc:SetText("This is Tab 2")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
-
-    local button = LootCouncilAceGUI:Create("Button")
-    button:SetText("Tab 2 Button")
-    button:SetWidth(200)
-    container:AddChild(button)
-end
-
-local function SelectGroup(container, event, group)
-    container:ReleaseChildren()
-    if group == "tab1" then
-       DrawGroup1(container)
-    elseif group == "tab2" then
-       DrawGroup2(container)
-    end
-end
-
 local function HandleLootLootedEvent(prefix, str, distribution, sender)
     if not MainFrameInit then 
 
@@ -121,7 +88,7 @@ local function HandleLootLootedEvent(prefix, str, distribution, sender)
 
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
         LootCouncilGUI:Serialize(LootTable),
-        "RAID")
+        IsInRaid() and "RAID" or "GUILD")
     end
 end
 
