@@ -102,9 +102,9 @@ end
 
 
 LootCouncilGUI:RegisterEvent("LOOT_OPENED", function ()
-    --if UnitIsGroupLeader("player") then
+    if UnitIsGroupLeader("player") then
         HandleLootLootedEvent()
-    --end
+    end
 end )
 
 function LootCouncilGUI:OnEnable()

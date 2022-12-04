@@ -40,20 +40,9 @@ local function HandleLooted(LootTable)
         return
     end
     
-    local LootAvailable = false
-    for CheckCounter = 1, GetNumLootItems(), 1 do
-        if (GetLootSlotType(CheckCounter) == Enum.LootSlotType.Item) then
-            LootAvailable = true
-        end
-    end
-
-    if not LootAvailable then 
-        return
-    end
-    
     --Init frame
     local LootVotingMainFrame = LootVotingGUI:Create("Window")
-    MainFrameInit = true
+    --MainFrameInit = true
 
     LootVotingMainFrame:SetTitle("Incendio Loot - Wähl den Loot aus, mann")
     LootVotingMainFrame:EnableResize(false)
@@ -108,8 +97,6 @@ LootVotingGUI:RegisterLayout("ILVooting",
             end
         end
 
-        FrameObject:SetBackdropBorderColor(0,0,1,1)
-        FrameObject:SetBackdropColor(0,0,0,0)
         FrameObject:SetHeight(VotingFrameHeight)
     end
 )
@@ -141,6 +128,12 @@ end )
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     --MasterLooter Giert
-    RollOnLoot(rollID, nil)
+    --print(rollID)
+    if UnitIsGroupLeader("player") then
+        return
+    end
+    for _, rollID in ipairs(GetActiveLootRollIDs()) do
+        RollOnLoot(rollID)
+    end
 end )
 
