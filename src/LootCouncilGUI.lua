@@ -56,8 +56,10 @@ local function HandleLootLootedEvent(prefix, str, distribution, sender)
                 LootCouncilMainFrame2:AddChild(IconWidget1)
 
                 IconWidget1:SetCallback("OnEnter", function()
-                    GameTooltip:SetHyperlink(ItemLink);
-                    GameTooltip:Show();
+                    GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
+                    GameTooltip:ClearLines()
+                    GameTooltip:SetHyperlink(ItemLink)
+                    GameTooltip:Show()
                 end);
                 IconWidget1:SetCallback("OnLeave", function()
                     GameTooltip:FadeOut();

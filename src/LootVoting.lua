@@ -61,8 +61,10 @@ local function HandleLooted(LootTable)
         ItemGroup:AddChild(IconWidget1)
 
         IconWidget1:SetCallback("OnEnter", function()
-            GameTooltip:SetHyperlink(ItemLink);
-            GameTooltip:Show();
+            GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
+            GameTooltip:ClearLines()
+            GameTooltip:SetHyperlink(ItemLink)
+            GameTooltip:Show()
         end);
 
         IconWidget1:SetCallback("OnLeave", function()
