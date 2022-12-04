@@ -3,7 +3,6 @@ local IncendioLoot = _G[addonName]
 
 local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEvent-3.0", "AceSerializer-3.0")
 local LootVotingGUI = LibStub("AceGUI-3.0")
-local MainFrameInit = false
 local DebugMode = false
 local ChildCount = 0
 local rollStates = {
@@ -14,10 +13,6 @@ local rollStates = {
     {type = "TRANSMOG", name = "Transmog"},
 }
 
-local function ResetMainFrameStatus()
-    MainFrameInit = false
-end
-
 local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame)
     local button = LootVotingGUI:Create("Button")
     button:SetText(rollState.name)
@@ -26,7 +21,6 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFr
         ChildCount = ChildCount - 1
         if (ChildCount == 0) then 
             LootVotingGUI:Release(LootVotingMainFrame)
-            ResetMainFrameStatus()
         else
             ItemGroup.frame:Hide()
         end
@@ -40,20 +34,8 @@ local function HandleLooted(LootTable)
         return
     end
     
-    local LootAvailable = false
-    for CheckCounter = 1, GetNumLootItems(), 1 do
-        if (GetLootSlotType(CheckCounter) == Enum.LootSlotType.Item) then
-            LootAvailable = true
-        end
-    end
-
-    if not LootAvailable then 
-        return
-    end
-    
     --Init frame
     local LootVotingMainFrame = LootVotingGUI:Create("Window")
-    MainFrameInit = true
 
     LootVotingMainFrame:SetTitle("Incendio Loot - Wähl den Loot aus, mann")
     LootVotingMainFrame:EnableResize(false)
@@ -93,7 +75,6 @@ local function HandleLooted(LootTable)
         end;
     end
     LootVotingMainFrame:SetLayout("ILVooting")
-    LootVotingMainFrame:SetCallback("OnClose", ResetMainFrameStatus)
 end
 
 LootVotingGUI:RegisterLayout("ILVooting", 
@@ -108,8 +89,6 @@ LootVotingGUI:RegisterLayout("ILVooting",
             end
         end
 
-        FrameObject:SetBackdropBorderColor(0,0,1,1)
-        FrameObject:SetBackdropColor(0,0,0,0)
         FrameObject:SetHeight(VotingFrameHeight)
     end
 )
@@ -141,6 +120,12 @@ end )
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     --MasterLooter Giert
-    RollOnLoot(rollID, nil)
+    --print(rollID)
+    if UnitIsGroupLeader("player") then
+        return
+    end
+    for _, rollID in ipairs(GetActiveLootRollIDs()) do
+        RollOnLoot(rollID)
+    end
 end )
 
