@@ -17,7 +17,7 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFr
     local button = LootVotingGUI:Create("Button")
     button:SetText(rollState.name)
     button:SetCallback("OnClick", function() 
-        LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink, rollType = rollState.type }), IsInRaid() and "RAID" or "GUILD") 
+        LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink, rollType = rollState.type }), IsInRaid() and "RAID" or "PARTY") 
         ChildCount = ChildCount - 1
         if (ChildCount == 0) then 
             LootVotingGUI:Release(LootVotingMainFrame)
