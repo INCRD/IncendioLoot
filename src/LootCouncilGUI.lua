@@ -15,48 +15,72 @@ ScrollContainer.scrollFrame.scrollChild = CreateFrame("Frame",nil,ScrollContaine
 local content = ScrollContainer.scrollFrame.scrollChild
 content.rows = {} -- each row of data is one wide button stored here
 local VoteData = {}
+local CurrentItemLink
+local SessionActive
 
 local function ResetMainFrameStatus()
     MainFrameInit = false;
+    SessionActive = false;
 end
 
-local function updateList()
-    for i=1,#VoteData do
-        if content.rows[i] then 
-           content.rows[i]:Hide()
+local function BuildVoteData()
+    for ItemLink, VoteDataValue in pairs(VoteData) do
+        PlayerTable = VoteData[ItemLink]
+        for member = 1, GetNumGroupMembers(), 1 do 
+            local name, _, _, _, class, _, zone , online = GetRaidRosterInfo(member)
+            PlayerInformation = {class = class, zone = zone, online = online, rollType = "Kein Vote"}
+            PlayerTable[name] = PlayerInformation
         end
-        -- create a row if not created yet (buttons[i] is a whole row; buttons[i].columns[j] are columns)
-        if not content.rows[i] then
-            local button = CreateFrame("Button",nil,content)
-            button:SetSize(900,40)
-            button:SetPoint("TOPLEFT",0,-(i-1)*20)
-            button.columns = {} -- creating columns for the row
-            for j=1,5 do
-                if (i == 1) then
-                button.columns[j] = button:CreateFontString(nil,"ARTWORK","GameFontGreen")
-                else
-                button.columns[j] = button:CreateFontString(nil,"ARTWORK","GameFontHighlight")
+    end
+end
+
+local function UpdateVoteData(ItemLink, PlayerName, RollType)
+    local PlayerTable = VoteData[ItemLink]
+    local PlayerInformation = PlayerTable[PlayerName]
+    PlayerInformation.rollType = tostring(RollType)
+end
+
+
+local function updateList(NewItemLink)
+    local PlayerTable = VoteData[NewItemLink]
+    local LoopCounter = 0;
+    local InformationCounter = 0;
+    print(NewItemLink)
+    for locPlayerName, locPlayerInformation  in pairs (PlayerTable) do
+        LoopCounter = LoopCounter + 1
+        InformationCounter = 0;
+            if content.rows[LoopCounter] then 
+                content.rows[LoopCounter]:Hide()
+            end
+            -- create a row if not created yet (buttons[i] is a whole row; buttons[i].columns[j] are columns)
+            if not content.rows[LoopCounter] then
+                local button = CreateFrame("Button",nil,content)
+                button:SetSize(900,40)
+                button:SetPoint("TOPLEFT",0,-(LoopCounter-1)*20)
+                button.columns = {} -- creating columns for the row
+                for columnCounter=1,5 do
+                    button.columns[columnCounter] = button:CreateFontString(nil,"ARTWORK","GameFontHighlight")
+                    button.columns[columnCounter]:SetPoint("LEFT",(columnCounter-1)*100,0)
                 end
-                button.columns[j]:SetPoint("LEFT",(j-1)*100,0)
+                content.rows[LoopCounter] = button
             end
-            content.rows[i] = button
-        end
-        -- now actually update the contents of the row
-        for j=1,5 do
-            if not (VoteData[i][j] == nil) then
-                content.rows[i].columns[j]:SetText(tostring(VoteData[i][j]))
+            -- now actually update the contents of the row
+            for locPlayerInformationClass, PlayerInformationValue in pairs (locPlayerInformation) do
+                InformationCounter = InformationCounter + 1;
+                if not (PlayerInformationValue == nil) then
+                    content.rows[LoopCounter].columns[InformationCounter]:SetText(tostring(PlayerInformationValue))
+                end
             end
-        end
-        -- show the row that has data
-        content.rows[i]:Show()
+            -- show the row that has data
+            content.rows[LoopCounter]:Show()
     end
     -- hide all extra rows (if list shrunk, hiding leftover)
-    for i=#VoteData+1,#content.rows do
-        content.rows[i]:Hide()
-    end
 end
 
-local function CreateScrollFrame(Update, UpdateData)
+local function CreateScrollFrame(NewItemLink)
+    if not (CurrentItemLink == NewItemLink) then 
+        return
+    end
     ScrollContainer:SetSize(900,450)
     ScrollContainer:SetPoint("CENTER")
     ScrollContainer:Hide()
@@ -72,52 +96,63 @@ local function CreateScrollFrame(Update, UpdateData)
     ScrollContainer.scrollFrame.scrollChild:SetSize(100,100)
     ScrollContainer.scrollFrame.scrollChild:SetPoint("TOPLEFT",5,-5)
     ScrollContainer.scrollFrame:SetScrollChild(ScrollContainer.scrollFrame.scrollChild)
-     
-    updateList()
+    
+    updateList(NewItemLink)
 
     ScrollContainer.scrollFrame.scrollChild:Show()
     ScrollContainer:Show()
 end
 
 local function CreateItemFrame(ItemFrame)
-    for counter = 1, GetNumLootItems(), 1 do
+    local IsFirst = true
+    if not SessionActive then
+        for counter = 1, GetNumLootItems(), 1 do
 
-        if (GetLootSlotType(counter) == Enum.LootSlotType.Item) then
-            local TexturePath
-            local ItemName
-            local locked
-            local ItemLink
-            local Item = {}
-            local TestData  = {}
-            table.insert(TestData, {"1", "2", "3", "4"})
+            if (GetLootSlotType(counter) == Enum.LootSlotType.Item) then
+                local TexturePath
+                local ItemName
+                local locked
+                local ItemLink
+                local Item = {}
+                local TestData  = {}
+                table.insert(TestData, {"1", "2", "3", "4"})
 
-            TexturePath, ItemName = GetLootSlotInfo(counter)
-            ItemLink = GetLootSlotLink(counter)
+                TexturePath, ItemName = GetLootSlotInfo(counter)
+                ItemLink = GetLootSlotLink(counter)
 
-            local IconWidget1 = LootCouncilAceGUI:Create("Icon")
-            IconWidget1:SetLabel(ItemName)
-            IconWidget1:SetImageSize(40,40)
-            IconWidget1:SetImage(TexturePath)
-            --IconWidget1:SetLabel(ItemName)
-            ItemFrame:AddChild(IconWidget1)
+                local IconWidget1 = LootCouncilAceGUI:Create("Icon")
+                IconWidget1:SetLabel(ItemName)
+                IconWidget1:SetImageSize(40,40)
+                IconWidget1:SetImage(TexturePath)
+                --IconWidget1:SetLabel(ItemName)
+                ItemFrame:AddChild(IconWidget1)
 
-            IconWidget1:SetCallback("OnEnter", function()
-                GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
-                GameTooltip:ClearLines()
-                GameTooltip:SetHyperlink(ItemLink)
-                GameTooltip:Show()
-            end);
-            IconWidget1:SetCallback("OnLeave", function()
-                GameTooltip:Hide();
-            end);
-            IconWidget1:SetCallback("OnClick", function()
-                CreateScrollFrame(true, TestData);
-            end);
-            Item["TexturePath"] = TexturePath
-            Item["ItemName"] = ItemName
-            Item["ItemLink"] = ItemLink
-            table.insert(LootTable, Item)  
+                IconWidget1:SetCallback("OnEnter", function()
+                    GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
+                    GameTooltip:ClearLines()
+                    GameTooltip:SetHyperlink(ItemLink)
+                    GameTooltip:Show()
+                end);
+                IconWidget1:SetCallback("OnLeave", function()
+                    GameTooltip:Hide();
+                end);
+                IconWidget1:SetCallback("OnClick", function()
+                    CurrentItemLink = ItemLink
+                    CreateScrollFrame(ItemLink)
+                end);
+                Item["TexturePath"] = TexturePath
+                Item["ItemName"] = ItemName
+                Item["ItemLink"] = ItemLink
+                table.insert(LootTable, Item)  
+                VoteData[ItemLink] = {}
+                if IsFirst then
+                    IsFirst = false
+                    CurrentItemLink = ItemLink
+                end
+            end
         end
+        BuildVoteData()
+        CreateScrollFrame(CurrentItemLink)
     end
 end
 
@@ -135,13 +170,7 @@ end
 
 local function HandleLootLootedEvent(prefix, str, distribution, sender)
     if not MainFrameInit then 
-        table.insert(VoteData, {"PlayerName", "PlayerClase", "Online" ,"Zone", "Vote"})
-
-        for member = 1, GetNumGroupMembers(), 1 do 
-            local name, _, _, _, class, _, zone , online = GetRaidRosterInfo(member)
-            table.insert(VoteData, {name, class, online, zone, "No Vote"})
-        end
-        
+                
         LootCouncilMainFrame.frame:Show()
         LootCouncilMainFrame:SetTitle("Incendio Lootcouncil")
         LootCouncilMainFrame:SetStatusText("")
@@ -166,32 +195,29 @@ local function HandleLootLootedEvent(prefix, str, distribution, sender)
 
         CloseButtonFrame:AddChild(CloseButton)
 
+
         CreateItemFrame(ItemFrame)
         PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame )
-        CreateScrollFrame(false)
 
         LootCouncilMainFrame.frame:SetWidth(1000)
 
         LootCouncilMainFrame:SetCallback("OnClose", ResetMainFrameStatus)
 
-        --IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
-        --LootCouncilGUI:Serialize(LootTable),
-        --IsInRaid() and "RAID" or "PARTY")
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
+        LootCouncilGUI:Serialize(LootTable),
+        IsInRaid() and "RAID" or "PARTY")
+        SessionActive = true
     end
 end
 
 local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
     local _, LootVote = LootCouncilGUI:Deserialize(str)
-    local Data = {}
-    for member = 1, GetNumGroupMembers(), 1 do 
-        local name, _, _, _, class, _, _ , _, online = GetRaidRosterInfo(member)
-        if (sender== name) then
-        table.insert(Data, {name, class, online, tostring(LootVote.rollType)})
-        else
-        table.insert(Data, {name, class, online})
-        end
-    end
-    CreateScrollFrame(true, Data)
+    local NewItemLink = LootVote.ItemLink
+    local NewRollType = LootVote.rollType
+    
+    UpdateVoteData(NewItemLink,sender,NewRollType)
+    CreateScrollFrame(NewItemLink)
+    
 end
 
 
@@ -206,3 +232,33 @@ function LootCouncilGUI:OnEnable()
     LootCouncilGUI:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER,
                             HandleLootVotePlayerEvent)
 end
+
+
+
+
+
+
+-- ich liebe trox
+--hihi
+
+
+
+--local PlayerTable = Loottable[ItemLink]
+--for key, value in pairs(PlayerTable) do
+  --  CounterPlayer = CounterPlayer + 1
+    --Counterbutton = 0
+   -- for key, value2 in pairs (value) do
+     --   CounterButton = CounterButton + 1
+    --end
+--end
+
+
+
+
+--local LootTable = {}
+--local PlayerTable = Loottable[ItemLink]
+--local PlayerInfo = PlayerTable[Yizzy]
+
+--PlayerInfo[LootVote] = BIS
+--LootTable[ItemLink][Yizzy].LootVote = BIS
+--LootTable[ItemLink][Yizzy]["LootVote"] = BIS
