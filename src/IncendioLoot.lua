@@ -22,7 +22,7 @@ IncendioLoot.EVENTS = {
     EVENT_LOOT_VOTE_CAST = "IL.LVoteCast", -- whenever a loot council member votes on an item
     EVENT_LOOT_DISTRIBUTED = "IL.LDist", -- whenever the council distributes an item
     EVENT_LOOT_VOTE_PLAYER = "IL.LVotedPlayer", -- whenever a player sets a vote on an item
-    EVENT_LOOT_PLAYER_INFO = "IL.PlayerInfo" -- Get several Player informations
+    EVENT_LOOT_ANNOUNCE_COUNCIL = "IL.Council" -- announces the council as raidlead
 }
 
 local function HandleVersionCheckEvent(prefix, str, distribution, sender)
@@ -46,14 +46,32 @@ end
 --[[
     Loot utils
 ]] --
-
+function IncendioLoot:IsCouncil(IsCounciul)
+    
+end
 
 --[[
     Init
 ]] --
 function IncendioLoot:OnInitialize()
+    local DefaultOptions = {
+        profile = {
+            options = {
+                general = {
+                    active = false,
+                    debug = false
+                },
+                masterlooters = {
+                    ML1 = "",
+                    ML2 = "",
+                    ML3 = ""
+                }
+            }
+        }
+    }
     LibStub("AceComm-3.0"):Embed(IncendioLoot)
-    self.DB = LibStub("AceDB-3.0"):New("IncendioLootDB")
+    self.ILOptions = LibStub("AceDB-3.0"):New("IncendioLootOptionsDB", DefaultOptions, true)
+    self.ILHistory = LibStub("AceDB-3.0"):New("IncendioLootHistoryDB")
 end
 
 --[[

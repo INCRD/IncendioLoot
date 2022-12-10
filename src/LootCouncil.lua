@@ -36,3 +36,4 @@ function LootCouncil:OnInitialize()
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_SESSION_STARTED,
                              HandleLootSessionStartedEvent)
 end
+
