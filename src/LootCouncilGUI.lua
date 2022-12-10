@@ -2,7 +2,6 @@ local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootCouncilGUI = IncendioLoot:NewModule("LootCouncilGUI", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local LootCouncilAceGUI = LibStub("AceGUI-3.0")
-local AceConsole = LibStub("AceConsole-3.0")
 local MainFrameInit = false;
 local LootTable = {}
 local LootCouncilMainFrame = LootCouncilAceGUI:Create("Window")
@@ -115,8 +114,6 @@ local function CreateScrollFrame(index)
     ScrollContainer:SetPoint("CENTER")
     ScrollContainer:Hide()
     ScrollContainer:SetMovable(false)
-    ScrollContainer:SetScript("OnMouseDown",ScrollContainer.StartMoving)
-    ScrollContainer:SetScript("OnMouseUp",ScrollContainer.StopMovingOrSizing)
     ScrollContainer:SetBackdropColor(0, 0, 0, 1)
 
     ScrollContainer.scrollFrame:SetPoint("TOPLEFT",12,-32)
