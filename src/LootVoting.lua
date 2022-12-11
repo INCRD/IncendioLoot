@@ -148,10 +148,17 @@ local function HandleLootLootedEvent(prefix, str, distribution, sender)
     HandleLooted()
 end
 
+local function SetSessionInactive()
+    SessionActive = false
+    FrameOpen = false
+end
+
 function LootVoting:OnEnable()
     LibStub("AceComm-3.0"):Embed(LootVoting)
     LootVoting:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
                             HandleLootLootedEvent)
+    LootVoting:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
+                            SetSessionInactive)
     LootVoting:RegisterChatCommand("ILShow", function ()
         if not SessionActive or FrameOpen then
             return
@@ -164,7 +171,8 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     if UnitIsGroupLeader("player") then
         return
     end
-    for _, rollID in ipairs(GetActiveLootRollIDs()) do
-        RollOnLoot(rollID)
+    local pendingLootRolls = GetActiveLootRollIDs()
+    for i=1, #pendingLootRolls do
+        RollOnLoot(pendingLootRolls[i], 0)
     end
 end )

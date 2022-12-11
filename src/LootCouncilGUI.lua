@@ -26,6 +26,14 @@ local function ResetMainFrameStatus()
     for k in pairs (VoteData) do 
         VoteData[k] = nil
     end
+
+    print("ClosedFrame")
+
+    if UnitIsGroupLeader("player") then
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
+        " ",
+        IsInRaid() and "RAID" or "PARTY")
+    end
 end
 
 local function CloseGUI(CloseButtonFrame, ItemFrame)
@@ -83,7 +91,7 @@ local function updateList(index)
                 button:SetSize(500,40)
                 button:SetPoint("TOPLEFT",0,-(LoopCounter-1)*20)
                 button:SetScript("OnClick", function ()
-                    SendChatMessage("Item "..PlayerInformation.itemLink.." wurde an "..PlayerInformation.name.." für " ..PlayerInformation.rollType.." vergeben.", "RAID")
+                    SendChatMessage("Item "..PlayerInformation.itemLink.." wurde an "..PlayerInformation.name.." vergeben.", "RAID")
                 end)
                 button.columns = {} -- creating columns for the row
                 for columnCounter=1,7 do
@@ -154,32 +162,34 @@ local function CreateItemFrame(ItemFrame)
 
         for Loot, Item in pairs(LootTable) do
             if type(Item) == "table" then
-                if (Item.LootQuality >= 3 ) then
+                if IsEquippableItem(Item.ItemLink) then
+                    if (Item.LootQuality >= 3 ) then
 
-                    local IconWidget1 = LootCouncilAceGUI:Create("Icon")
-                    IconWidget1:SetLabel(Item.ItemName)
-                    IconWidget1:SetImageSize(40,40)
-                    IconWidget1:SetImage(Item.TexturePath)
-                    --IconWidget1:SetLabel(ItemName)
-                    ItemFrame:AddChild(IconWidget1)
+                        local IconWidget1 = LootCouncilAceGUI:Create("Icon")
+                        IconWidget1:SetLabel(Item.ItemName)
+                        IconWidget1:SetImageSize(40,40)
+                        IconWidget1:SetImage(Item.TexturePath)
+                        --IconWidget1:SetLabel(ItemName)
+                        ItemFrame:AddChild(IconWidget1)
 
-                    IconWidget1:SetCallback("OnEnter", function()
-                        GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
-                        GameTooltip:ClearLines()
-                        GameTooltip:SetHyperlink(Item.ItemLink)
-                        GameTooltip:Show()
-                    end);
-                    IconWidget1:SetCallback("OnLeave", function()
-                        GameTooltip:Hide();
-                    end);
-                    IconWidget1:SetCallback("OnClick", function()
-                        CurrentIndex = Item.Index
-                        CreateScrollFrame(Item.Index)
-                    end);
-                    VoteData[Item.Index] = {}
-                    if IsFirst then
-                        IsFirst = false
-                        CurrentIndex = Item.Index
+                        IconWidget1:SetCallback("OnEnter", function()
+                            GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
+                            GameTooltip:ClearLines()
+                            GameTooltip:SetHyperlink(Item.ItemLink)
+                            GameTooltip:Show()
+                        end);
+                        IconWidget1:SetCallback("OnLeave", function()
+                            GameTooltip:Hide();
+                        end);
+                        IconWidget1:SetCallback("OnClick", function()
+                            CurrentIndex = Item.Index
+                            CreateScrollFrame(Item.Index)
+                        end);
+                        VoteData[Item.Index] = {}
+                        if IsFirst then
+                            IsFirst = false
+                            CurrentIndex = Item.Index
+                        end
                     end
                 end
             end
@@ -287,21 +297,21 @@ local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
 end
 
 local function CouncilAnnouncedHandler(prefix, str, distribution, sender)
+    local _, NewLootTable = LootCouncilGUI:Deserialize(str)
+    local PlayerName = UnitName("player")
+    local CanSee = UnitIsGroupLeader("player") or NewLootTable["ML1"] == PlayerName or 
+        NewLootTable["ML2"] == PlayerName or NewLootTable["ML3"] == PlayerName
+
+        print(PlayerName)
+    print(NewLootTable["ML2"])
     if UnitIsGroupLeader("player") then 
         return
     end
 
-    local _, NewLootTable = LootCouncilGUI:Deserialize(str)
-    local PlayerName = UnitName("player")
-    if not (Player == LootTable.ML1) then
-        if not (Player == LootTable.ML2) then
-            if not (Player == LootTable.ML3) then
-                return
-            end     
-        end
+    if CanSee and not MainFrameInit then 
+        LootTable = NewLootTable
+        HandleLootLootedEvent()
     end
-    LootTable = NewLootTable
-    HandleLootLootedEvent()
 end
 
 LootCouncilGUI:RegisterEvent("LOOT_OPENED", function ()

@@ -17,7 +17,7 @@ function IncendioLootOptions:OnEnable()
                         desc = "Aktiviert / Deaktiviert IncendioLoot",
                         type = "toggle",
                         set = function (info, value)
-                            IncendioLoot.ILOptions.profile.options.general.active = true
+                            IncendioLoot.ILOptions.profile.options.general.active = value
                         end,
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.general.active

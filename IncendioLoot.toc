@@ -1,7 +1,7 @@
 ## Interface: 10002
 ## Titel: Incendio Loot
 ## Notes: Lootaddon for Incendio Guild
-## Version: 0.2
+## Version: 0.3
 ## SavedVariables: IncendioLootHistoryDB, IncendioLootOptionsDB
 
 embeds.xml
