@@ -3,9 +3,11 @@
 ## Notes: Lootaddon for Incendio Guild
 ## Version: 0.3
 ## SavedVariables: IncendioLootHistoryDB, IncendioLootOptionsDB
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, lib-st
 
 embeds.xml
 src/IncendioLoot.lua
+src/DataHandler.lua
 src/LootCouncil.lua
 src/LootVoting.lua 
 src/LootCouncilGUI.lua

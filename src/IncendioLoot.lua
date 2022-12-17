@@ -6,6 +6,7 @@ IncendioLoot.Version = tostring(GetAddOnMetadata(addonName, 'Version'))
 IncendioLoot.ReceivedOutOfDateMessage = false
 IncendioLoot.AddonActive = false
 IncendioLoot.IsMasterLooter = false
+IncendioLootFunctions = {}
 
 local AceConsole = LibStub("AceConsole-3.0")
 
@@ -23,7 +24,8 @@ IncendioLoot.EVENTS = {
     EVENT_LOOT_DISTRIBUTED = "IL.LDist", -- whenever the council distributes an item
     EVENT_LOOT_VOTE_PLAYER = "IL.LVotedPlayer", -- whenever a player sets a vote on an item
     EVENT_LOOT_ANNOUNCE_COUNCIL = "IL.Council", -- announces the council as raidlead
-    EVENT_SET_VOTING_INACTIVE = "IL.VoteInA" -- announces the council as raidlead
+    EVENT_SET_VOTING_INACTIVE = "IL.VoteInA", -- announces the council as raidlead
+    EVENT_LOOT_LOOTDATA_BUILDED = "IL.LootBuild" -- Lootdata has been builded and structured
 }
 
 local function HandleVersionCheckEvent(prefix, str, distribution, sender)

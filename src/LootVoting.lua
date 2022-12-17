@@ -4,10 +4,8 @@ local Equippable
 local LootTable = {}
 local SessionActive 
 local FrameOpen
-
 local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEvent-3.0", "AceSerializer-3.0")
 local LootVotingGUI = LibStub("AceGUI-3.0")
-local DebugMode = false
 local ChildCount = 0
 local rollStates = {
     {type = "BIS", name = "BIS"},
@@ -16,6 +14,8 @@ local rollStates = {
     {type = "OTHER", name = "Anderes"},
     {type = "TRANSMOG", name = "Transmog"},
 }
+local MainFrameClose
+local ButtonFrameCLose
 
 local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame, Index, CloseButtonFrame)
     local button = LootVotingGUI:Create("Button")
@@ -39,9 +39,9 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFr
     return button
 end
 
-local function CloseGUI(CloseButtonFrame, LootVotingMainFrame)
-    LootVotingGUI:Release(LootVotingMainFrame)
-    CloseButtonFrame:Release()
+local function CloseGUI()
+    LootVotingGUI:Release(MainFrameClose)
+    LootVotingGUI:Release(ButtonFrameCLose)
     FrameOpen = false
 end
 
@@ -49,30 +49,32 @@ local function HandleLooted()
     if not UnitInRaid("player") and not DebugMode then 
         return
     end
-    if LootTable == nil then
+    if (LootTable == nil) or FrameOpen then
         print("Nöl")
         return
     end
 
     local LootVotingMainFrame = LootVotingGUI:Create("Window")
-
     LootVotingMainFrame:SetTitle("Incendio Loot - Wähl den Loot aus, mann")
     LootVotingMainFrame:EnableResize(false)
+    MainFrameClose = LootVotingMainFrame
 
     local CloseButtonFrame = LootVotingGUI:Create("InlineGroup")
     CloseButtonFrame:SetTitle("")
     CloseButtonFrame:SetLayout("Fill")
+    ButtonFrameCLose = CloseButtonFrame
 
     local CloseButton = LootVotingGUI:Create("Button")
     CloseButton:SetText("Close")
     CloseButton:SetCallback("OnClick", function ()
-        CloseGUI(CloseButtonFrame, LootVotingMainFrame)
+        CloseGUI()
     end)
     CloseButtonFrame:AddChild(CloseButton)
     CloseButtonFrame.frame:SetPoint("BOTTOMRIGHT",LootVotingMainFrame.frame,"BOTTOMRIGHT",0,-45)
     CloseButtonFrame.frame:SetWidth(150)
     CloseButtonFrame.frame:SetHeight(60)
     CloseButtonFrame.frame:Show()
+
 
     for key, Item in pairs(LootTable) do
         if type(Item) == "table" then
@@ -104,7 +106,6 @@ local function HandleLooted()
                     GameTooltip:SetHyperlink(ItemLink)
                     GameTooltip:Show()
                 end)
-
                 IconWidget1:SetCallback("OnLeave", function()
                     GameTooltip:Hide();
                 end)
@@ -119,6 +120,7 @@ local function HandleLooted()
     end
     LootVotingMainFrame:SetLayout("ILVooting")
     SessionActive = true
+    LootVotingMainFrame.frame:Show()
     FrameOpen = true
 end
 
@@ -171,8 +173,15 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     if UnitIsGroupLeader("player") then
         return
     end
+
+    if not IncendioLoot.ILOptions.profile.options.general.autopass then 
+        return
+    end
+
     local pendingLootRolls = GetActiveLootRollIDs()
     for i=1, #pendingLootRolls do
-        RollOnLoot(pendingLootRolls[i], 0)
+        if not (pendingLootRolls == nil) then
+            RollOnLoot(pendingLootRolls[i], 0)
+        end
     end
 end )

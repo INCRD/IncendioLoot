@@ -28,7 +28,7 @@ function IncendioLootOptions:OnEnable()
                         desc = "Aktiviert / Deaktiviert den Debug Modus",
                         type = "toggle",
                         set = function (info, value)
-                            IncendioLoot.ILOptions.profile.options.general.debug = true
+                            IncendioLoot.ILOptions.profile.options.general.debug = value
                         end,
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.general.debug
@@ -39,7 +39,7 @@ function IncendioLootOptions:OnEnable()
                         desc = "Aktiviert / Deaktiviert automatisches passen",
                         type = "toggle",
                         set = function (info, value)
-                            IncendioLoot.ILOptions.profile.options.general.autopass = true
+                            IncendioLoot.ILOptions.profile.options.general.autopass = value
                         end,
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.general.autopass
