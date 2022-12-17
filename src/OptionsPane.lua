@@ -33,6 +33,17 @@ function IncendioLootOptions:OnEnable()
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.general.debug
                         end
+                    },
+                    autopass = {
+                        name = "Autopass",
+                        desc = "Aktiviert / Deaktiviert automatisches passen",
+                        type = "toggle",
+                        set = function (info, value)
+                            IncendioLoot.ILOptions.profile.options.general.autopass = true
+                        end,
+                        get = function (info)
+                            return IncendioLoot.ILOptions.profile.options.general.autopass
+                        end
                     }
                 }
             },

@@ -60,7 +60,8 @@ function IncendioLoot:OnInitialize()
             options = {
                 general = {
                     active = false,
-                    debug = false
+                    debug = false,
+                    autopass = false
                 },
                 masterlooters = {
                     ml1 = "",
