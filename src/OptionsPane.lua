@@ -57,6 +57,7 @@ function IncendioLootOptions:OnEnable()
                         multiline = false,
                         set = function (info, value)
                             IncendioLoot.ILOptions.profile.options.masterlooters.ml1 = value
+                            IncendioLootDataHandler.BuildAndSetMLTable()
                         end,
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.masterlooters.ml1
@@ -68,6 +69,7 @@ function IncendioLootOptions:OnEnable()
                         multiline = false,
                         set = function (info, value)
                             IncendioLoot.ILOptions.profile.options.masterlooters.ml2 = value
+                            IncendioLootDataHandler.BuildAndSetMLTable()
                         end,
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.masterlooters.ml2
@@ -79,6 +81,7 @@ function IncendioLootOptions:OnEnable()
                         multiline = false,
                         set = function (info, value)
                             IncendioLoot.ILOptions.profile.options.masterlooters.ml3 = value
+                            IncendioLootDataHandler.BuildAndSetMLTable()
                         end,
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.masterlooters.ml3

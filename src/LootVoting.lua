@@ -50,7 +50,6 @@ local function HandleLooted()
         return
     end
     if (LootTable == nil) or FrameOpen then
-        print("Nöl")
         return
     end
 
@@ -170,11 +169,11 @@ function LootVoting:OnEnable()
 end
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
-    if UnitIsGroupLeader("player") then
-        return
-    end
-
-    if not IncendioLoot.ILOptions.profile.options.general.autopass then 
+    local DoAutopass = IncendioLoot.ILOptions.profile.options.general.autopass or
+        not UnitIsGroupLeader("player") or 
+        IncendioLootDataHandler.GetAddonActive()
+    
+    if not DoAutopass then
         return
     end
 
