@@ -108,6 +108,27 @@ function IncendioLootLootCouncil.AnnounceMLs()
     end
 end
 
+local function BuildScrollData(VoteData)
+    local rows = {}
+    local i = 1
+    PlayerTable = VoteData[1]
+    for index, PlayerInformation in pairs(PlayerTable) do
+        local cols = {
+            { ["value"] = PlayerInformation.name },
+            { ["value"] = PlayerInformation.class },
+            { ["value"] = PlayerInformation.zone },
+            { ["value"] = tostring(PlayerInformation.online) },
+            { ["value"] = tostring(PlayerInformation.rollType) },
+            { ["value"] = tostring(PlayerInformation.iLvl) },
+            { ["value"] = tostring(PlayerInformation.roll) }
+        }
+        rows[i] = { ["cols"] = cols }
+        i = i + 1
+    end
+    IncendioLootDataHandler.SetScrollRows(rows)
+    print(LootCouncil:Serialize(rows))
+end
+
 local function ReceiveLootDataAndStartGUI(prefix, str, distribution, sender)
     if (not CheckIfSenderIsPlayer(sender) and not IncendioLoot.ILOptions.profile.options.general.debug) then 
         local _, Payload = LootCouncil:Deserialize(str)
@@ -115,6 +136,7 @@ local function ReceiveLootDataAndStartGUI(prefix, str, distribution, sender)
         IncendioLootDataHandler.SetVoteData(Payload.VoteData)
         IncendioLootDataHandler.SetSessionActiveInactive(Payload.SessionActive)
     end
+    BuildScrollData(IncendioLootDataHandler.GetVoteData())
     IncendioLootLootCouncilGUI.HandleLootLootedEvent()
 end
 

@@ -8,10 +8,19 @@ local ExternalMasterLooters = {}
 local SessionActive
 local AddonActive
 local ScrollCols 
+local ScrollRows
 IncendioLootDataHandler = {}
 
 function IncendioLootDataHandler.InitScrollFrameCols(NewScrollCols)
     ScrollCols = NewScrollCols
+end
+
+function IncendioLootDataHandler.SetScrollRows(NewScrollRows)
+    ScrollRows = NewScrollRows
+end
+
+function IncendioLootDataHandler.GetScrollRows()
+    return(ScrollRows)
 end
 
 function IncendioLootDataHandler.GetScrollFrameColls()
@@ -85,4 +94,5 @@ end
 function IncendioLootDataHandler.WipeData()
         LootTable = {}
         VoteData = {}
+        ScrollRows = {}
 end

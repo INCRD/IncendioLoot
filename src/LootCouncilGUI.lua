@@ -133,6 +133,7 @@ function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
 
         CreateItemFrame(ItemFrame)
         local TestTable2 = ScrollingTableTest:CreateST(IncendioLootDataHandler.GetScrollFrameColls(), _, 30, _, LootCouncilMainFrame.frame)
+        TestTable2:SetData(IncendioLootDataHandler.GetScrollRows())
         PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame, TestTable2)
         
 
