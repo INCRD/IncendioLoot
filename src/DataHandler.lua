@@ -96,3 +96,7 @@ function IncendioLootDataHandler.WipeData()
         VoteData = {}
         ScrollRows = {}
 end
+
+function IncendioLootDataHandler.WipeScrollData()
+    ScrollRows = {}    
+end

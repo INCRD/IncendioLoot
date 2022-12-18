@@ -26,9 +26,16 @@ IncendioLoot.EVENTS = {
 }
 
 function IncendioLootFunctions.CheckIfMasterLooter()
-    local Masterlooters = IncendioLootDataHandler.GetMasterLooter()
-    if (Masterlooters == nil) then 
-        return
+    if UnitIsGroupLeader("player") then 
+        return(true)
+    end
+    local MasterLooter = IncendioLootDataHandler.GetExternalMasterLooter()
+    
+    for i, MasterLooter in pairs(MasterLooter) do
+        if (UnitName("player") == MasterLooter) then
+            return(true)
+        end
+        
     end
 end
 
@@ -103,10 +110,19 @@ local function BuildBasicData()
     return(ScrollCols)
 end
 
+local function SetSessionInactive()
+    IncendioLootDataHandler.SetSessionActiveInactive(false)
+    IncendioLootLootVoting.CloseGUI()
+    IncendioLootLootCouncilGUI.CloseGUI()
+    IncendioLootDataHandler.WipeData()
+    print("The Session has been closed")
+end
 
 function IncendioLoot:OnEnable()
     IncendioLootDataHandler.BuildAndSetMLTable()
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
+    IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
+    SetSessionInactive)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
     IncendioLootDataHandler.InitScrollFrameCols(BuildBasicData())
 end

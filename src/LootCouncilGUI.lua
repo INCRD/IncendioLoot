@@ -3,34 +3,37 @@ local IncendioLoot = _G[addonName]
 local LootCouncilGUI = IncendioLoot:NewModule("LootCouncilGUI", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local LootCouncilAceGUI = LibStub("AceGUI-3.0")
 local MainFrameInit = false;
-local VoteData = {}
 local CurrentIndex
 local MainFrameClose
 local ItemFrameClose
 local ButtonFrameCLose
+local ScrollingFrame 
+
 IncendioLootLootCouncilGUI = {}
 
 local function ResetMainFrameStatus()
     MainFrameInit = false;
-    if UnitIsGroupLeader("player") then
-        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
-        " ",
-        IsInRaid() and "RAID" or "PARTY")
+end
+
+function IncendioLootLootCouncilGUI.CloseGUI()
+    if (MainFrameClose == nil) then
+        return
+    end
+    if MainFrameClose:IsShown() then
+        LootCouncilAceGUI:Release(ButtonFrameCLose)
+        LootCouncilAceGUI:Release(ItemFrameClose)
+        LootCouncilAceGUI:Release(MainFrameClose)
+        ResetMainFrameStatus()
     end
 end
 
-local function CloseGUI()
-    LootCouncilAceGUI:Release(ButtonFrameCLose)
-    LootCouncilAceGUI:Release(ItemFrameClose)
-    LootCouncilAceGUI:Release(MainFrameClose)
-end
-
-StaticPopupDialogs["ENDSESSION"] = {
+StaticPopupDialogs["IL_ENDSESSION"] = {
     text = "Möchten Sie die Sitzung beenden?",
     button1 = "Yes",
     button2 = "No",
     OnAccept = function()
-        CloseGUI()
+        IncendioLootLootCouncilGUI.CloseGUI()
+        IncendioLootLootCouncil.SetSessionInactive()
     end,
     timeout = 0,
     whileDead = true,
@@ -38,17 +41,32 @@ StaticPopupDialogs["ENDSESSION"] = {
 }
 
 local function UpdateVoteData(Index, PlayerName, RollType, Ilvl)
-    local PlayerTable = VoteData[Index]
+    local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
     local PlayerInformation = PlayerTable[PlayerName]
     PlayerInformation.rollType = tostring(RollType)
     PlayerInformation.iLvl = Ilvl
 end
 
 local function CreateScrollFrame(index)
-   
+    local hightlight = { 
+        ["r"] = 1.0, 
+        ["g"] = 0.9, 
+        ["b"] = 0.0, 
+        ["a"] = 0.5, -- important, you want to see your text!
+    }
+    IncendioLootLootCouncil.BuildScrollData(IncendioLootDataHandler.GetVoteData(), index)
+    if (not ScrollingFrame == nil) then
+        ScrollingFrame.frame:Hide()
+        ScrollingFrame = {}
+    end
+    ScrollingFrame = LootCouncilGUIST:CreateST(IncendioLootDataHandler.GetScrollFrameColls(), _, 30, hightlight, MainFrameClose.frame)
+    ScrollingFrame.frame:SetPoint("CENTER", MainFrameClose.frame, "CENTER", -150, -40)
+    ScrollingFrame:SetData(IncendioLootDataHandler.GetScrollRows())
+    print("done")
 end
 
 local function CreateItemFrame(ItemFrame)
+    local isFirst = true
     local LootTable = IncendioLootDataHandler.GetLootTable()
     for Loot, Item in pairs(LootTable) do
         if type(Item) == "table" then
@@ -72,27 +90,23 @@ local function CreateItemFrame(ItemFrame)
                         GameTooltip:Hide();
                     end);
                     IconWidget1:SetCallback("OnClick", function()
-                        --TODO
+                        CreateScrollFrame(Item.Index)
                     end);
+                    if isFirst then
+                        CreateScrollFrame(Item.Index)
+                        isFirst = false
+                    end
                 end
             end
         end
     end
-    if UnitIsGroupLeader("player") then
-        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_ANNOUNCE_COUNCIL,
-        LootCouncilGUI:Serialize(IncendioLootDataHandler.GetLootTable()),
-        IsInRaid() and "RAID" or "PARTY")
-    end
-    --CreateScrollFrame(CurrentIndex)
 end
 
-local function PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame, TestTable2)
+local function PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame, ScrollingFrame)
     ItemFrame.frame:SetPoint("TOPLEFT",LootCouncilMainFrame.frame,"TOPLEFT",-150,10)
     ItemFrame.frame:SetWidth(150)
     ItemFrame.frame:SetHeight(LootCouncilMainFrame.frame:GetHeight()- 50)
     ItemFrame.frame:Show()
-
-    TestTable2.frame:SetPoint("CENTER", LootCouncilMainFrame.frame, "CENTER", -150, -40)
 
     CloseButtonFrame.frame:SetPoint("BOTTOMRIGHT",LootCouncilMainFrame.frame,"BOTTOMRIGHT",0,-45)
     CloseButtonFrame.frame:SetWidth(150)
@@ -101,6 +115,7 @@ local function PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame,
 end
 
 function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
+    ScrollingFrame = nil
     if not (IncendioLootDataHandler.GetSessionActive()) then
         print("No Active Session")
         return
@@ -126,16 +141,13 @@ function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
         local CloseButton = LootCouncilAceGUI:Create("Button")
         CloseButton:SetText("Close")
         CloseButton:SetCallback("OnClick", function ()
-            CloseGUI()
+            StaticPopup_Show ("IL_ENDSESSION")
         end)
 
         CloseButtonFrame:AddChild(CloseButton)
 
         CreateItemFrame(ItemFrame)
-        local TestTable2 = ScrollingTableTest:CreateST(IncendioLootDataHandler.GetScrollFrameColls(), _, 30, _, LootCouncilMainFrame.frame)
-        TestTable2:SetData(IncendioLootDataHandler.GetScrollRows())
-        PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame, TestTable2)
-        
+        PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame)
 
         LootCouncilMainFrame.frame:SetWidth(1000)
 
@@ -151,7 +163,11 @@ end
 local func
 
 local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
-    if not SessionActive then 
+    if not IncendioLootDataHandler.GetSessionActive() then 
+        return
+    end
+
+    if not IncendioLootFunctions.CheckIfMasterLooter() then
         return
     end
 
@@ -161,17 +177,15 @@ local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
     local NewIndex = LootVote.Index
     local ILvl = round(LootVote.iLvl)
 
-    UpdateVoteData(NewIndex,sender,NewRollType, ILvl)
-    --CreateScrollFrame(NewIndex)
+    --UpdateVoteData(NewIndex,sender,NewRollType, ILvl)
+    CreateScrollFrame(NewIndex)
 end
 
 function LootCouncilGUI:OnEnable()
     LibStub("AceComm-3.0"):Embed(LootCouncilGUI)
-    ScrollingTableTest = LibStub("ScrollingTable")
-
+    LootCouncilGUIST = LibStub("ScrollingTable")
     LootCouncilGUI:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER,
                             HandleLootVotePlayerEvent)
-
     LootCouncilGUI:RegisterChatCommand("ILOpen", function ()
         IncendioLootLootCouncilGUI.HandleLootLootedEvent()
     end)

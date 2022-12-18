@@ -24,14 +24,16 @@ local function BuildLootTable()
             local TexturePath, ItemName, _, _, LootQuality = GetLootSlotInfo(ItemIndex)
             if (LootQuality >= 3) then
                 local ItemLink = GetLootSlotLink(ItemIndex)
-                local Item = {}
-                Item["TexturePath"] = TexturePath
-                Item["ItemName"] = ItemName
-                Item["ItemLink"] = ItemLink
-                Item["Index"] = ItemIndex
-                Item["LootQuality"] = LootQuality
-                IncendioLootDataHandler.AddItemToLootTable(Item)
-                IncendioLootDataHandler.AddItemIndexToVoteData(Item.Index)
+                if IsEquippableItem(ItemLink) then
+                    local Item = {}
+                    Item["TexturePath"] = TexturePath
+                    Item["ItemName"] = ItemName
+                    Item["ItemLink"] = ItemLink
+                    Item["Index"] = ItemIndex
+                    Item["LootQuality"] = LootQuality
+                    IncendioLootDataHandler.AddItemToLootTable(Item)
+                    IncendioLootDataHandler.AddItemIndexToVoteData(Item.Index)
+                end
             end
         end
     end
@@ -83,7 +85,7 @@ local function BuildData()
 end
 
 local function ReceiveMLs(prefix, str, distribution, sender)
-    if ((CheckIfSenderIsPlayer(sender)) and not IncendioLoot.ILOptions.profile.options.general.debug ) then 
+    if ((CheckIfSenderIsPlayer(sender)) and not IncendioLoot.ILOptions.profile.options.general.debug) then 
         return
     end
 
@@ -108,10 +110,13 @@ function IncendioLootLootCouncil.AnnounceMLs()
     end
 end
 
-local function BuildScrollData(VoteData)
+function IncendioLootLootCouncil.BuildScrollData(VoteData, ItemIndex)
     local rows = {}
     local i = 1
-    PlayerTable = VoteData[1]
+    local PlayerTable
+    IncendioLootDataHandler.WipeScrollData()
+
+    PlayerTable = VoteData[ItemIndex]
     for index, PlayerInformation in pairs(PlayerTable) do
         local cols = {
             { ["value"] = PlayerInformation.name },
@@ -126,18 +131,27 @@ local function BuildScrollData(VoteData)
         i = i + 1
     end
     IncendioLootDataHandler.SetScrollRows(rows)
-    print(LootCouncil:Serialize(rows))
 end
 
 local function ReceiveLootDataAndStartGUI(prefix, str, distribution, sender)
-    if (not CheckIfSenderIsPlayer(sender) and not IncendioLoot.ILOptions.profile.options.general.debug) then 
+    local isDebugOrCM = IncendioLootFunctions.CheckIfMasterLooter() or IncendioLoot.ILOptions.profile.options.general.debug
+    if (not CheckIfSenderIsPlayer(sender) and isDebugOrCM) then 
         local _, Payload = LootCouncil:Deserialize(str)
         IncendioLootDataHandler.SetLootTable(Payload.LootTable)
-        IncendioLootDataHandler.SetVoteData(Payload.VoteData)
+        IncendioLootDataHandler.SetVoteData(Payload.VoteTable)
         IncendioLootDataHandler.SetSessionActiveInactive(Payload.SessionActive)
     end
-    BuildScrollData(IncendioLootDataHandler.GetVoteData())
-    IncendioLootLootCouncilGUI.HandleLootLootedEvent()
+    if isDebugOrCM then
+        IncendioLootLootCouncilGUI.HandleLootLootedEvent()
+    end
+end
+
+function IncendioLootLootCouncil.SetSessionInactive()
+    if UnitIsGroupLeader("player") then
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
+        " ",
+        IsInRaid() and "RAID" or "PARTY")
+    end
 end
 
 function LootCouncil:OnEnable()

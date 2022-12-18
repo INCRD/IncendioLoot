@@ -1,8 +1,6 @@
 local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local Equippable
-local LootTable = {}
-local SessionActive 
 local FrameOpen
 local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEvent-3.0", "AceSerializer-3.0")
 local LootVotingGUI = LibStub("AceGUI-3.0")
@@ -16,8 +14,9 @@ local rollStates = {
 }
 local MainFrameClose
 local ButtonFrameCLose
+IncendioLootLootVoting = {}
 
-local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame, Index, CloseButtonFrame)
+local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame, Index)
     local button = LootVotingGUI:Create("Button")
     button:SetText(rollState.name)
     button:SetCallback("OnClick", function() 
@@ -25,12 +24,7 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFr
         LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink, rollType = rollState.type, Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY") 
         ChildCount = ChildCount - 1
         if (ChildCount == 0) then 
-            LootVotingGUI:Release(LootVotingMainFrame)
-            CloseButtonFrame:Release()
-            for k in pairs (LootTable) do 
-                LootTable[k] = nil
-            end
-            SessionActive = false
+            IncendioLootLootVoting.CloseGUI()
         else
             ItemGroup.frame:Hide()
         end
@@ -39,22 +33,29 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFr
     return button
 end
 
-local function CloseGUI()
-    LootVotingGUI:Release(MainFrameClose)
-    LootVotingGUI:Release(ButtonFrameCLose)
-    FrameOpen = false
+function IncendioLootLootVoting.CloseGUI()
+    if (MainFrameClose == nil) then 
+        return
+    end
+    if MainFrameClose:IsShown() then
+        LootVotingGUI:Release(MainFrameClose)
+        LootVotingGUI:Release(ButtonFrameCLose)
+        FrameOpen = false
+    end
 end
 
 local function HandleLooted()
-    if not UnitInRaid("player") and not DebugMode then 
+    ChildCount = 0
+
+    if (not UnitInRaid("player") or not UnitInParty("player")) and not IncendioLoot.ILOptions.profile.options.general.debug then 
         return
     end
-    if (LootTable == nil) or FrameOpen then
+    if (not IncendioLootDataHandler.GetSessionActive()) or FrameOpen then
         return
     end
 
     local LootVotingMainFrame = LootVotingGUI:Create("Window")
-    LootVotingMainFrame:SetTitle("Incendio Loot - Wähl den Loot aus, mann")
+    LootVotingMainFrame:SetTitle("Incendio Loot - Wir brauchen Meersälze!")
     LootVotingMainFrame:EnableResize(false)
     MainFrameClose = LootVotingMainFrame
 
@@ -66,7 +67,7 @@ local function HandleLooted()
     local CloseButton = LootVotingGUI:Create("Button")
     CloseButton:SetText("Close")
     CloseButton:SetCallback("OnClick", function ()
-        CloseGUI()
+        IncendioLootLootVoting.CloseGUI()
     end)
     CloseButtonFrame:AddChild(CloseButton)
     CloseButtonFrame.frame:SetPoint("BOTTOMRIGHT",LootVotingMainFrame.frame,"BOTTOMRIGHT",0,-45)
@@ -75,50 +76,43 @@ local function HandleLooted()
     CloseButtonFrame.frame:Show()
 
 
-    for key, Item in pairs(LootTable) do
+    for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
         if type(Item) == "table" then
             local TexturePath = Item.TexturePath
             local ItemName = Item.ItemName
-            local locked
             local ItemLink = Item.ItemLink
             local Index = Item.Index
 
-            if IsEquippableItem(ItemLink) then 
+            local ItemGroup = LootVotingGUI:Create("InlineGroup")
+            ItemGroup:SetLayout("Flow") 
+            ItemGroup:SetFullWidth(true)
+            ItemGroup:SetHeight(70)
+            LootVotingMainFrame:AddChild(ItemGroup)
 
-                local ItemGroup = LootVotingGUI:Create("InlineGroup")
-                ItemGroup:SetLayout("Flow") 
-                ItemGroup:SetFullWidth(true)
-                ItemGroup:SetHeight(70)
-                LootVotingMainFrame:AddChild(ItemGroup)
+            local IconWidget1 = LootVotingGUI:Create("InteractiveLabel")
+            IconWidget1:SetWidth(100)
+            IconWidget1:SetHeight(40)
+            IconWidget1:SetImageSize(40,40)
+            IconWidget1:SetImage(TexturePath)
+            IconWidget1:SetText(ItemName)
+            ItemGroup:AddChild(IconWidget1)
 
-                local IconWidget1 = LootVotingGUI:Create("InteractiveLabel")
-                IconWidget1:SetWidth(100)
-                IconWidget1:SetHeight(40)
-                IconWidget1:SetImageSize(40,40)
-                IconWidget1:SetImage(TexturePath)
-                IconWidget1:SetText(ItemName)
-                ItemGroup:AddChild(IconWidget1)
-
-                IconWidget1:SetCallback("OnEnter", function()
-                    GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
-                    GameTooltip:ClearLines()
-                    GameTooltip:SetHyperlink(ItemLink)
-                    GameTooltip:Show()
-                end)
-                IconWidget1:SetCallback("OnLeave", function()
-                    GameTooltip:Hide();
-                end)
-                if not SessionActive then
-                    ChildCount = ChildCount + 1
-                end
-                for _, rollState in pairs(rollStates) do
-                    ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame, Index, CloseButtonFrame))
-                end
+            IconWidget1:SetCallback("OnEnter", function()
+                GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
+                GameTooltip:ClearLines()
+                GameTooltip:SetHyperlink(ItemLink)
+                GameTooltip:Show()
+            end)
+            IconWidget1:SetCallback("OnLeave", function()
+                GameTooltip:Hide();
+            end)
+            ChildCount = ChildCount + 1
+            for _, rollState in pairs(rollStates) do
+                ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame, Index, CloseButtonFrame))
             end
         end
     end
     LootVotingMainFrame:SetLayout("ILVooting")
-    SessionActive = true
     LootVotingMainFrame.frame:Show()
     FrameOpen = true
 end
@@ -140,28 +134,30 @@ LootVotingGUI:RegisterLayout("ILVooting",
 )
 
 local function HandleLootLootedEvent(prefix, str, distribution, sender)
-    if SessionActive then
-        return
+    local SetData = (not UnitIsGroupLeader("player") or 
+        not IncendioLootFunctions.CheckIfMasterLooter()) and
+        not IncendioLootDataHandler.GetSessionActive()
+
+    if SetData then
+        local _, LootTable = LootVoting:Deserialize(str)
+        IncendioLootDataHandler.WipeData()
+        IncendioLootDataHandler.SetLootTable(LootTable)
+        IncendioLootDataHandler.SetSessionActiveInactive(true)
+        if IncendioLoot.ILOptions.profile.options.general.debug then 
+            print("Data Set for Voting")
+        end
     end
     
-    local _, NewLootTable = LootVoting:Deserialize(str)
-    LootTable = NewLootTable
     HandleLooted()
-end
-
-local function SetSessionInactive()
-    SessionActive = false
-    FrameOpen = false
 end
 
 function LootVoting:OnEnable()
     LibStub("AceComm-3.0"):Embed(LootVoting)
     LootVoting:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
                             HandleLootLootedEvent)
-    LootVoting:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
-                            SetSessionInactive)
+
     LootVoting:RegisterChatCommand("ILShow", function ()
-        if not SessionActive or FrameOpen then
+        if not IncendioLootDataHandler.GetSessionActive() or FrameOpen then
             return
         end
         HandleLooted()
@@ -172,7 +168,6 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     local DoAutopass = IncendioLoot.ILOptions.profile.options.general.autopass or
         not UnitIsGroupLeader("player") or 
         IncendioLootDataHandler.GetAddonActive()
-    
     if not DoAutopass then
         return
     end
