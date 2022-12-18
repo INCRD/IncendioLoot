@@ -8,6 +8,7 @@ local MainFrameClose
 local ItemFrameClose
 local ButtonFrameCLose
 local ScrollingFrame 
+local ScrollingFrameSet
 
 IncendioLootLootCouncilGUI = {}
 
@@ -25,6 +26,10 @@ function IncendioLootLootCouncilGUI.CloseGUI()
         LootCouncilAceGUI:Release(MainFrameClose)
         ResetMainFrameStatus()
     end
+    if ScrollingFrameSet then
+        ScrollingFrame:Hide()
+        ScrollingFrameSet = false
+    end
 end
 
 StaticPopupDialogs["IL_ENDSESSION"] = {
@@ -40,7 +45,14 @@ StaticPopupDialogs["IL_ENDSESSION"] = {
     hideOnEscape = true,
 }
 
-local function CreateScrollFrame(index)
+function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
+    if not CurrentIndex == index then 
+        return
+    end
+    if ScrollingFrameSet then
+        ScrollingFrame:Hide()
+        ScrollingFrameSet = false
+    end
     local hightlight = { 
         ["r"] = 1.0, 
         ["g"] = 0.9, 
@@ -51,6 +63,8 @@ local function CreateScrollFrame(index)
     ScrollingFrame = LootCouncilGUIST:CreateST(IncendioLootDataHandler.GetScrollFrameColls(), _, 30, hightlight, MainFrameClose.frame)
     ScrollingFrame.frame:SetPoint("CENTER", MainFrameClose.frame, "CENTER", -150, -40)
     ScrollingFrame:SetData(IncendioLootDataHandler.GetScrollRows())
+    ScrollingFrameSet = true
+    CurrentIndex = index
 end
 
 local function CreateItemFrame(ItemFrame)
@@ -78,10 +92,11 @@ local function CreateItemFrame(ItemFrame)
                         GameTooltip:Hide();
                     end);
                     IconWidget1:SetCallback("OnClick", function()
-                        CreateScrollFrame(Item.Index)
+                        IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
                     end);
                     if isFirst then
-                        CreateScrollFrame(Item.Index)
+                        IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
+                        CurrentIndex = Item.Index
                         isFirst = false
                     end
                 end

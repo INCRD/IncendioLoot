@@ -166,9 +166,6 @@ local function round(n)
 end
 
 local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
-    if (sender == UnitName("player")) then
-        print("tschö")
-    end
     if not IncendioLootDataHandler.GetSessionActive() then 
         return
     end
@@ -182,8 +179,8 @@ local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
     local NewRollType = LootVote.rollType
     local NewIndex = LootVote.Index
     local ILvl = round(LootVote.iLvl)
-    --UpdateVoteData(NewIndex,sender,NewRollType, ILvl)
-    --CreateScrollFrame(NewIndex)
+    UpdateVoteData(NewIndex,sender,NewRollType, ILvl)
+    IncendioLootLootCouncilGUI.CreateScrollFrame(NewIndex)
 end
 
 function LootCouncil:OnEnable()

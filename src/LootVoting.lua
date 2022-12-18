@@ -20,7 +20,7 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, Index)
     local button = LootVotingGUI:Create("Button")
     button:SetText(rollState.name)
     button:SetCallback("OnClick", function() 
-        _, AverageItemLevel = GetAverageItemLevel()
+        local _, AverageItemLevel = GetAverageItemLevel()
         LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink, rollType = rollState.type, Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY") 
         ChildCount = ChildCount - 1
         if (ChildCount == 0) then 
@@ -165,9 +165,9 @@ function LootVoting:OnEnable()
 end
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
-    local DoAutopass = IncendioLoot.ILOptions.profile.options.general.autopass or
-        not UnitIsGroupLeader("player") or 
-        IncendioLootDataHandler.GetAddonActive()
+    local DoAutopass = (IncendioLoot.ILOptions.profile.options.general.autopass and
+        not UnitIsGroupLeader("player"))
+        
     if not DoAutopass then
         return
     end
