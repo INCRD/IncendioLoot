@@ -154,6 +154,38 @@ function IncendioLootLootCouncil.SetSessionInactive()
     end
 end
 
+local function UpdateVoteData(Index, PlayerName, RollType, Ilvl)
+    local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
+    local PlayerInformation = PlayerTable[PlayerName]
+    PlayerInformation.rollType = tostring(RollType)
+    PlayerInformation.iLvl = Ilvl
+end
+
+local function round(n)
+    return n % 1 >= 0.5 and math.ceil(n) or math.floor(n)
+end
+
+local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
+    if (sender == UnitName("player")) then
+        print("tschö")
+    end
+    if not IncendioLootDataHandler.GetSessionActive() then 
+        return
+    end
+
+    if not IncendioLootFunctions.CheckIfMasterLooter() then
+        return
+    end
+
+    local _, LootVote = LootCouncil:Deserialize(str)
+    local NewItemLink = LootVote.ItemLink
+    local NewRollType = LootVote.rollType
+    local NewIndex = LootVote.Index
+    local ILvl = round(LootVote.iLvl)
+    --UpdateVoteData(NewIndex,sender,NewRollType, ILvl)
+    --CreateScrollFrame(NewIndex)
+end
+
 function LootCouncil:OnEnable()
     LootCouncil:RegisterEvent("GROUP_ROSTER_UPDATE", IncendioLootLootCouncil.AnnounceMLs)
     LootCouncil:RegisterEvent("LOOT_OPENED", BuildData)
@@ -161,4 +193,6 @@ function LootCouncil:OnEnable()
                             ReceiveMLs)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED,
                             ReceiveLootDataAndStartGUI)
+    LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER,
+                            HandleLootVotePlayerEvent)
 end

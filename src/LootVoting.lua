@@ -12,11 +12,11 @@ local rollStates = {
     {type = "OTHER", name = "Anderes"},
     {type = "TRANSMOG", name = "Transmog"},
 }
-local MainFrameClose
-local ButtonFrameCLose
+local VotingMainFrameClose
+local VotingButtonFrameCLose
 IncendioLootLootVoting = {}
 
-local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame, Index)
+local function CreateRollButton(ItemGroup, rollState, ItemLink, Index)
     local button = LootVotingGUI:Create("Button")
     button:SetText(rollState.name)
     button:SetCallback("OnClick", function() 
@@ -34,12 +34,12 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFr
 end
 
 function IncendioLootLootVoting.CloseGUI()
-    if (MainFrameClose == nil) then 
+    if (VotingMainFrameClose == nil) then 
         return
     end
-    if MainFrameClose:IsShown() then
-        LootVotingGUI:Release(MainFrameClose)
-        LootVotingGUI:Release(ButtonFrameCLose)
+    if VotingMainFrameClose:IsShown() then
+        LootVotingGUI:Release(VotingMainFrameClose)
+        LootVotingGUI:Release(VotingButtonFrameCLose)
         FrameOpen = false
     end
 end
@@ -57,12 +57,12 @@ local function HandleLooted()
     local LootVotingMainFrame = LootVotingGUI:Create("Window")
     LootVotingMainFrame:SetTitle("Incendio Loot - Wir brauchen Meersälze!")
     LootVotingMainFrame:EnableResize(false)
-    MainFrameClose = LootVotingMainFrame
+    VotingMainFrameClose = LootVotingMainFrame
 
     local CloseButtonFrame = LootVotingGUI:Create("InlineGroup")
     CloseButtonFrame:SetTitle("")
     CloseButtonFrame:SetLayout("Fill")
-    ButtonFrameCLose = CloseButtonFrame
+    VotingButtonFrameCLose = CloseButtonFrame
 
     local CloseButton = LootVotingGUI:Create("Button")
     CloseButton:SetText("Close")
@@ -108,7 +108,7 @@ local function HandleLooted()
             end)
             ChildCount = ChildCount + 1
             for _, rollState in pairs(rollStates) do
-                ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, LootVotingMainFrame, Index, CloseButtonFrame))
+                ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, Index, CloseButtonFrame))
             end
         end
     end

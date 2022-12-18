@@ -22,7 +22,7 @@ IncendioLoot.EVENTS = {
     EVENT_LOOT_ANNOUNCE_COUNCIL = "IL.Council", -- announces the council as raidlead
     EVENT_SET_VOTING_INACTIVE = "IL.VoteInA", -- announces the council as raidlead
     EVENT_LOOT_LOOTDATA_BUILDED = "IL.LootBuild", -- Lootdata has been builded and structured
-    EVENT_LOOT_ANNOUNCE_MLS = "IL.AnnounceMLs", -- Announces Masterlooters to all addonusers
+    EVENT_LOOT_ANNOUNCE_MLS = "IL.AnnounceMLs" -- Announces Masterlooters to all addonusers
 }
 
 function IncendioLootFunctions.CheckIfMasterLooter()
@@ -90,9 +90,7 @@ local function CreateScrollCol(ColName, Width)
         ["colorargs"] = nil,
         ["defaultsort"] = "dsc",
         ["sortnext"]= 4,
-        ["comparesort"] = function (cella, cellb, column)
-            return cella.value < cellb.value;
-        end,
+
         ["DoCellUpdate"] = nil,
     }
 end
