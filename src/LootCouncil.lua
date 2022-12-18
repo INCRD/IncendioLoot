@@ -46,7 +46,7 @@ local function BuildVoteData()
         PlayerTable = VoteData[index]
         for member = 1, GetNumGroupMembers(), 1 do 
             local name, _, _, _, class, _, zone , online = GetRaidRosterInfo(member)
-            PlayerInformation = {class = class, zone = zone, online = online, rollType = "Kein Vote", iLvl = " ", name = name, roll = math.random(1,100)}
+            PlayerInformation = {class = class, zone = zone, online = online, rollType = "Kein Vote", iLvl = " ", name = name, roll = math.random(1,100), vote = 0, autodecision = 0}
             PlayerTable[name] = PlayerInformation
         end
     end
@@ -54,9 +54,6 @@ local function BuildVoteData()
 end
 
 local function BuildLootAndVoteTable()
-    if not CheckIfViableLootAvailable() then
-        return
-    end
     BuildLootTable()
     BuildVoteData()
 
@@ -64,6 +61,9 @@ local function BuildLootAndVoteTable()
 end
 
 local function BuildData()
+    if not CheckIfViableLootAvailable() then
+        return
+    end
     if IncendioLootDataHandler.GetSessionActive() then 
         return
     end
@@ -125,7 +125,9 @@ function IncendioLootLootCouncil.BuildScrollData(VoteData, ItemIndex)
             { ["value"] = tostring(PlayerInformation.online) },
             { ["value"] = tostring(PlayerInformation.rollType) },
             { ["value"] = tostring(PlayerInformation.iLvl) },
-            { ["value"] = tostring(PlayerInformation.roll) }
+            { ["value"] = tostring(PlayerInformation.roll) },
+            { ["value"] = PlayerInformation.vote },
+            { ["value"] = PlayerInformation.autodecision }
         }
         rows[i] = { ["cols"] = cols }
         i = i + 1
@@ -159,6 +161,13 @@ local function UpdateVoteData(Index, PlayerName, RollType, Ilvl)
     local PlayerInformation = PlayerTable[PlayerName]
     PlayerInformation.rollType = tostring(RollType)
     PlayerInformation.iLvl = Ilvl
+end
+
+function IncendioLootLootCouncil.UpdateCouncilVoteData(Index, PlayerName)
+    local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
+    local PlayerInformation = PlayerTable[PlayerName]
+    PlayerInformation.vote = PlayerInformation.vote + 1
+    IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
 end
 
 local function round(n)

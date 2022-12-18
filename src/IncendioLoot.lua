@@ -90,7 +90,6 @@ local function CreateScrollCol(ColName, Width)
         ["colorargs"] = nil,
         ["defaultsort"] = "dsc",
         ["sortnext"]= 4,
-
         ["DoCellUpdate"] = nil,
     }
 end
@@ -104,6 +103,8 @@ local function BuildBasicData()
     table.insert(ScrollCols, CreateScrollCol("Answer", 80))
     table.insert(ScrollCols, CreateScrollCol("Itemlevel", 80))
     table.insert(ScrollCols, CreateScrollCol("Roll", 80))
+    table.insert(ScrollCols, CreateScrollCol("Votes", 80))
+    table.insert(ScrollCols, CreateScrollCol("Auto Decision", 80))
 
     return(ScrollCols)
 end

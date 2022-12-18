@@ -7,8 +7,10 @@ local CurrentIndex
 local MainFrameClose
 local ItemFrameClose
 local ButtonFrameCLose
+local CouncilButtonFrameClose
 local ScrollingFrame 
 local ScrollingFrameSet
+local SelectedPlayerName
 
 IncendioLootLootCouncilGUI = {}
 
@@ -23,13 +25,12 @@ function IncendioLootLootCouncilGUI.CloseGUI()
     if MainFrameClose:IsShown() then
         LootCouncilAceGUI:Release(ButtonFrameCLose)
         LootCouncilAceGUI:Release(ItemFrameClose)
+        LootCouncilAceGUI:Release(CouncilButtonFrameClose)
         LootCouncilAceGUI:Release(MainFrameClose)
         ResetMainFrameStatus()
     end
-    if ScrollingFrameSet then
-        ScrollingFrame:Hide()
-        ScrollingFrameSet = false
-    end
+
+    ScrollingFrameSet = false
 end
 
 StaticPopupDialogs["IL_ENDSESSION"] = {
@@ -45,10 +46,15 @@ StaticPopupDialogs["IL_ENDSESSION"] = {
     hideOnEscape = true,
 }
 
+local function GetSelection()
+    local Rows = ScrollingFrame:GetRow(ScrollingFrame:GetSelection())
+    local Cols = Rows["cols"]
+    local Cell = Cols[1]
+    local PlayerName = Cell["value"]
+    IncendioLootLootCouncil.UpdateCouncilVoteData(CurrentIndex, PlayerName)       
+end
+
 function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
-    if not CurrentIndex == index then 
-        return
-    end
     if ScrollingFrameSet then
         ScrollingFrame:Hide()
         ScrollingFrameSet = false
@@ -60,11 +66,19 @@ function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
         ["a"] = 0.5
     }
     IncendioLootLootCouncil.BuildScrollData(IncendioLootDataHandler.GetVoteData(), index)
-    ScrollingFrame = LootCouncilGUIST:CreateST(IncendioLootDataHandler.GetScrollFrameColls(), _, 30, hightlight, MainFrameClose.frame)
-    ScrollingFrame.frame:SetPoint("CENTER", MainFrameClose.frame, "CENTER", -150, -40)
+    ScrollingFrame = LootCouncilGUIST:CreateST(IncendioLootDataHandler.GetScrollFrameColls(), 13, 30, hightlight, MainFrameClose.frame)
+    ScrollingFrame:EnableSelection(ScrollingFrame, true)
+    ScrollingFrame.frame:SetPoint("CENTER", MainFrameClose.frame, "CENTER", -115, -40)
     ScrollingFrame:SetData(IncendioLootDataHandler.GetScrollRows())
     ScrollingFrameSet = true
     CurrentIndex = index
+
+    ScrollingFrame:RegisterEvents({
+        ["OnClick"] = function (rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, ...)
+            local celldata = data[realrow].cols[1]
+            SelectedPlayerName = celldata["value"]
+        end,
+    });
 end
 
 local function CreateItemFrame(ItemFrame)
@@ -148,6 +162,24 @@ function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
         end)
 
         CloseButtonFrame:AddChild(CloseButton)
+
+        local CouncilButtonFrame = LootCouncilAceGUI:Create("InlineGroup")
+        CouncilButtonFrame:SetTitle("")
+        CouncilButtonFrame:SetLayout("Flow")
+        CouncilButtonFrameClose = CouncilButtonFrame
+    
+        local AssignItemButton = LootCouncilAceGUI:Create("Button")
+        AssignItemButton:SetText("Vote")
+        AssignItemButton:SetCallback("OnClick", function ()
+            IncendioLootLootCouncil.UpdateCouncilVoteData(CurrentIndex, SelectedPlayerName)
+        end)
+        --CouncilButtonFrame:AddChild(VoteButton)
+        CouncilButtonFrame:AddChild(AssignItemButton)
+    
+        CouncilButtonFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",578,225)
+        CouncilButtonFrame.frame:SetWidth(150)
+        CouncilButtonFrame.frame:SetHeight(60)
+        CouncilButtonFrame.frame:Show()
 
         CreateItemFrame(ItemFrame)
         PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame)
