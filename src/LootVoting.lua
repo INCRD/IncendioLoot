@@ -10,7 +10,7 @@ local rollStates = {
     {type = "UPGRADE", name = "Upgrade"},
     {type = "SECOND", name = "Secondspeck"},
     {type = "OTHER", name = "Anderes"},
-    {type = "TRANSMOG", name = "Transmog"},
+    {type = "TRANSMOG", name = "Transmog"}
 }
 local VotingMainFrameClose
 local VotingButtonFrameCLose

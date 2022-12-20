@@ -9,7 +9,16 @@ local SessionActive
 local AddonActive
 local ScrollCols 
 local ScrollRows
+local OwnVoteData = {}
 IncendioLootDataHandler = {}
+
+function IncendioLootDataHandler.GetOwnVoteData()
+    return(OwnVoteData)
+end
+
+function IncendioLootDataHandler.SetOwnVoteData(NewOwnVoteData)
+    OwnVoteData = NewOwnVoteData
+end
 
 function IncendioLootDataHandler.InitScrollFrameCols(NewScrollCols)
     ScrollCols = NewScrollCols
@@ -95,6 +104,7 @@ function IncendioLootDataHandler.WipeData()
         LootTable = {}
         VoteData = {}
         ScrollRows = {}
+        OwnVoteData = {}
 end
 
 function IncendioLootDataHandler.WipeScrollData()

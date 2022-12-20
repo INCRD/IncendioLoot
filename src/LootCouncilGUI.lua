@@ -22,6 +22,10 @@ function IncendioLootLootCouncilGUI.CloseGUI()
     if (MainFrameClose == nil) then
         return
     end
+    if ScrollingFrameSet then
+        ScrollingFrame:Hide()
+        ScrollingFrameSet = false
+    end
     if MainFrameClose:IsShown() then
         LootCouncilAceGUI:Release(ButtonFrameCLose)
         LootCouncilAceGUI:Release(ItemFrameClose)
@@ -29,15 +33,13 @@ function IncendioLootLootCouncilGUI.CloseGUI()
         LootCouncilAceGUI:Release(MainFrameClose)
         ResetMainFrameStatus()
     end
-
-    ScrollingFrameSet = false
 end
 
 StaticPopupDialogs["IL_ENDSESSION"] = {
-    text = "Möchten Sie die Sitzung beenden?",
+    text = IncendioLoot.STATICS.END_SESSION,
     button1 = "Yes",
     button2 = "No",
-    OnAccept = function()
+    OnAccept = function(self)
         IncendioLootLootCouncilGUI.CloseGUI()
         IncendioLootLootCouncil.SetSessionInactive()
     end,
@@ -46,13 +48,17 @@ StaticPopupDialogs["IL_ENDSESSION"] = {
     hideOnEscape = true,
 }
 
-local function GetSelection()
-    local Rows = ScrollingFrame:GetRow(ScrollingFrame:GetSelection())
-    local Cols = Rows["cols"]
-    local Cell = Cols[1]
-    local PlayerName = Cell["value"]
-    IncendioLootLootCouncil.UpdateCouncilVoteData(CurrentIndex, PlayerName)       
-end
+StaticPopupDialogs["IL_ASSIGNITEM"] = {
+    text = IncendioLoot.STATICS.ASSIGN_ITEM,
+    button1 = "Yes",
+    button2 = "No",
+    OnAccept = function(self, data, data2)
+        IncendioLootLootCouncil.PrepareAndAddItemToHistory(data, data2)
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+}
 
 function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
     if ScrollingFrameSet then
@@ -75,6 +81,9 @@ function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
 
     ScrollingFrame:RegisterEvents({
         ["OnClick"] = function (rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, ...)
+            if realrow == nil then 
+                return
+            end
             local celldata = data[realrow].cols[1]
             SelectedPlayerName = celldata["value"]
         end,
@@ -93,7 +102,6 @@ local function CreateItemFrame(ItemFrame)
                     IconWidget1:SetLabel(Item.ItemName)
                     IconWidget1:SetImageSize(40,40)
                     IconWidget1:SetImage(Item.TexturePath)
-                    --IconWidget1:SetLabel(ItemName)
                     ItemFrame:AddChild(IconWidget1)
 
                     IconWidget1:SetCallback("OnEnter", function()
@@ -158,7 +166,7 @@ function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
         local CloseButton = LootCouncilAceGUI:Create("Button")
         CloseButton:SetText("Close")
         CloseButton:SetCallback("OnClick", function ()
-            StaticPopup_Show ("IL_ENDSESSION")
+            StaticPopup_Show("IL_ENDSESSION")
         end)
 
         CloseButtonFrame:AddChild(CloseButton)
@@ -168,12 +176,22 @@ function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
         CouncilButtonFrame:SetLayout("Flow")
         CouncilButtonFrameClose = CouncilButtonFrame
     
-        local AssignItemButton = LootCouncilAceGUI:Create("Button")
-        AssignItemButton:SetText("Vote")
-        AssignItemButton:SetCallback("OnClick", function ()
+        local VoteButton = LootCouncilAceGUI:Create("Button")
+        VoteButton:SetText("Vote")
+        VoteButton:SetCallback("OnClick", function ()
             IncendioLootLootCouncil.UpdateCouncilVoteData(CurrentIndex, SelectedPlayerName)
         end)
-        --CouncilButtonFrame:AddChild(VoteButton)
+
+        local AssignItemButton = LootCouncilAceGUI:Create("Button")
+        AssignItemButton:SetText("Assign")
+        AssignItemButton:SetCallback("OnClick", function ()
+            local ILAssignDialog = StaticPopup_Show("IL_ASSIGNITEM")
+            ILAssignDialog.data = CurrentIndex
+            ILAssignDialog.data2 = SelectedPlayerName
+        end)
+
+        
+        CouncilButtonFrame:AddChild(VoteButton)
         CouncilButtonFrame:AddChild(AssignItemButton)
     
         CouncilButtonFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",578,225)

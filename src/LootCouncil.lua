@@ -46,7 +46,7 @@ local function BuildVoteData()
         PlayerTable = VoteData[index]
         for member = 1, GetNumGroupMembers(), 1 do 
             local name, _, _, _, class, _, zone , online = GetRaidRosterInfo(member)
-            PlayerInformation = {class = class, zone = zone, online = online, rollType = "Kein Vote", iLvl = " ", name = name, roll = math.random(1,100), vote = 0, autodecision = 0}
+            PlayerInformation = {class = class, zone = zone, online = online, rollType = IncendioLoot.STATICS.NO_VOTE, iLvl = " ", name = name, roll = math.random(1,100), vote = 0, autodecision = 0}
             PlayerTable[name] = PlayerInformation
         end
     end
@@ -163,8 +163,75 @@ local function UpdateVoteData(Index, PlayerName, RollType, Ilvl)
     PlayerInformation.iLvl = Ilvl
 end
 
-function IncendioLootLootCouncil.UpdateCouncilVoteData(Index, PlayerName)
+local function UpdateExternalCMVote(prefix, str, distribution, sender)
+    local isDebugOrCM = IncendioLootFunctions.CheckIfMasterLooter() or IncendioLoot.ILOptions.profile.options.general.debug
+    if CheckIfSenderIsPlayer(sender) or not isDebugOrCM then
+        return
+    end
+    local _, CouncilVote = LootCouncil:Deserialize(str)
+    local Index = CouncilVote.Index
+    local OldPlayerName = CouncilVote.OldPlayerName
+    local NewPlayerName = CouncilVote.NewPlayerName
+
     local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
+    if (OldPlayerName ~= "none") then
+        print(OldPlayerName)
+        local PlayerInformation = PlayerTable[OldPlayerName]
+        PlayerInformation.vote = PlayerInformation.vote - 1
+    end
+    print(NewPlayerName)
+    local PlayerInformation = PlayerTable[NewPlayerName]
+    PlayerInformation.vote = PlayerInformation.vote + 1
+    IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
+end
+
+function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
+    local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
+    local LootTable = IncendioLootDataHandler.GetLootTable()
+    for i, value in pairs(LootTable) do
+        if (value["Index"] == Index) then 
+            local PlayerInformation = PlayerTable[PlayerName]
+            local InstanceName, _, DifficultyIndex, DifficultyName, _, _, _, InstanceMapeID, _ = GetInstanceInfo()
+            IncendioLootLootDatabase.AddItemToDatabase(PlayerName,InstanceMapeID,PlayerInformation.class, InstanceName, PlayerInformation.rollType, value["ItemLink"], PlayerInformation.vote, PlayerInformation.roll,DifficultyIndex,DifficultyName)
+        end
+    end
+end
+
+
+local function CheckAndBuildOwnVoted(Index, PlayerName, PlayerTable)
+    local OwnVoteData = IncendioLootDataHandler.GetOwnVoteData()
+        for LocIndex, value in pairs(OwnVoteData) do
+            if LocIndex == Index then 
+                if (PlayerName == value) then
+                    return(false)
+                else
+                    local PlayerInformation = PlayerTable[value]
+                    PlayerInformation.vote = PlayerInformation.vote - 1
+                    OwnVoteData[LocIndex] = PlayerName
+                    IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_COUNCIL, 
+                        LootCouncil:Serialize({Index = Index, OldPlayerName = value, NewPlayerName = PlayerName}), 
+                        IsInRaid() and "RAID" or "PARTY")
+                    return(true)
+                end
+            end
+        end
+    OwnVoteData[Index] = PlayerName
+    IncendioLootDataHandler.SetOwnVoteData(OwnVoteData)
+    IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_COUNCIL, 
+                        LootCouncil:Serialize({Index = Index, OldPlayerName = "none", NewPlayerName = PlayerName}), 
+                        IsInRaid() and "RAID" or "PARTY")
+    return(true)
+end
+
+function IncendioLootLootCouncil.UpdateCouncilVoteData(Index, PlayerName)
+    if (Index == nil or PlayerName == nil) then
+        return
+    end
+    local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
+    if not CheckAndBuildOwnVoted(Index,PlayerName,PlayerTable) then
+        return
+    end
+
     local PlayerInformation = PlayerTable[PlayerName]
     PlayerInformation.vote = PlayerInformation.vote + 1
     IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
@@ -201,4 +268,6 @@ function LootCouncil:OnEnable()
                             ReceiveLootDataAndStartGUI)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER,
                             HandleLootVotePlayerEvent)
+    LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_COUNCIL,
+                            UpdateExternalCMVote)
 end

@@ -22,7 +22,19 @@ IncendioLoot.EVENTS = {
     EVENT_LOOT_ANNOUNCE_COUNCIL = "IL.Council", -- announces the council as raidlead
     EVENT_SET_VOTING_INACTIVE = "IL.VoteInA", -- announces the council as raidlead
     EVENT_LOOT_LOOTDATA_BUILDED = "IL.LootBuild", -- Lootdata has been builded and structured
-    EVENT_LOOT_ANNOUNCE_MLS = "IL.AnnounceMLs" -- Announces Masterlooters to all addonusers
+    EVENT_LOOT_ANNOUNCE_MLS = "IL.AnnounceMLs", -- Announces Masterlooters to all addonusers
+    EVENT_LOOT_VOTE_COUNCIL = "IL.AnnounceVote" -- Announces the own vote to Council
+}
+
+--[[
+    Static Text Constants
+]] --
+
+IncendioLoot.STATICS = {
+    NO_VOTE = "Kein Vote",
+    ASSIGN_ITEM = "Möchten Sie das Item zuweisen",
+    END_SESSION = "Möchten Sie die Sitzung beenden?"
+
 }
 
 function IncendioLootFunctions.CheckIfMasterLooter()
@@ -77,12 +89,29 @@ function IncendioLoot:OnInitialize()
             }
         }
     }
+    local DefaultDBOptions = {
+        profile = {
+            history = {
+            }
+        }
+    }
     LibStub("AceComm-3.0"):Embed(IncendioLoot)
     self.ILOptions = LibStub("AceDB-3.0"):New("IncendioLootOptionsDB", DefaultOptions, true)
-    self.ILHistory = LibStub("AceDB-3.0"):New("IncendioLootHistoryDB")
+    self.ILHistory = LibStub("AceDB-3.0"):New("IncendioLootHistoryDB", DefaultDBOptions, true)
 end
 
-local function CreateScrollCol(ColName, Width)
+local function CreateScrollCol(ColName, Width, sort)
+    if sort then
+        return {
+            ["name"] = ColName,
+            ["width"] = Width,
+            ["align"] = "LEFT",
+            ["colorargs"] = nil,
+            ["defaultsort"] = "dsc",
+            ["sortnext"]= 4,
+            ["DoCellUpdate"] = nil,
+        }
+    end
     return {
         ["name"] = ColName,
         ["width"] = Width,
@@ -90,19 +119,22 @@ local function CreateScrollCol(ColName, Width)
         ["colorargs"] = nil,
         ["defaultsort"] = "dsc",
         ["sortnext"]= 4,
+        ["comparesort"] = function (cella, cellb, column)
+            --maybe build own search function?
+        end,
         ["DoCellUpdate"] = nil,
     }
 end
 
 local function BuildBasicData()
     local ScrollCols = {}
-    table.insert(ScrollCols, CreateScrollCol("Name", 80))
-    table.insert(ScrollCols, CreateScrollCol("Class", 80))
+    table.insert(ScrollCols, CreateScrollCol("Name", 80, true))
+    table.insert(ScrollCols, CreateScrollCol("Class", 80, true))
     table.insert(ScrollCols, CreateScrollCol("Zone", 80))
     table.insert(ScrollCols, CreateScrollCol("Online", 80))
     table.insert(ScrollCols, CreateScrollCol("Answer", 80))
     table.insert(ScrollCols, CreateScrollCol("Itemlevel", 80))
-    table.insert(ScrollCols, CreateScrollCol("Roll", 80))
+    table.insert(ScrollCols, CreateScrollCol("Roll", 80, true))
     table.insert(ScrollCols, CreateScrollCol("Votes", 80))
     table.insert(ScrollCols, CreateScrollCol("Auto Decision", 80))
 

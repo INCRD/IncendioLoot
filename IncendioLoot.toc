@@ -12,3 +12,4 @@ src/LootCouncil.lua
 src/LootVoting.lua 
 src/LootCouncilGUI.lua
 src/OptionsPane.lua
+src/LootDatabase.lua
