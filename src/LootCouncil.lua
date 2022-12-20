@@ -186,6 +186,10 @@ local function UpdateExternalCMVote(prefix, str, distribution, sender)
 end
 
 function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
+    if not UnitIsGroupLeader("player") then
+        print("Your are not allowed to do this!")
+        return
+    end
     local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
     local LootTable = IncendioLootDataHandler.GetLootTable()
     for i, value in pairs(LootTable) do
