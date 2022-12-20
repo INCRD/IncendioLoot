@@ -2,13 +2,12 @@ local addonName, addon = ...
 IncendioLoot = LibStub("AceAddon-3.0"):NewAddon("IncendioLoot",
                                                 "AceConsole-3.0", "AceEvent-3.0", "AceSerializer-3.0")
 _G[addonName] = IncendioLoot
-IncendioLoot.Version = tostring(GetAddOnMetadata(addonName, 'Version'))
-IncendioLoot.ReceivedOutOfDateMessage = false
+IncendioLoot.Version = GetAddOnMetadata(addonName, 'Version')
 IncendioLoot.AddonActive = false
 IncendioLootFunctions = {}
 
+local ReceivedOutOfDateMessage = false
 local AceConsole = LibStub("AceConsole-3.0")
-
 local tonumber = tonumber
 
 --[[
@@ -55,18 +54,16 @@ local function HandleVersionCheckEvent(prefix, str, distribution, sender)
     if (sender == UnitName("player")) then
         return 
     end
-    local ver, msg, InCombat = tonumber(IncendioLoot.Version), tonumber(str),
-                               InCombatLockdown()
-    if (msg and ver < msg and not IncendioLoot.ReceivedOutOfDateMessage) then
-        AceConsole:Print("version_out_of_date: "..msg)
-        IncendioLoot.ReceivedOutOfDateMessage = true
+    local ver, msg = tonumber(IncendioLoot.Version), tonumber(versionStr)
+    if (msg and ver < msg and not ReceivedOutOfDateMessage) then
+        AceConsole:Print("IncendioLoot out of date: Version "..versionStr.." is available.")
+        ReceivedOutOfDateMessage = true
     end
 end
 
 local function HandleGroupRosterUpdate()
     IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_CHECK,
-                                IncendioLoot.Version,
-                                IsInRaid() and "RAID" or "PARTY")
+                                IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
 end
 
 --[[
