@@ -97,7 +97,6 @@ local function CreateItemFrame(ItemFrame)
         if type(Item) == "table" then
             if IsEquippableItem(Item.ItemLink) then
                 if (Item.LootQuality >= 3 ) then
-
                     local IconWidget1 = LootCouncilAceGUI:Create("Icon")
                     IconWidget1:SetLabel(Item.ItemName)
                     IconWidget1:SetImageSize(40,40)
@@ -215,7 +214,5 @@ function LootCouncilGUI:OnInitialize()
 end
 
 function LootCouncilGUI:OnEnable()
-    LootCouncilGUI:RegisterChatCommand("ILOpen", function ()
-        IncendioLootLootCouncilGUI.HandleLootLootedEvent()
-    end)
+    LootCouncilGUI:RegisterChatCommand("ILOpen", IncendioLootLootCouncilGUI.HandleLootLootedEvent)
 end

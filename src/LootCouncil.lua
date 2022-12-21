@@ -4,7 +4,7 @@ local LootCouncil = IncendioLoot:NewModule("LootCouncil", "AceConsole-3.0", "Ace
 IncendioLootLootCouncil = {}
 
 local function CheckIfSenderIsPlayer(sender)
-    return((sender == UnitName("player")))
+    return sender == UnitName("player")
 end
 
 local function CheckIfViableLootAvailable()
@@ -16,6 +16,8 @@ local function CheckIfViableLootAvailable()
             end
         end
     end
+
+    return false
 end
 
 local function BuildLootTable()
@@ -61,12 +63,10 @@ local function BuildLootAndVoteTable()
 end
 
 local function BuildData()
-    if not CheckIfViableLootAvailable() then
+    if IncendioLootDataHandler.GetSessionActive() or not CheckIfViableLootAvailable() then
         return
     end
-    if IncendioLootDataHandler.GetSessionActive() then 
-        return
-    end
+
     if UnitIsGroupLeader("player") then
         IncendioLootDataHandler.WipeData()
         IncendioLootDataHandler.SetSessionActiveInactive(BuildLootAndVoteTable())
@@ -175,11 +175,9 @@ local function UpdateExternalCMVote(prefix, str, distribution, sender)
 
     local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
     if (OldPlayerName ~= "none") then
-        print(OldPlayerName)
         local PlayerInformation = PlayerTable[OldPlayerName]
         PlayerInformation.vote = PlayerInformation.vote - 1
     end
-    print(NewPlayerName)
     local PlayerInformation = PlayerTable[NewPlayerName]
     PlayerInformation.vote = PlayerInformation.vote + 1
     IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
@@ -242,15 +240,11 @@ function IncendioLootLootCouncil.UpdateCouncilVoteData(Index, PlayerName)
 end
 
 local function round(n)
-    return n % 1 >= 0.5 and math.ceil(n) or math.floor(n)
+    return math.floor(n+0.5)
 end
 
 local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
-    if not IncendioLootDataHandler.GetSessionActive() then 
-        return
-    end
-
-    if not IncendioLootFunctions.CheckIfMasterLooter() then
+    if not IncendioLootDataHandler.GetSessionActive() or not IncendioLootFunctions.CheckIfMasterLooter() then 
         return
     end
 

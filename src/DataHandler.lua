@@ -13,7 +13,7 @@ local OwnVoteData = {}
 IncendioLootDataHandler = {}
 
 function IncendioLootDataHandler.GetOwnVoteData()
-    return(OwnVoteData)
+    return OwnVoteData
 end
 
 function IncendioLootDataHandler.SetOwnVoteData(NewOwnVoteData)
@@ -29,11 +29,11 @@ function IncendioLootDataHandler.SetScrollRows(NewScrollRows)
 end
 
 function IncendioLootDataHandler.GetScrollRows()
-    return(ScrollRows)
+    return ScrollRows
 end
 
 function IncendioLootDataHandler.GetScrollFrameColls()
-    return(ScrollCols)
+    return ScrollCols
 end
 
 function IncendioLootDataHandler.SetSessionActiveInactive(ActiveInactive)
@@ -41,7 +41,7 @@ function IncendioLootDataHandler.SetSessionActiveInactive(ActiveInactive)
 end
 
 function IncendioLootDataHandler.GetSessionActive()
-    return(SessionActive)
+    return SessionActive
 end
 
 function IncendioLootDataHandler.SetLootTable(NewLootTable)
@@ -53,7 +53,7 @@ function IncendioLootDataHandler.AddItemToLootTable(Item)
 end
 
 function IncendioLootDataHandler.GetLootTable()
-    return(LootTable)
+    return LootTable
 end
 
 function IncendioLootDataHandler.SetVoteData(NewVoteData)
@@ -61,7 +61,7 @@ function IncendioLootDataHandler.SetVoteData(NewVoteData)
 end
 
 function IncendioLootDataHandler.GetVoteData()
-    return(VoteData)
+    return VoteData
 end
 
 function IncendioLootDataHandler.AddItemIndexToVoteData(Index)
@@ -73,7 +73,7 @@ function IncendioLootDataHandler.SetMasterLooter(NewMasterLooter)
 end
 
 function IncendioLootDataHandler.GetMasterLooter()
-    return(MasterLooter)
+    return MasterLooter
 end
 
 function IncendioLootDataHandler.SetAddonActive(NewAddonActive)
@@ -81,7 +81,7 @@ function IncendioLootDataHandler.SetAddonActive(NewAddonActive)
 end
 
 function IncendioLootDataHandler.GetAddonActive()
-    return(AddonActive)
+    return AddonActive
 end
 
 function IncendioLootDataHandler.BuildAndSetMLTable()
@@ -93,7 +93,7 @@ function IncendioLootDataHandler.BuildAndSetMLTable()
 end
 
 function IncendioLootDataHandler.GetExternalMasterLooter()
-    return(ExternalMasterLooters)
+    return ExternalMasterLooters
 end
 
 function IncendioLootDataHandler.SetExternalMLs(NewExternalMLs)
