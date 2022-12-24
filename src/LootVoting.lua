@@ -46,8 +46,10 @@ function IncendioLootLootVoting.CloseGUI()
 end
 
 local function AutoPass()
+    ViableLootAvailable = false;
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
         if type(Item) == "table" then
+            print("Pass auf? ".. Item.ItemName)
             local ItemName = Item.ItemName
             if IncendioLootDataHandler.GetViableLoot()[ItemName] == nil then
                 local ItemLink = Item.ItemLink
@@ -56,6 +58,7 @@ local function AutoPass()
                 LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink,  rollType = "Automatisch gepasst", Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY")
                 print("Automatisch gepasst auf ".. ItemLink)
             else
+                print("YO GEHT")
                 ViableLootAvailable = true
             end
         end
@@ -200,12 +203,13 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
 
     local DoAutopass = (IncendioLoot.ILOptions.profile.options.general.autopass and
         not UnitIsGroupLeader("player"))
-        
+
     local ViableLootRolls = {}
     local pendingLootRolls = GetActiveLootRollIDs()
     for i=1, #pendingLootRolls do
         if (pendingLootRolls ~= nil) then
             local _, ItemName, _, _, _, CanNeed = GetLootRollItemInfo(pendingLootRolls[i])
+            print(ItemName)
             if DoAutopass then
                 RollOnLoot(pendingLootRolls[i], 0)
             end
@@ -215,6 +219,6 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
         end
     end
     if not rawequal(next(ViableLootRolls), nil) then
-        IncendioLootDataHandler.SetViableLoot(ViableLootRolls)
+        print("Viable Loot There")
     end
 end )

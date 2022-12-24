@@ -65,6 +65,7 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
                     return
                 else
                     value["Assigend"] = true
+                    SendChatMessage("Das Item "..value["ItemLink"].." wurde an "..data2.." vergeben.", "RAID")
                 end
             end
         end

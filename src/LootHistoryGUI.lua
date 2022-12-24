@@ -1,9 +1,6 @@
 local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootHistoryGUI = IncendioLoot:NewModule("LootHistoryGUI", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
-local LootHistoryAceGUI = LibStub("AceGUI-3.0")
-local LlootScrollFrame, LfilterPlayer, LfilterDate, LfilterDifficulty
-local ScrollCols = {}
 local HistoryTable
 local HistoryOpen
 
@@ -84,7 +81,6 @@ local function CreateWindow()
     HistoryTable.frame:SetBackdropColor(0, 0, 0, 0)
     HistoryTable:SetData(rows)
 
-    -- Erstelle Textboxen für das Filtern der Loothistorie
     local dateFilterBox = CreateFrame("EditBox", "MyAddonDateFilterBox", myAddonFrame, "InputBoxTemplate")
     dateFilterBox:SetSize(100, 20)
     dateFilterBox:SetPoint("TOPLEFT", myAddonFrame, "TOPLEFT", 10, -50)
@@ -94,7 +90,6 @@ local function CreateWindow()
     dateFilterBoxTitle:SetText("Datum filtern:")
     dateFilterBox:SetScript("OnTextChanged", function(self)
         local filterText = dateFilterBox:GetText()
-        -- Filter die Loothistorie anhand des eingegebenen Texts
         HistoryTable:SetData(FilterLootHistory(filterText, "Date"))
       end)
 
@@ -107,7 +102,6 @@ local function CreateWindow()
     itemFilterBoxTitle:SetText("Gegenstand filtern:")
     itemFilterBox:SetScript("OnTextChanged", function(self)
         local filterText = self:GetText()
-        -- Filter die Loothistorie anhand des eingegebenen Texts
         HistoryTable:SetData(FilterLootHistory(filterText, "ItemLink"))
       end)
 
@@ -120,11 +114,9 @@ local function CreateWindow()
     playerFilterBoxTitle:SetText("Spieler filtern:")
     playerFilterBox:SetScript("OnTextChanged", function(self)
         local filterText = self:GetText()
-        -- Filter die Loothistorie anhand des eingegebenen Texts
         HistoryTable:SetData(FilterLootHistory(filterText, "PlayerName"))
       end)
 
-    -- Erstelle ein Text-Objekt für den Titel "Historie"
     local titleText = myAddonFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     titleText:SetPoint("TOP", myAddonFrame, "TOP", 0, -10)
     titleText:SetText("Historie")
@@ -140,14 +132,10 @@ local function CreateWindow()
 
     myAddonFrame:Show()
     HistoryTable:Show()
-    --lootHistoryTable:Show()
-    --lootHistoryTable:SetData(lootHistoryData)
 
     HistoryOpen = true
 end
 
-
--- Erstelle den Befehl, um das GUI zu öffnen
 SLASH_ILOPENHISTORY1 = "/ilopenhistory"
 SlashCmdList["ILOPENHISTORY"] = function()
     CreateWindow()
