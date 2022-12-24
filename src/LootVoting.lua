@@ -76,6 +76,7 @@ local function HandleLooted()
     end
 
     AutoPass()
+    print("der loot ist verfügbar? "..ViableLootAvailable)
     if not ViableLootAvailable then 
         return
     end
