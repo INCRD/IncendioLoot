@@ -43,6 +43,7 @@ function IncendioLootLootVoting.CloseGUI()
         LootVotingGUI:Release(VotingButtonFrameCLose)
         FrameOpen = false
     end
+    ChildCount = 0
 end
 
 local function AutoPass()
@@ -72,6 +73,8 @@ local function HandleLooted()
         return
     end
     if (not IncendioLootDataHandler.GetSessionActive()) or FrameOpen then
+        print("session active? "..IncendioLootDataHandler.GetSessionActive())
+        print("Frame Open? "..FrameOpen)
         return
     end
 
@@ -171,6 +174,8 @@ local function HandleLootLootedEvent(prefix, str, distribution, sender)
         not IncendioLootFunctions.CheckIfMasterLooter()) and
         not IncendioLootDataHandler.GetSessionActive()
 
+    print("Set Data ist ".. SetData)
+
     if SetData then
         local _, LootTable = LootVoting:Deserialize(str)
         IncendioLootDataHandler.WipeData()
@@ -221,5 +226,6 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     end
     if not rawequal(next(ViableLootRolls), nil) then
         print("Viable Loot There")
+        IncendioLootDataHandler.SetViableLoot(ViableLootRolls)
     end
 end )
