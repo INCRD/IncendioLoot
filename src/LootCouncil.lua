@@ -1,6 +1,7 @@
 local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootCouncil = IncendioLoot:NewModule("LootCouncil", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
+local WaitForCouncilMembercount
 IncendioLootLootCouncil = {}
 
 local function CheckIfSenderIsPlayer(sender)
@@ -26,16 +27,15 @@ local function BuildLootTable()
             local TexturePath, ItemName, _, _, LootQuality = GetLootSlotInfo(ItemIndex)
             if (LootQuality >= 3) then
                 local ItemLink = GetLootSlotLink(ItemIndex)
-                if IsEquippableItem(ItemLink) then
-                    local Item = {}
-                    Item["TexturePath"] = TexturePath
-                    Item["ItemName"] = ItemName
-                    Item["ItemLink"] = ItemLink
-                    Item["Index"] = ItemIndex
-                    Item["LootQuality"] = LootQuality
-                    IncendioLootDataHandler.AddItemToLootTable(Item)
-                    IncendioLootDataHandler.AddItemIndexToVoteData(Item.Index)
-                end
+                local Item = {}
+                Item["TexturePath"] = TexturePath
+                Item["ItemName"] = ItemName
+                Item["ItemLink"] = ItemLink
+                Item["Index"] = ItemIndex
+                Item["LootQuality"] = LootQuality
+                Item["Assigned"] = false
+                IncendioLootDataHandler.AddItemToLootTable(Item)
+                IncendioLootDataHandler.AddItemIndexToVoteData(Item.Index)
             end
         end
     end
@@ -63,11 +63,23 @@ local function BuildLootAndVoteTable()
 end
 
 local function BuildData()
+    if not IncendioLoot.ILOptions.profile.options.general.active then 
+        return
+    end
+
     if IncendioLootDataHandler.GetSessionActive() or not CheckIfViableLootAvailable() then
         return
     end
 
     if UnitIsGroupLeader("player") then
+        WaitForCouncilMembercount = 0
+        local numGroupMembers = GetNumGroupMembers()
+        for i = 1, numGroupMembers do
+            local name = GetUnitName("raid" .. i)
+            if (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml1) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml2) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml3) then
+                WaitForCouncilMembercount = WaitForCouncilMembercount + 1
+            end
+        end
         IncendioLootDataHandler.WipeData()
         IncendioLootDataHandler.SetSessionActiveInactive(BuildLootAndVoteTable())
         local Payload = {
@@ -78,9 +90,11 @@ local function BuildData()
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED, 
             LootCouncil:Serialize(Payload), 
             IsInRaid() and "RAID" or "PARTY")
-        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
+        if WaitForCouncilMembercount == 0 then
+            IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
             LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()),
             IsInRaid() and "RAID" or "PARTY")
+        end
     end
 end
 
@@ -99,6 +113,10 @@ local function ReceiveMLs(prefix, str, distribution, sender)
 end
 
 function IncendioLootLootCouncil.AnnounceMLs()
+    if not IncendioLoot.ILOptions.profile.options.general.active then 
+        return
+    end
+
     local MasterLooter = IncendioLootDataHandler.GetMasterLooter()
 
     if (MasterLooter == nil) then 
@@ -136,12 +154,19 @@ function IncendioLootLootCouncil.BuildScrollData(VoteData, ItemIndex)
 end
 
 local function ReceiveLootDataAndStartGUI(prefix, str, distribution, sender)
+    if not IncendioLoot.ILOptions.profile.options.general.active then 
+        return
+    end
+
     local isDebugOrCM = IncendioLootFunctions.CheckIfMasterLooter() or IncendioLoot.ILOptions.profile.options.general.debug
-    if (not CheckIfSenderIsPlayer(sender) and isDebugOrCM) then 
+    if (not CheckIfSenderIsPlayer(sender)) or isDebugOrCM then 
         local _, Payload = LootCouncil:Deserialize(str)
         IncendioLootDataHandler.SetLootTable(Payload.LootTable)
         IncendioLootDataHandler.SetVoteData(Payload.VoteTable)
         IncendioLootDataHandler.SetSessionActiveInactive(Payload.SessionActive)
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_DATA_RECEIVED,
+        " ",
+        IsInRaid() and "RAID" or "PARTY")
     end
     if isDebugOrCM then
         IncendioLootLootCouncilGUI.HandleLootLootedEvent()
@@ -161,6 +186,22 @@ local function UpdateVoteData(Index, PlayerName, RollType, Ilvl)
     local PlayerInformation = PlayerTable[PlayerName]
     PlayerInformation.rollType = tostring(RollType)
     PlayerInformation.iLvl = Ilvl
+end
+
+local function UpdateExternalAssignItem(prefix, str, distribution, sender)
+    local isDebugOrCM = IncendioLootFunctions.CheckIfMasterLooter() or IncendioLoot.ILOptions.profile.options.general.debug
+    if CheckIfSenderIsPlayer(sender) or not isDebugOrCM then
+        return
+    end
+
+    local _, CouncilAssign = LootCouncil:Deserialize(str)
+    local Index = CouncilAssign.Index
+    local NewPlayerName = CouncilAssign.NewPlayerName
+    local NewRollType = CouncilAssign.NewRollType
+    local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
+    local PlayerInformation = PlayerTable[NewPlayerName]
+    PlayerInformation.rollType = NewRollType
+    IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
 end
 
 local function UpdateExternalCMVote(prefix, str, distribution, sender)
@@ -185,7 +226,7 @@ end
 
 function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
     if not UnitIsGroupLeader("player") then
-        print("Your are not allowed to do this!")
+        print("Dies darf nur der Masterlooter tun!")
         return
     end
     local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
@@ -195,6 +236,11 @@ function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
             local PlayerInformation = PlayerTable[PlayerName]
             local InstanceName, _, DifficultyIndex, DifficultyName, _, _, _, InstanceMapeID, _ = GetInstanceInfo()
             IncendioLootLootDatabase.AddItemToDatabase(PlayerName,InstanceMapeID,PlayerInformation.class, InstanceName, PlayerInformation.rollType, value["ItemLink"], PlayerInformation.vote, PlayerInformation.roll,DifficultyIndex,DifficultyName)
+            PlayerInformation.rollType = "Zugewiesen"
+            IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_ASSIGN_ITEM_COUNCIL, 
+                        LootCouncil:Serialize({Index = Index, NewPlayerName = PlayerName, NewRollType = "Zugewiesen"}), 
+                        IsInRaid() and "RAID" or "PARTY")
+            IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
         end
     end
 end
@@ -225,7 +271,7 @@ local function CheckAndBuildOwnVoted(Index, PlayerName, PlayerTable)
     return(true)
 end
 
-function IncendioLootLootCouncil.UpdateCouncilVoteData(Index, PlayerName)
+function IncendioLootLootCouncil.UpdateCouncilVoteData(Index, PlayerName, NewrollType)
     if (Index == nil or PlayerName == nil) then
         return
     end
@@ -243,7 +289,35 @@ local function round(n)
     return math.floor(n+0.5)
 end
 
+local function ReceiveDataAndCheck(prefix, str, distribution, sender)
+    if not UnitIsGroupLeader("player") then
+        return
+    end
+    if CheckIfSenderIsPlayer(sender) then
+        return
+    end
+    if IncendioLoot.ILOptions.profile.options.general.debug then
+        print("Membercount vorher: "..WaitForCouncilMembercount)
+    end
+    WaitForCouncilMembercount = WaitForCouncilMembercount - 1
+    if IncendioLoot.ILOptions.profile.options.general.debug then
+        print("Membercount nachher: "..WaitForCouncilMembercount)
+    end
+    if WaitForCouncilMembercount <= 0 then 
+        if IncendioLoot.ILOptions.profile.options.general.debug then 
+            print("Members Received")
+        end
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
+            LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()),
+            IsInRaid() and "RAID" or "PARTY")
+    end
+end
+
 local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
+    if not IncendioLoot.ILOptions.profile.options.general.active then 
+        return
+    end
+    
     if not IncendioLootDataHandler.GetSessionActive() or not IncendioLootFunctions.CheckIfMasterLooter() then 
         return
     end
@@ -268,4 +342,8 @@ function LootCouncil:OnEnable()
                             HandleLootVotePlayerEvent)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_COUNCIL,
                             UpdateExternalCMVote)
+    LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_ASSIGN_ITEM_COUNCIL,
+                            UpdateExternalAssignItem)
+    LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_DATA_RECEIVED,
+                            ReceiveDataAndCheck)
 end

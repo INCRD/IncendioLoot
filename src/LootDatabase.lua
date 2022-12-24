@@ -8,6 +8,7 @@ function IncendioLootLootDatabase.AddItemToDatabase(PlayerName, MapID, Class, In
         IncendioLoot.ILHistory.profile.history[PlayerName] = {}
     end
     table.insert(IncendioLoot.ILHistory.profile.history[PlayerName],{
+        PlayerName = PlayerName,
         MapID = MapID,
         Class = Class, 
         Instance = Instance, 

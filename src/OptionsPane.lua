@@ -4,6 +4,19 @@ local IncendioLootOptions = IncendioLoot:NewModule("OptionsPane", "AceEvent-3.0"
 local OptionsAceConfig = LibStub("AceConfig-3.0")
 local OptionsAceConfDialog = LibStub("AceConfigDialog-3.0")
 
+StaticPopupDialogs["IL_WIPEDATABASE"] = {
+    text = IncendioLoot.STATICS.WIPE_DATABASE,
+    button1 = "Yes",
+    button2 = "No",
+    OnAccept = function(self)
+        IncendioLoot.ILHistory:ResetDB()
+        print(IncendioLoot.STATICS.DATABASE_WIPED)
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+}
+
 function IncendioLootOptions:OnEnable()
     local IncendioLootOptions = {
         type = "group",
@@ -12,38 +25,57 @@ function IncendioLootOptions:OnEnable()
                 type = "group",
                 name = "Allgemein",
                 args = {
-                    enable = {
-                        name = "Aktivieren",
-                        desc = "Aktiviert / Deaktiviert IncendioLoot",
-                        type = "toggle",
-                        set = function (info, value)
-                            IncendioLoot.ILOptions.profile.options.general.active = value
-                        end,
-                        get = function (info)
-                            return IncendioLoot.ILOptions.profile.options.general.active
-                        end
+                    Basics = {
+                        type = "group",
+                        name = "Basics",
+                        args = {
+                            enable = {
+                                name = "Aktivieren",
+                                desc = "Aktiviert / Deaktiviert IncendioLoot",
+                                type = "toggle",
+                                set = function (info, value)
+                                    IncendioLoot.ILOptions.profile.options.general.active = value
+                                end,
+                                get = function (info)
+                                    return IncendioLoot.ILOptions.profile.options.general.active
+                                end
+                            },
+                            debug = {
+                                name = "Debug Mode",
+                                desc = "Aktiviert / Deaktiviert den Debug Modus",
+                                type = "toggle",
+                                set = function (info, value)
+                                    IncendioLoot.ILOptions.profile.options.general.debug = value
+                                end,
+                                get = function (info)
+                                    return IncendioLoot.ILOptions.profile.options.general.debug
+                                end
+                            },
+                            autopass = {
+                                name = "Autopass",
+                                desc = "Aktiviert / Deaktiviert automatisches passen",
+                                type = "toggle",
+                                set = function (info, value)
+                                    IncendioLoot.ILOptions.profile.options.general.autopass = value
+                                end,
+                                get = function (info)
+                                    return IncendioLoot.ILOptions.profile.options.general.autopass
+                                end
+                            }
+                        }
                     },
-                    debug = {
-                        name = "Debug Mode",
-                        desc = "Aktiviert / Deaktiviert den Debug Modus",
-                        type = "toggle",
-                        set = function (info, value)
-                            IncendioLoot.ILOptions.profile.options.general.debug = value
-                        end,
-                        get = function (info)
-                            return IncendioLoot.ILOptions.profile.options.general.debug
-                        end
-                    },
-                    autopass = {
-                        name = "Autopass",
-                        desc = "Aktiviert / Deaktiviert automatisches passen",
-                        type = "toggle",
-                        set = function (info, value)
-                            IncendioLoot.ILOptions.profile.options.general.autopass = value
-                        end,
-                        get = function (info)
-                            return IncendioLoot.ILOptions.profile.options.general.autopass
-                        end
+                    Database = {
+                        type = "group",
+                        name = "Database",
+                        args = {
+                            WipeDatabase = {
+                                name = "Wipe Database",
+                                type = "execute",
+                                func = function ()
+                                    StaticPopup_Show("IL_WIPEDATABASE")
+                                end
+                            }
+                        }
                     }
                 }
             },

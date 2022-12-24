@@ -8,9 +8,19 @@ local ExternalMasterLooters = {}
 local SessionActive
 local AddonActive
 local ScrollCols 
+local ScrollColsHistory
 local ScrollRows
 local OwnVoteData = {}
+local SelfViableLoot = {}
 IncendioLootDataHandler = {}
+
+function IncendioLootDataHandler.SetViableLoot(NewViableLoot)
+    SelfViableLoot = NewViableLoot;
+end
+
+function IncendioLootDataHandler.GetViableLoot()
+    return SelfViableLoot
+end
 
 function IncendioLootDataHandler.GetOwnVoteData()
     return OwnVoteData
@@ -24,6 +34,10 @@ function IncendioLootDataHandler.InitScrollFrameCols(NewScrollCols)
     ScrollCols = NewScrollCols
 end
 
+function IncendioLootDataHandler.InitHistoryScrollFrameCols(NewScrollCols)
+    ScrollColsHistory = NewScrollCols
+end
+
 function IncendioLootDataHandler.SetScrollRows(NewScrollRows)
     ScrollRows = NewScrollRows
 end
@@ -34,6 +48,10 @@ end
 
 function IncendioLootDataHandler.GetScrollFrameColls()
     return ScrollCols
+end
+
+function IncendioLootDataHandler.GetHistoryScrollFrameColls()
+    return ScrollColsHistory
 end
 
 function IncendioLootDataHandler.SetSessionActiveInactive(ActiveInactive)
@@ -105,6 +123,7 @@ function IncendioLootDataHandler.WipeData()
         VoteData = {}
         ScrollRows = {}
         OwnVoteData = {}
+        SelfViableLoot = {}
 end
 
 function IncendioLootDataHandler.WipeScrollData()

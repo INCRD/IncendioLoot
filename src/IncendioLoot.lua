@@ -8,7 +8,6 @@ IncendioLootFunctions = {}
 
 local ReceivedOutOfDateMessage = false
 local AceConsole = LibStub("AceConsole-3.0")
-local tonumber = tonumber
 
 --[[
     Global events
@@ -22,18 +21,24 @@ IncendioLoot.EVENTS = {
     EVENT_SET_VOTING_INACTIVE = "IL.VoteInA", -- announces the council as raidlead
     EVENT_LOOT_LOOTDATA_BUILDED = "IL.LootBuild", -- Lootdata has been builded and structured
     EVENT_LOOT_ANNOUNCE_MLS = "IL.AnnounceMLs", -- Announces Masterlooters to all addonusers
-    EVENT_LOOT_VOTE_COUNCIL = "IL.AnnounceVote" -- Announces the own vote to Council
+    EVENT_LOOT_VOTE_COUNCIL = "IL.AnnounceVote", -- Announces the own vote to Council
+    EVENT_LOOT_ASSIGN_ITEM_COUNCIL = "IL.AssignItem",
+    EVENT_DATA_RECEIVED = "IL.DataReceived"
 }
 
 --[[
     Static Text Constants
 ]] --
-
 IncendioLoot.STATICS = {
     NO_VOTE = "Kein Vote",
-    ASSIGN_ITEM = "Möchten Sie das Item zuweisen",
-    END_SESSION = "Möchten Sie die Sitzung beenden?"
-
+    ASSIGN_ITEM = "Möchtest du das Item zuweisen",
+    END_SESSION = "Möchtest du die Sitzung beenden?",
+    WIPE_DATABASE = "Möchtest du WIRKLICH die Lootdatenbank löschen?",
+    DATABASE_WIPED = "Die Lootdatenbank wurde gelöscht.",
+    DOUBLE_USE_WARNING = "WARNUNG, ein weiteres LootAddon ist aktiv! Dies kann zu Problemen führen.",
+    OUT_OF_DATE_ADDON = "Achtung, deine Version von IncendioLoot ist nicht aktuell. Aktuelle Version: ",
+    SELECT_PLAYER_FIRST = "Bitte erst einen Spieler auswählen!",
+    ITEM_ALREADY_ASSIGNED = "Das Item wurde bereits zugewiesen."
 }
 
 function IncendioLootFunctions.CheckIfMasterLooter()
@@ -54,9 +59,9 @@ local function HandleVersionCheckEvent(prefix, str, distribution, sender)
     if (sender == UnitName("player")) then
         return 
     end
-    local ver, msg = tonumber(IncendioLoot.Version), tonumber(versionStr)
+    local ver, msg = tonumber(IncendioLoot.Version), tonumber(str)
     if (msg and ver < msg and not ReceivedOutOfDateMessage) then
-        AceConsole:Print("IncendioLoot out of date: Version "..versionStr.." is available.")
+        AceConsole:Print(IncendioLoot.STATICS.OUT_OF_DATE_ADDON..str)
         ReceivedOutOfDateMessage = true
     end
 end
@@ -64,37 +69,6 @@ end
 local function HandleGroupRosterUpdate()
     IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_CHECK,
                                 IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
-end
-
---[[
-    Init
-]] --
-function IncendioLoot:OnInitialize()
-    local DefaultOptions = {
-        profile = {
-            options = {
-                general = {
-                    active = false,
-                    debug = false,
-                    autopass = false
-                },
-                masterlooters = {
-                    ml1 = "",
-                    ml2 = "",
-                    ml3 = ""
-                }
-            }
-        }
-    }
-    local DefaultDBOptions = {
-        profile = {
-            history = {
-            }
-        }
-    }
-    LibStub("AceComm-3.0"):Embed(IncendioLoot)
-    self.ILOptions = LibStub("AceDB-3.0"):New("IncendioLootOptionsDB", DefaultOptions, true)
-    self.ILHistory = LibStub("AceDB-3.0"):New("IncendioLootHistoryDB", DefaultDBOptions, true)
 end
 
 local function CreateScrollCol(ColName, Width, sort)
@@ -138,6 +112,20 @@ local function BuildBasicData()
     return(ScrollCols)
 end
 
+local function BuildBasicHistoryData()
+    local ScrollCols = {}
+    table.insert(ScrollCols, CreateScrollCol("Name", 80, true))
+    table.insert(ScrollCols, CreateScrollCol("Klasse", 100, true))
+    table.insert(ScrollCols, CreateScrollCol("Antwort", 80))
+    table.insert(ScrollCols, CreateScrollCol("Roll", 50))
+    table.insert(ScrollCols, CreateScrollCol("Item", 120, true))
+    table.insert(ScrollCols, CreateScrollCol("Instanz", 100))
+    table.insert(ScrollCols, CreateScrollCol("Datum", 100, true))
+    table.insert(ScrollCols, CreateScrollCol("Uhrzeit", 100, true))
+
+    return(ScrollCols)
+end
+
 local function SetSessionInactive()
     IncendioLootDataHandler.SetSessionActiveInactive(false)
     IncendioLootLootVoting.CloseGUI()
@@ -146,11 +134,56 @@ local function SetSessionInactive()
     print("The Session has been closed")
 end
 
-function IncendioLoot:OnEnable()
-    IncendioLootDataHandler.BuildAndSetMLTable()
+local function RegisterCommsAndEvents()
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
     SetSessionInactive)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
+end
+
+local function BuildBasics()
+    IncendioLootDataHandler.BuildAndSetMLTable()
     IncendioLootDataHandler.InitScrollFrameCols(BuildBasicData())
+    IncendioLootDataHandler.InitHistoryScrollFrameCols(BuildBasicHistoryData())
+end
+
+local function CheckOtherLootAddons()
+    local _,_,_,Enabled = GetAddOnInfo("RCLootCouncil")
+    if Enabled then 
+        print("\124cffFF0000" ..IncendioLoot.STATICS.DOUBLE_USE_WARNING.. "\124r")
+    end
+end
+
+function IncendioLoot:OnInitialize()
+    local DefaultOptions = {
+        profile = {
+            options = {
+                general = {
+                    active = false,
+                    debug = false,
+                    autopass = false
+                },
+                masterlooters = {
+                    ml1 = "",
+                    ml2 = "",
+                    ml3 = ""
+                }
+            }
+        }
+    }
+    local DefaultDBOptions = {
+        profile = {
+            history = {
+            }
+        }
+    }
+    LibStub("AceComm-3.0"):Embed(IncendioLoot)
+    self.ILOptions = LibStub("AceDB-3.0"):New("IncendioLootOptionsDB", DefaultOptions, true)
+    self.ILHistory = LibStub("AceDB-3.0"):New("IncendioLootHistoryDB", DefaultDBOptions, true)
+end
+
+function IncendioLoot:OnEnable()
+    RegisterCommsAndEvents()
+    BuildBasics()
+    CheckOtherLootAddons()
 end
