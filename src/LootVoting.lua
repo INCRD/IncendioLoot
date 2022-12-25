@@ -73,13 +73,13 @@ local function HandleLooted()
         return
     end
     if (not IncendioLootDataHandler.GetSessionActive()) or FrameOpen then
-        print("session active? "..IncendioLootDataHandler.GetSessionActive())
-        print("Frame Open? "..FrameOpen)
+        print("session active? "..tostring(IncendioLootDataHandler.GetSessionActive()))
+        print("Frame Open? "..tostring(FrameOpen))
         return
     end
 
     AutoPass()
-    print("der loot ist verfügbar? "..ViableLootAvailable)
+    print("der loot ist verfügbar? ".. tostring(ViableLootAvailable))
     if not ViableLootAvailable then 
         return
     end
@@ -112,7 +112,7 @@ local function HandleLooted()
             local ItemLink = Item.ItemLink
             local Index = Item.Index
 
-            if (IncendioLootDataHandler.GetViableLoot()[ItemName] ~= nil) or IncendioLoot.ILOptions.profile.options.general.debug then
+            if (IncendioLootDataHandler.GetViableLoot()[ItemName] ~= nil) then
 
                 local ItemGroup = LootVotingGUI:Create("InlineGroup")
                 ItemGroup:SetLayout("Flow") 
@@ -174,7 +174,7 @@ local function HandleLootLootedEvent(prefix, str, distribution, sender)
         not IncendioLootFunctions.CheckIfMasterLooter()) and
         not IncendioLootDataHandler.GetSessionActive()
 
-    print("Set Data ist ".. SetData)
+    print("Set Data ist ".. tostring(SetData))
 
     if SetData then
         local _, LootTable = LootVoting:Deserialize(str)
@@ -201,6 +201,29 @@ function LootVoting:OnEnable()
         HandleLooted()
     end)
 end
+
+LootVoting:RegisterEvent("LOOT_OPENED", function (eventname, rollID)
+    print("Loot Opened")
+    if IncendioLoot.ILOptions.profile.options.general.debug then
+        local ViableLootRolls = {}
+            for ItemIndex = 1, GetNumLootItems(), 1 do
+                if (GetLootSlotType(ItemIndex) == Enum.LootSlotType.Item) then
+                    local _, ItemName, _, _, LootQuality = GetLootSlotInfo(ItemIndex)
+                    if (LootQuality >= 3) then
+                        if (math.random(1,100) > 35) then
+                            print("Item eingefügt"..ItemName)
+                            ViableLootRolls[ItemName] = true
+                        end
+                    end
+                end
+            end
+        if not rawequal(next(ViableLootRolls), nil) then
+                print("Viable Loot There")
+                IncendioLootDataHandler.SetViableLoot(ViableLootRolls)
+            end
+        end
+    end
+)
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     if not IncendioLoot.ILOptions.profile.options.general.active then 
