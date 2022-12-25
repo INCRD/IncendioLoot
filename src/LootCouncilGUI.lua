@@ -142,43 +142,41 @@ local function CreateItemFrame(ItemFrame)
     local LootTable = IncendioLootDataHandler.GetLootTable()
     for Loot, Item in pairs(LootTable) do
         if type(Item) == "table" then
-            if IsEquippableItem(Item.ItemLink) then
-                if (Item.LootQuality >= 3 ) then
-                    local IconWidget1 = LootCouncilAceGUI:Create("Icon")
-                    IconWidget1:SetLabel(Item.ItemName)
-                    IconWidget1:SetImageSize(40,40)
-                    IconWidget1:SetImage(LootCouncilShareMedia:Fetch("texture", "Red Cross"))
-                    ItemFrame:AddChild(IconWidget1)
-                    local IconChild = {Index = Item.Index, IconWidget = IconWidget1, Texture = Item.TexturePath, Assigend = false}
-                    table.insert(IconChilds,IconChild)
+            if (Item.LootQuality >= 3 ) then
+                local IconWidget1 = LootCouncilAceGUI:Create("Icon")
+                IconWidget1:SetLabel(Item.ItemName)
+                IconWidget1:SetImageSize(40,40)
+                IconWidget1:SetImage(LootCouncilShareMedia:Fetch("texture", "Red Cross"))
+                ItemFrame:AddChild(IconWidget1)
+                local IconChild = {Index = Item.Index, IconWidget = IconWidget1, Texture = Item.TexturePath, Assigend = false}
+                table.insert(IconChilds,IconChild)
 
-                    IconWidget1:SetCallback("OnEnter", function()
-                        GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
-                        GameTooltip:ClearLines()
-                        GameTooltip:SetHyperlink(Item.ItemLink)
-                        GameTooltip:Show()
-                    end);
-                    IconWidget1:SetCallback("OnLeave", function()
-                        GameTooltip:Hide();
-                    end);
-                    IconWidget1:SetCallback("OnClick", function()
-                        for i, value in pairs(IconChilds) do
-                            if not value.Assigend then
-                                value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Red Cross"))
-                            else
-                                value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Green Checkmark"))
-                            end
+                IconWidget1:SetCallback("OnEnter", function()
+                    GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
+                    GameTooltip:ClearLines()
+                    GameTooltip:SetHyperlink(Item.ItemLink)
+                    GameTooltip:Show()
+                end);
+                IconWidget1:SetCallback("OnLeave", function()
+                    GameTooltip:Hide();
+                end);
+                IconWidget1:SetCallback("OnClick", function()
+                    for i, value in pairs(IconChilds) do
+                        if not value.Assigend then
+                            value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Red Cross"))
+                        else
+                            value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Green Checkmark"))
                         end
-                        IconWidget1:SetImage(Item.TexturePath)
-                        CurrentIndex = Item.Index
-                        IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
-                    end);
-                    if isFirst then
-                        CurrentIndex = Item.Index
-                        IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
-                        IconWidget1:SetImage(Item.TexturePath)
-                        isFirst = false
                     end
+                    IconWidget1:SetImage(Item.TexturePath)
+                    CurrentIndex = Item.Index
+                    IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
+                end);
+                if isFirst then
+                    CurrentIndex = Item.Index
+                    IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
+                    IconWidget1:SetImage(Item.TexturePath)
+                    isFirst = false
                 end
             end
         end

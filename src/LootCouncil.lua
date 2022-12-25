@@ -44,7 +44,6 @@ end
 local function BuildVoteData()
     local VoteData = IncendioLootDataHandler.GetVoteData()
     for index, VoteDataValue in pairs(VoteData) do
-        local ItemLink = GetLootSlotLink(index)
         PlayerTable = VoteData[index]
         for member = 1, GetNumGroupMembers(), 1 do 
             local name, _, _, _, class, _, zone , online = GetRaidRosterInfo(member)
@@ -76,6 +75,7 @@ local function BuildData()
         local numGroupMembers = GetNumGroupMembers()
         for i = 1, numGroupMembers do
             local name = GetUnitName("raid" .. i)
+            print(name)
             if (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml1) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml2) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml3) then
                 WaitForCouncilMembercount = WaitForCouncilMembercount + 1
             end
@@ -90,6 +90,12 @@ local function BuildData()
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED, 
             LootCouncil:Serialize(Payload), 
             IsInRaid() and "RAID" or "PARTY")
+        if WaitForCouncilMembercount <= 0 then
+            print("Data send to player without check")
+            IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
+            LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()),
+            IsInRaid() and "RAID" or "PARTY")
+        end
     end
 end
 
@@ -154,7 +160,7 @@ local function ReceiveLootDataAndStartGUI(prefix, str, distribution, sender)
     end
 
     local isDebugOrCM = IncendioLootFunctions.CheckIfMasterLooter() or IncendioLoot.ILOptions.profile.options.general.debug
-    if (not CheckIfSenderIsPlayer(sender)) or isDebugOrCM then 
+    if (not CheckIfSenderIsPlayer(sender)) and isDebugOrCM then 
         local _, Payload = LootCouncil:Deserialize(str)
         IncendioLootDataHandler.SetLootTable(Payload.LootTable)
         IncendioLootDataHandler.SetVoteData(Payload.VoteTable)
@@ -288,6 +294,8 @@ local function ReceiveDataAndCheck(prefix, str, distribution, sender)
     if not UnitIsGroupLeader("player") then
         return
     end
+    print("bin ich sender?" ..tostring(CheckIfSenderIsPlayer(sender)))
+    print(sender)
     if CheckIfSenderIsPlayer(sender) then
         return
     end
@@ -298,7 +306,7 @@ local function ReceiveDataAndCheck(prefix, str, distribution, sender)
     if IncendioLoot.ILOptions.profile.options.general.debug then
         print("Membercount nachher: "..WaitForCouncilMembercount)
     end
-    if WaitForCouncilMembercount <= 0 then 
+    if WaitForCouncilMembercount == 0 then 
         if IncendioLoot.ILOptions.profile.options.general.debug then 
             print("Members Received")
         end
