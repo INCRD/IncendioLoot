@@ -35,12 +35,17 @@ IncendioLoot.EVENTS = {
 --[[
     Static Text Constants
 ]] --
-
 IncendioLoot.STATICS = {
     NO_VOTE = "Kein Vote",
     ASSIGN_ITEM = "Möchten Sie das Item zuweisen",
     END_SESSION = "Möchten Sie die Sitzung beenden?"
+}
 
+--[[
+    UwU pretty colors
+]]
+IncendioLoot.COLORS = {
+    LIGHTBLUE = 'FF00CCFF'
 }
 
 function IncendioLootFunctions.CheckIfMasterLooter()
@@ -85,9 +90,9 @@ function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
 end
 
 local function PrintChatCommands()
-    AceConsole:Print( "/il - IncendioLoot")
+    AceConsole:Print( "/il - IncendioLoot "..WrapTextInColorCode("["..IncendioLoot.Version.."]", IncendioLoot.COLORS.LIGHTBLUE))
     for command, tbl in pairs(CommandCallbacks) do
-        AceConsole:Print("  "..command.." - "..tbl.description)
+        AceConsole:Print("  "..WrapTextInColorCode(command, IncendioLoot.COLORS.LIGHTBLUE).." - "..tbl.description)
     end
 end
 
