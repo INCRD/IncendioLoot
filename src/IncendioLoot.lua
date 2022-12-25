@@ -105,36 +105,7 @@ local function PrintChatCommands()
     end
 end
 
---[[
-    Init
-]] --
-function IncendioLoot:OnInitialize()
-    local DefaultOptions = {
-        profile = {
-            options = {
-                general = {
-                    active = false,
-                    debug = false,
-                    autopass = false
-                },
-                masterlooters = {
-                    ml1 = "",
-                    ml2 = "",
-                    ml3 = ""
-                }
-            }
-        }
-    }
-    local DefaultDBOptions = {
-        profile = {
-            history = {
-            }
-        }
-    }
-    LibStub("AceComm-3.0"):Embed(IncendioLoot)
-    self.ILOptions = LibStub("AceDB-3.0"):New("IncendioLootOptionsDB", DefaultOptions, true)
-    self.ILHistory = LibStub("AceDB-3.0"):New("IncendioLootHistoryDB", DefaultDBOptions, true)
-end
+
 
 local function CreateScrollCol(ColName, Width, sort)
     if sort then
@@ -232,8 +203,7 @@ local function SetUpCommandHandler()
     IncendioLoot:RegisterSubCommand("help", PrintChatCommands, "Zeigt diese Befehls-Liste an.")
 end
 
-function IncendioLoot:OnEnable()
-    IncendioLootDataHandler.BuildAndSetMLTable()
+local function RegisterCommsAndEvents()
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
     SetSessionInactive)
@@ -244,6 +214,7 @@ local function BuildBasics()
     IncendioLootDataHandler.BuildAndSetMLTable()
     IncendioLootDataHandler.InitScrollFrameCols(BuildBasicData())
     IncendioLootDataHandler.InitHistoryScrollFrameCols(BuildBasicHistoryData())
+    SetUpCommandHandler()
 end
 
 local function CheckOtherLootAddons()
@@ -285,6 +256,4 @@ function IncendioLoot:OnEnable()
     RegisterCommsAndEvents()
     BuildBasics()
     CheckOtherLootAddons()
-    IncendioLootDataHandler.InitScrollFrameCols(BuildBasicData())
-    SetUpCommandHandler()
 end
