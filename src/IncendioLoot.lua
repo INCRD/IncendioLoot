@@ -48,6 +48,8 @@ IncendioLoot.COLORS = {
     LIGHTBLUE = 'FF00CCFF'
 }
 
+local C = IncendioLoot.COLORS
+
 function IncendioLootFunctions.CheckIfMasterLooter()
     if UnitIsGroupLeader("player") then 
         return(true)
@@ -90,9 +92,9 @@ function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
 end
 
 local function PrintChatCommands()
-    AceConsole:Print( "/il - IncendioLoot "..WrapTextInColorCode("["..IncendioLoot.Version.."]", IncendioLoot.COLORS.LIGHTBLUE))
+    AceConsole:Print(WrapTextInColorCode("/il", C.LIGHTBLUE).." - IncendioLoot [v"..WrapTextInColorCode(IncendioLoot.Version, C.LIGHTBLUE).."]")
     for command, tbl in pairs(CommandCallbacks) do
-        AceConsole:Print("  "..WrapTextInColorCode(command, IncendioLoot.COLORS.LIGHTBLUE).." - "..tbl.description)
+        AceConsole:Print("  "..WrapTextInColorCode(command, C.LIGHTBLUE).." - "..tbl.description)
     end
 end
 
