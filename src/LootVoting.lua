@@ -196,7 +196,7 @@ function LootVoting:OnEnable()
     end)
 end
 
---[[ LootVoting:RegisterEvent("LOOT_OPENED", function (eventname, rollID)
+LootVoting:RegisterEvent("LOOT_OPENED", function (eventname, rollID)
     print("Loot Opened")
     if IncendioLoot.ILOptions.profile.options.general.debug then
         local ViableLootRolls = {}
@@ -217,7 +217,7 @@ end
             end
         end
     end
-) ]]
+)
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
     if not IncendioLoot.ILOptions.profile.options.general.active then 
