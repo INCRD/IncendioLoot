@@ -11,6 +11,13 @@ local AceConsole = LibStub("AceConsole-3.0")
 local tonumber = tonumber
 
 --[[
+    ["subcommand"] = {
+        ["callback"] = function(args),
+        ["description"] = string
+]]
+local CommandCallbacks = {}
+
+--[[
     Global events
     The event names cannot exceed 16 bytes
 ]] --
@@ -64,6 +71,24 @@ end
 local function HandleGroupRosterUpdate()
     IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_CHECK,
                                 IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
+end
+
+function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
+    if not CommandCallbacks[subcommand] then
+        CommandCallbacks[subcommand] = {
+            callback = callback,
+            description = description
+        }
+    else
+        AceConsole:Print("Chat command "..subcommand.." was already registered, therefore it's being ignored. Callstack is "..debugstack())
+    end
+end
+
+local function PrintChatCommands()
+    AceConsole:Print( "/il - IncendioLoot")
+    for command, tbl in pairs(CommandCallbacks) do
+        AceConsole:Print("  "..command.." - "..tbl.description)
+    end
 end
 
 --[[
@@ -146,6 +171,39 @@ local function SetSessionInactive()
     print("The Session has been closed")
 end
 
+local function trim(str)
+    return str ~= nil and string.gsub(str, "^%s*(.-)%s*$", "%1") or nil
+end
+
+local function is_str_empty(str)
+    return str == nil or trim(str) == ""
+end
+
+local function SetUpCommandHandler()
+    IncendioLoot:RegisterChatCommand("il", function(msg)
+        local args = {}
+        if not is_str_empty(msg) then
+            -- just select 3 args for now, should cover 99% of cases
+            args = { AceConsole:GetArgs(msg, 1), AceConsole:GetArgs(msg, 2), AceConsole:GetArgs(msg, 3) }
+        end
+
+        local subCommand = #args > 0 and args[1] or nil
+        if subCommand == nil or not CommandCallbacks[subCommand] then
+            PrintChatCommands()
+        else
+            -- skip first arg (which is the subcommand)
+            local cb_args = {}
+            for i = 2, #args do
+                cb_args[i-1] = args[i]
+            end
+
+            CommandCallbacks[subCommand].callback(cb_args)
+        end
+    end)
+
+    IncendioLoot:RegisterSubCommand("help", PrintChatCommands, "Zeigt diese Befehls-Liste an.")
+end
+
 function IncendioLoot:OnEnable()
     IncendioLootDataHandler.BuildAndSetMLTable()
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
@@ -153,4 +211,5 @@ function IncendioLoot:OnEnable()
     SetSessionInactive)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
     IncendioLootDataHandler.InitScrollFrameCols(BuildBasicData())
+    SetUpCommandHandler()
 end

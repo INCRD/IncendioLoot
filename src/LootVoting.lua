@@ -156,12 +156,12 @@ function LootVoting:OnEnable()
     LootVoting:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
                             HandleLootLootedEvent)
 
-    LootVoting:RegisterChatCommand("ILShow", function ()
+    IncendioLoot:RegisterSubCommand("show", function ()
         if not IncendioLootDataHandler.GetSessionActive() or FrameOpen then
             return
         end
         HandleLooted()
-    end)
+    end, "Zeigt das Loot-Vote-Fenster an.")
 end
 
 LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
