@@ -16,11 +16,9 @@ IncendioLootDataHandler = {}
 
 function IncendioLootDataHandler.SetViableLoot(NewViableLoot)
     SelfViableLoot = NewViableLoot;
-    print("viable loot set")
 end
 
 function IncendioLootDataHandler.GetViableLoot()
-    print("viable loot fetched")
     return SelfViableLoot
 end
 
@@ -125,7 +123,6 @@ function IncendioLootDataHandler.WipeData()
         VoteData = {}
         ScrollRows = {}
         OwnVoteData = {}
-        print("data cleared")
 end
 
 function IncendioLootDataHandler.WipeScrollData()
@@ -134,5 +131,4 @@ end
 
 function IncendioLootDataHandler.WipeViableLootData()
     SelfViableLoot = {}
-    print("Viable Lootdata Wiped")
 end

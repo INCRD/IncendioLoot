@@ -75,7 +75,6 @@ local function BuildData()
         local numGroupMembers = GetNumGroupMembers()
         for i = 1, numGroupMembers do
             local name = GetUnitName("raid" .. i)
-            print(name)
             if (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml1) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml2) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml3) then
                 WaitForCouncilMembercount = WaitForCouncilMembercount + 1
             end
@@ -91,7 +90,6 @@ local function BuildData()
             LootCouncil:Serialize(Payload), 
             IsInRaid() and "RAID" or "PARTY")
         if WaitForCouncilMembercount <= 0 then
-            print("Data send to player without check")
             IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
             LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()),
             IsInRaid() and "RAID" or "PARTY")
@@ -185,6 +183,9 @@ end
 local function UpdateVoteData(Index, PlayerName, RollType, Ilvl)
     local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
     local PlayerInformation = PlayerTable[PlayerName]
+    local NumOfItems = IncendioLootLootDatabase.ReturnItemsLastTwoWeeksPlayer(PlayerName, tostring(RollType)) * 10000
+    local AutoDecisionResult = (NumOfItems + Ilvl + PlayerInformation.roll) / 10000
+    PlayerInformation.autodecision = AutoDecisionResult
     PlayerInformation.rollType = tostring(RollType)
     PlayerInformation.iLvl = Ilvl
 end
@@ -203,6 +204,8 @@ local function UpdateExternalAssignItem(prefix, str, distribution, sender)
     local PlayerInformation = PlayerTable[NewPlayerName]
     PlayerInformation.rollType = NewRollType
     IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
+
+    IncendioLootLootCouncil.SetItemAssignedIcon(Index)
 end
 
 local function UpdateExternalCMVote(prefix, str, distribution, sender)
@@ -242,6 +245,7 @@ function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
                         LootCouncil:Serialize({Index = Index, NewPlayerName = PlayerName, NewRollType = "Zugewiesen"}), 
                         IsInRaid() and "RAID" or "PARTY")
             IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
+            IncendioLootLootCouncil.SetItemAssignedIcon(Index)
         end
     end
 end
@@ -294,8 +298,6 @@ local function ReceiveDataAndCheck(prefix, str, distribution, sender)
     if not UnitIsGroupLeader("player") then
         return
     end
-    print("bin ich sender?" ..tostring(CheckIfSenderIsPlayer(sender)))
-    print(sender)
     if CheckIfSenderIsPlayer(sender) then
         return
     end

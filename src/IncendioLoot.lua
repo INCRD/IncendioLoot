@@ -45,7 +45,28 @@ IncendioLoot.STATICS = {
     DOUBLE_USE_WARNING = "WARNUNG, ein weiteres LootAddon ist aktiv! Dies kann zu Problemen führen.",
     OUT_OF_DATE_ADDON = "Achtung, deine Version von IncendioLoot ist nicht aktuell. Aktuelle Version: ",
     SELECT_PLAYER_FIRST = "Bitte erst einen Spieler auswählen!",
-    ITEM_ALREADY_ASSIGNED = "Das Item wurde bereits zugewiesen."
+    ITEM_ALREADY_ASSIGNED = "Das Item wurde bereits zugewiesen.",
+    DO_AUTOPASS = "Möchtest du automatisch auf Loot passen, der durch das Standardinterface angeboten wird?",
+    COUNCIL_FRAME_CHECK = "Das Council-Fenster ist bereits geöffnet oder es ist keine Session aktiv.",
+    DID_AUTO_PASS = "Automatisch gepasst"
+}
+
+--[[
+    local Dialogs
+]]
+StaticPopupDialogs["IL_DOAUTOPASS"] = {
+    text = IncendioLoot.STATICS.DO_AUTOPASS,
+    button1 = "Ja",
+    button2 = "Nein",
+    OnAccept = function(self)
+        IncendioLoot.ILOptions.profile.options.general.autopass = true
+    end,
+    OnCancel = function (self)
+        IncendioLoot.ILOptions.profile.options.general.autopass = false
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
 }
 
 --[[
@@ -139,11 +160,11 @@ local function BuildBasicData()
     table.insert(ScrollCols, CreateScrollCol("Class", 80, true))
     table.insert(ScrollCols, CreateScrollCol("Zone", 80))
     table.insert(ScrollCols, CreateScrollCol("Online", 80))
-    table.insert(ScrollCols, CreateScrollCol("Answer", 80))
+    table.insert(ScrollCols, CreateScrollCol("Answer", 80, true))
     table.insert(ScrollCols, CreateScrollCol("Itemlevel", 80))
     table.insert(ScrollCols, CreateScrollCol("Roll", 80, true))
     table.insert(ScrollCols, CreateScrollCol("Votes", 80))
-    table.insert(ScrollCols, CreateScrollCol("Auto Decision", 80))
+    table.insert(ScrollCols, CreateScrollCol("Gewichtung", 80, true))
 
     return(ScrollCols)
 end
@@ -203,11 +224,20 @@ local function SetUpCommandHandler()
     IncendioLoot:RegisterSubCommand("help", PrintChatCommands, "Zeigt diese Befehls-Liste an.")
 end
 
+local function EnterRaidInstance()
+    if not IncendioLoot.ILOptions.profile.options.general.active or not IncendioLoot.ILOptions.profile.options.general.askForAutopass then 
+        return
+    end
+
+    StaticPopup_Show("IL_DOAUTOPASS")
+end
+
 local function RegisterCommsAndEvents()
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
     SetSessionInactive)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
+    IncendioLoot:RegisterEvent("RAID_INSTANCE_WELCOME", EnterRaidInstance)
 end
 
 local function BuildBasics()
@@ -231,7 +261,8 @@ function IncendioLoot:OnInitialize()
                 general = {
                     active = false,
                     debug = false,
-                    autopass = false
+                    autopass = false,
+                    askForAutopass = true
                 },
                 masterlooters = {
                     ml1 = "",

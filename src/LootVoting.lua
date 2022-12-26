@@ -30,7 +30,7 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, Index)
             ItemGroup.frame:Hide()
         end
     end)
-    button:SetWidth(100)
+    button:SetWidth(92)
     return button
 end
 
@@ -57,7 +57,7 @@ local function AutoPass()
                 local ItemLink = Item.ItemLink
                 local Index = Item.Index
                 local _, AverageItemLevel = GetAverageItemLevel()
-                LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink,  rollType = "Automatisch gepasst", Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY")
+                LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink,  rollType = IncendioLoot.STATICS.DID_AUTO_PASS, Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY")
             else
                 ViableLootAvailable = true
             end
@@ -197,22 +197,19 @@ function LootVoting:OnEnable()
 end
 
 LootVoting:RegisterEvent("LOOT_OPENED", function (eventname, rollID)
-    print("Loot Opened")
     if IncendioLoot.ILOptions.profile.options.general.debug then
         local ViableLootRolls = {}
             for ItemIndex = 1, GetNumLootItems(), 1 do
                 if (GetLootSlotType(ItemIndex) == Enum.LootSlotType.Item) then
                     local _, ItemName, _, _, LootQuality = GetLootSlotInfo(ItemIndex)
                     if (LootQuality >= 3) then
-                        if (math.random(1,100) > 35) then
-                            print("Item eingefügt"..ItemName)
+                        if (math.random(1,100) > 50) then
                             ViableLootRolls[ItemName] = true
                         end
                     end
                 end
             end
         if not rawequal(next(ViableLootRolls), nil) then
-                print("Viable Loot There")
                 IncendioLootDataHandler.SetViableLoot(ViableLootRolls)
             end
         end

@@ -61,6 +61,17 @@ function IncendioLootOptions:OnEnable()
                                 get = function (info)
                                     return IncendioLoot.ILOptions.profile.options.general.autopass
                                 end
+                            },
+                            AskForautopass = {
+                                name = "Nach Autopass fragen",
+                                desc = "Aktiviert / Deaktiviert die Frage beim betreten des Raids",
+                                type = "toggle",
+                                set = function (info, value)
+                                    IncendioLoot.ILOptions.profile.options.general.askForAutopass = value
+                                end,
+                                get = function (info)
+                                    return IncendioLoot.ILOptions.profile.options.general.askForAutopass
+                                end
                             }
                         }
                     },

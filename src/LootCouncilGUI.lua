@@ -53,6 +53,11 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
     button1 = "Yes",
     button2 = "No",
     OnAccept = function(self, data, data2)
+        if not UnitIsGroupLeader("player") then
+            print("Dies darf nur der Masterlooter tun!")
+            return
+        end
+
         if data2 == nil then
             return
         end
@@ -70,18 +75,21 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
             end
         end
         IncendioLootLootCouncil.PrepareAndAddItemToHistory(data, data2)
-        for i, value in pairs(IconChilds) do
-            if value.Index == data then
-                value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Green Checkmark"))
-                value.Assigend = true
-            end
-        end
-
     end,
     timeout = 0,
     whileDead = true,
     hideOnEscape = true,
 }
+
+function IncendioLootLootCouncil.SetItemAssignedIcon(Index)
+    for i, value in pairs(IconChilds) do
+        if value.Index == Index then
+            value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Green Checkmark"))
+            value.Assigend = true
+        end
+    end
+
+end
 
 local function ScrollFrameMenu(button)
     if button == "RightButton" then
@@ -196,44 +204,43 @@ local function PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame,
 end
 
 function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
-    ScrollingFrame = nil
-    if not (IncendioLootDataHandler.GetSessionActive()) then
-        print("No Active Session")
+    if not (IncendioLootDataHandler.GetSessionActive()) or MainFrameInit then
+        print(IncendioLoot.STATICS.COUNCIL_FRAME_CHECK)
         return
     end
-    if not MainFrameInit then 
-        local LootCouncilMainFrame = LootCouncilAceGUI:Create("Window")
-        LootCouncilMainFrame:SetTitle("Incendio Lootcouncil")
-        LootCouncilMainFrame:SetStatusText("")
-        LootCouncilMainFrame:SetLayout("Fill")
-        LootCouncilMainFrame:EnableResize(false)
-        MainFrameClose = LootCouncilMainFrame
-        MainFrameInit = true;
 
-        local ItemFrame = LootCouncilAceGUI:Create("InlineGroup")
-        ItemFrame:SetTitle("Items")
-        ItemFrame:SetLayout("Flow")
-        ItemFrameClose = ItemFrame
+    ScrollingFrame = nil
+    local LootCouncilMainFrame = LootCouncilAceGUI:Create("Window")
+    LootCouncilMainFrame:SetTitle("Incendio Lootcouncil")
+    LootCouncilMainFrame:SetStatusText("")
+    LootCouncilMainFrame:SetLayout("Fill")
+    LootCouncilMainFrame:EnableResize(false)
+    MainFrameClose = LootCouncilMainFrame
+    MainFrameInit = true;
 
-        local CloseButtonFrame = LootCouncilAceGUI:Create("InlineGroup")
-        CloseButtonFrame:SetTitle("")
-        CloseButtonFrame:SetLayout("Fill")
-        ButtonFrameCLose = CloseButtonFrame
+    local ItemFrame = LootCouncilAceGUI:Create("InlineGroup")
+    ItemFrame:SetTitle("Items")
+    ItemFrame:SetLayout("Flow")
+    ItemFrameClose = ItemFrame
 
-        local CloseButton = LootCouncilAceGUI:Create("Button")
-        CloseButton:SetText("Close")
-        CloseButton:SetCallback("OnClick", function ()
-            StaticPopup_Show("IL_ENDSESSION")
-        end)
-        CloseButtonFrame:AddChild(CloseButton)
+    local CloseButtonFrame = LootCouncilAceGUI:Create("InlineGroup")
+    CloseButtonFrame:SetTitle("")
+    CloseButtonFrame:SetLayout("Fill")
+    ButtonFrameCLose = CloseButtonFrame
 
-        CreateItemFrame(ItemFrame)
-        PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame)
+    local CloseButton = LootCouncilAceGUI:Create("Button")
+    CloseButton:SetText("Close")
+    CloseButton:SetCallback("OnClick", function ()
+        StaticPopup_Show("IL_ENDSESSION")
+    end)
+    CloseButtonFrame:AddChild(CloseButton)
 
-        LootCouncilMainFrame.frame:SetWidth(1000)
+    CreateItemFrame(ItemFrame)
+    PositionFrames(LootCouncilMainFrame, ItemFrame, CloseButtonFrame)
 
-        LootCouncilMainFrame:SetCallback("OnClose", ResetMainFrameStatus)
-    end
+    LootCouncilMainFrame.frame:SetWidth(1000)
+
+    LootCouncilMainFrame:SetCallback("OnClose", ResetMainFrameStatus)
 end
 
 function LootCouncilGUI:OnInitialize()
@@ -245,5 +252,5 @@ function LootCouncilGUI:OnInitialize()
 end
 
 function LootCouncilGUI:OnEnable()
-    LootCouncilGUI:RegisterChatCommand("ILOpen", IncendioLootLootCouncilGUI.HandleLootLootedEvent)
+    IncendioLoot:RegisterSubCommand("council", IncendioLootLootCouncilGUI.HandleLootLootedEvent, "Zeigt das Council-Fenster an.")
 end

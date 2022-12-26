@@ -7,7 +7,8 @@ local HistoryOpen
 
 
 local function GetDataRows()
-    local rows
+    local i = 1
+    local rows = {}
     for _, Players in pairs(IncendioLoot.ILHistory.profile.history) do
         for _, Content in ipairs(Players) do
             local cols = {
@@ -25,6 +26,7 @@ local function GetDataRows()
     end
     return(rows)
 end
+
 local function FilterLootHistory(filterText, columnName)
     local filteredData = {}
     local i = 1
@@ -107,8 +109,6 @@ local function CreateWindow()
     end
 
     local HistoryMainFrame = CreateFrame("Frame", "HistoryMainFrame", UIParent, "BackdropTemplate")
-    local playerName = UnitName("player")
-    local i = 1
 
     HistoryMainFrame:SetSize(800, 400)
     HistoryMainFrame:SetPoint("CENTER")
@@ -126,6 +126,7 @@ local function CreateWindow()
     HistoryMainFrame:EnableMouse(true)
     HistoryMainFrame:SetScript("OnMouseDown", function(self) self:StartMoving() end)
     HistoryMainFrame:SetScript("OnMouseUp", function(self) self:StopMovingOrSizing() end)
+
     local TitleText = HistoryMainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     TitleText:SetPoint("TOP", HistoryMainFrame, "TOP", 0, -10)
     TitleText:SetText("Historie")
@@ -160,12 +161,11 @@ local function CreateWindow()
     HistoryOpen = true
 end
 
-SLASH_ILOPENHISTORY1 = "/ilopenhistory"
-SlashCmdList["ILOPENHISTORY"] = function()
-    CreateWindow()
-end
-
 function LootHistoryGUI:OnInitialize()
     LibStub("AceComm-3.0"):Embed(LootHistoryGUI)
     LootCouncilHistoryGUIST = LibStub("ScrollingTable")
+end
+
+function LootHistoryGUI:OnEnable()
+    IncendioLoot:RegisterSubCommand("history", CreateWindow, "Zeigt die Loothistorie an.")
 end

@@ -19,5 +19,30 @@ function IncendioLootLootDatabase.AddItemToDatabase(PlayerName, MapID, Class, In
         Time = date("%H:%M:%S"),
         Roll = Roll, 
         DifficultyIndex = DifficultyIndex,
-        DifficultyName = DifficultyName})
+        DifficultyName = DifficultyName,
+        UnixTimeStamp = time(date("!*t"))})
+end
+
+function IncendioLootLootDatabase.ReturnItemsLastTwoWeeksPlayer(PlayerName, RollType)
+    local table = IncendioLoot.ILHistory.profile.history[PlayerName]
+    if table == nil then 
+        return 0
+    end
+
+    local count = 0
+    for _, entry in pairs(table) do
+        if entry.PlayerName == PlayerName and entry.RollType == RollType then
+            local currentDate = time(date("!*t"))
+            local diffInDays = (difftime(currentDate, entry.UnixTimeStamp) / 86400)
+            if diffInDays < 15 then
+                count = count + 1
+            end
+        end
+    end
+
+    if IncendioLoot.ILOptions.profile.options.general.debug then
+        print(count)
+    end
+
+    return count
 end
