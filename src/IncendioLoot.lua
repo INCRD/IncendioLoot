@@ -250,7 +250,7 @@ end
 local function CheckOtherLootAddons()
     local _,_,_,Enabled = GetAddOnInfo("RCLootCouncil")
     if Enabled then 
-        print("\124cffFF0000" ..IncendioLoot.STATICS.DOUBLE_USE_WARNING.. "\124r")
+        print(WrapTextInColorCode(IncendioLoot.STATICS.DOUBLE_USE_WARNING, "FFFF0000"))
     end
 end
 
