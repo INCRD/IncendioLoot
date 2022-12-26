@@ -1,6 +1,8 @@
 local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootCouncil = IncendioLoot:NewModule("LootCouncil", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
+local L = addon.L
+
 local WaitForCouncilMembercount
 IncendioLootLootCouncil = {}
 
@@ -47,7 +49,7 @@ local function BuildVoteData()
         PlayerTable = VoteData[index]
         for member = 1, GetNumGroupMembers(), 1 do 
             local name, _, _, _, class, _, zone , online = GetRaidRosterInfo(member)
-            PlayerInformation = {class = class, zone = zone, online = online, rollType = IncendioLoot.STATICS.NO_VOTE, iLvl = " ", name = name, roll = math.random(1,100), vote = 0, autodecision = 0}
+            PlayerInformation = {class = class, zone = zone, online = online, rollType = L["NO_VOTE"], iLvl = " ", name = name, roll = math.random(1,100), vote = 0, autodecision = 0}
             PlayerTable[name] = PlayerInformation
         end
     end

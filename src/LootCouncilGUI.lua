@@ -2,6 +2,8 @@ local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootCouncilGUI = IncendioLoot:NewModule("LootCouncilGUI", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local LootCouncilAceGUI = LibStub("AceGUI-3.0")
+local L = addon.L
+
 local MainFrameInit = false;
 local CurrentIndex
 local MainFrameClose
@@ -36,7 +38,7 @@ function IncendioLootLootCouncilGUI.CloseGUI()
 end
 
 StaticPopupDialogs["IL_ENDSESSION"] = {
-    text = IncendioLoot.STATICS.END_SESSION,
+    text = L["END_SESSION"],
     button1 = "Yes",
     button2 = "No",
     OnAccept = function(self)
@@ -49,7 +51,7 @@ StaticPopupDialogs["IL_ENDSESSION"] = {
 }
 
 StaticPopupDialogs["IL_ASSIGNITEM"] = {
-    text = IncendioLoot.STATICS.ASSIGN_ITEM,
+    text = L["ASSIGN_ITEM"],
     button1 = "Yes",
     button2 = "No",
     OnAccept = function(self, data, data2)
@@ -66,11 +68,11 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
         for i, value in pairs(LootTable) do
             if (value["Index"] == data) then 
                 if value["Assigend"] == true then
-                    print(IncendioLoot.STATICS.ITEM_ALREADY_ASSIGNED)
+                    print(L["ITEM_ALREADY_ASSIGNED"])
                     return
                 else
                     value["Assigend"] = true
-                    SendChatMessage("Das Item "..value["ItemLink"].." wurde an "..data2.." vergeben.", "RAID")
+                    SendChatMessage(string.format(L["COUNCIL_ASSIGNED_ITEM"], value.ItemLink, data2), "RAID")
                 end
             end
         end
@@ -205,7 +207,7 @@ end
 
 function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
     if not (IncendioLootDataHandler.GetSessionActive()) or MainFrameInit then
-        print(IncendioLoot.STATICS.COUNCIL_FRAME_CHECK)
+        print(L["COUNCIL_FRAME_CHECK"])
         return
     end
 
@@ -252,5 +254,5 @@ function LootCouncilGUI:OnInitialize()
 end
 
 function LootCouncilGUI:OnEnable()
-    IncendioLoot:RegisterSubCommand("council", IncendioLootLootCouncilGUI.HandleLootLootedEvent, "Zeigt das Council-Fenster an.")
+    IncendioLoot:RegisterSubCommand("council", IncendioLootLootCouncilGUI.HandleLootLootedEvent, L["COMMAND_COUNCIL"])
 end

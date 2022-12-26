@@ -1,6 +1,8 @@
 local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootHistoryGUI = IncendioLoot:NewModule("LootHistoryGUI", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
+local L = addon.L
+
 local HistoryTable
 local HistoryOpen
 
@@ -58,7 +60,7 @@ local function CreateDateFilterBox(HistoryMainFrame)
     DateFilterBox:SetAutoFocus(false)
     local DateFilterBoxTitle = HistoryMainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     DateFilterBoxTitle:SetPoint("BOTTOMLEFT", DateFilterBox, "TOPLEFT", 0, 5)
-    DateFilterBoxTitle:SetText("Datum filtern:")
+    DateFilterBoxTitle:SetText(L["HISTORY_FILTER_DATE"])
     DateFilterBox:SetScript("OnTextChanged", function(self)
         local filterText = DateFilterBox:GetText()
         HistoryTable:SetData(FilterLootHistory(filterText, "Date"))
@@ -77,7 +79,7 @@ local function CreateItemFilterBox(HistoryMainFrame, DateFilterBox)
     local ItemFilterBoxTitle = HistoryMainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 
     ItemFilterBoxTitle:SetPoint("BOTTOMLEFT", ItemFilterBox, "TOPLEFT", 0, 5)
-    ItemFilterBoxTitle:SetText("Gegenstand filtern:")
+    ItemFilterBoxTitle:SetText(L["HISTORY_FILTER_ITEM"])
     ItemFilterBox:SetScript("OnTextChanged", function(self)
             local filterText = self:GetText()
             HistoryTable:SetData(FilterLootHistory(filterText, "ItemLink"))
@@ -96,7 +98,7 @@ local function CreatePlayerFilterBox(HistoryMainFrame, ItemFilterBox)
     local PlayerFilterBoxTitle = HistoryMainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 
     PlayerFilterBoxTitle:SetPoint("BOTTOMLEFT", PlayerFilterBox, "TOPLEFT", 0, 5)
-    PlayerFilterBoxTitle:SetText("Spieler filtern:")
+    PlayerFilterBoxTitle:SetText(L["HISTORY_FILTER_PLAYER"])
     PlayerFilterBox:SetScript("OnTextChanged", function(self)
             local filterText = self:GetText()
             HistoryTable:SetData(FilterLootHistory(filterText, "PlayerName"))
@@ -129,7 +131,7 @@ local function CreateWindow()
 
     local TitleText = HistoryMainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     TitleText:SetPoint("TOP", HistoryMainFrame, "TOP", 0, -10)
-    TitleText:SetText("Historie")
+    TitleText:SetText(L["HISTORY"])
     TitleText:SetJustifyH("CENTER")
 
     local CloseButton = CreateFrame("Button", "ILCloseButton", HistoryMainFrame, "UIPanelCloseButton")
@@ -167,5 +169,5 @@ function LootHistoryGUI:OnInitialize()
 end
 
 function LootHistoryGUI:OnEnable()
-    IncendioLoot:RegisterSubCommand("history", CreateWindow, "Zeigt die Loothistorie an.")
+    IncendioLoot:RegisterSubCommand("history", CreateWindow, L["COMMAND_HISTORY"])
 end

@@ -3,14 +3,15 @@ local IncendioLoot = _G[addonName]
 local IncendioLootOptions = IncendioLoot:NewModule("OptionsPane", "AceEvent-3.0", "AceConsole-3.0")
 local OptionsAceConfig = LibStub("AceConfig-3.0")
 local OptionsAceConfDialog = LibStub("AceConfigDialog-3.0")
+local L = addon.L
 
 StaticPopupDialogs["IL_WIPEDATABASE"] = {
-    text = IncendioLoot.STATICS.WIPE_DATABASE,
+    text = L["WIPE_DATABASE"],
     button1 = "Yes",
     button2 = "No",
     OnAccept = function(self)
         IncendioLoot.ILHistory:ResetDB()
-        print(IncendioLoot.STATICS.DATABASE_WIPED)
+        print(L["DATABASE_WIPED"])
     end,
     timeout = 0,
     whileDead = true,
@@ -23,15 +24,15 @@ function IncendioLootOptions:OnEnable()
         args = {
             general = {
                 type = "group",
-                name = "Allgemein",
+                name = L["OPTION_GENERAL"],
                 args = {
                     Basics = {
                         type = "group",
                         name = "Basics",
                         args = {
                             enable = {
-                                name = "Aktivieren",
-                                desc = "Aktiviert / Deaktiviert IncendioLoot",
+                                name = L["OPTION_ENABLE"],
+                                desc = L["OPTION_ENABLE_DESCRIPTION"],
                                 type = "toggle",
                                 set = function (info, value)
                                     IncendioLoot.ILOptions.profile.options.general.active = value
@@ -41,8 +42,8 @@ function IncendioLootOptions:OnEnable()
                                 end
                             },
                             debug = {
-                                name = "Debug Mode",
-                                desc = "Aktiviert / Deaktiviert den Debug Modus",
+                                name = L["OPTION_DEBUGMODE"],
+                                desc = L["OPTION_DEBUGMODE_DESCRIPTION"],
                                 type = "toggle",
                                 set = function (info, value)
                                     IncendioLoot.ILOptions.profile.options.general.debug = value
@@ -52,8 +53,8 @@ function IncendioLootOptions:OnEnable()
                                 end
                             },
                             autopass = {
-                                name = "Autopass",
-                                desc = "Aktiviert / Deaktiviert automatisches passen",
+                                name = L["OPTION_AUTOPASS"],
+                                desc = L["OPTION_AUTOPASS_DESCRIPTION"],
                                 type = "toggle",
                                 set = function (info, value)
                                     IncendioLoot.ILOptions.profile.options.general.autopass = value
@@ -63,8 +64,8 @@ function IncendioLootOptions:OnEnable()
                                 end
                             },
                             AskForautopass = {
-                                name = "Nach Autopass fragen",
-                                desc = "Aktiviert / Deaktiviert die Frage beim betreten des Raids",
+                                name =  L["OPTION_AUTOPASS_ASK"],
+                                desc = L["OPTION_AUTOPASS_ASK_DESCRIPTION"],
                                 type = "toggle",
                                 set = function (info, value)
                                     IncendioLoot.ILOptions.profile.options.general.askForAutopass = value
@@ -77,10 +78,10 @@ function IncendioLootOptions:OnEnable()
                     },
                     Database = {
                         type = "group",
-                        name = "Database",
+                        name =  L["OPTION_DATABASE"],
                         args = {
                             WipeDatabase = {
-                                name = "Wipe Database",
+                                name = L["OPTION_DATABASE_WIPE"],
                                 type = "execute",
                                 func = function ()
                                     StaticPopup_Show("IL_WIPEDATABASE")
@@ -92,10 +93,10 @@ function IncendioLootOptions:OnEnable()
             },
             masterlooter = {
                 type = "group",
-                name = "Master Looter",
+                name = L["OPTION_MASTER_LOOTER"],
                 args = {
                     ML1 = {
-                        name = "Master Looter 1",
+                        name = L["OPTION_MASTER_LOOTER_1"],
                         type = "input",
                         multiline = false,
                         set = function (info, value)
@@ -107,7 +108,7 @@ function IncendioLootOptions:OnEnable()
                         end
                     },
                     ML2 = {
-                        name = "Master Looter 2",
+                        name = L["OPTION_MASTER_LOOTER_2"],
                         type = "input",
                         multiline = false,
                         set = function (info, value)
@@ -119,7 +120,7 @@ function IncendioLootOptions:OnEnable()
                         end
                     },
                     ML3 = {
-                        name = "Master Looter 3",
+                        name = L["OPTION_MASTER_LOOTER_3"],
                         type = "input",
                         multiline = false,
                         set = function (info, value)

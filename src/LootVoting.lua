@@ -1,17 +1,18 @@
 local addonName, addon = ...
 local IncendioLoot = _G[addonName]
-local FrameOpen
 local LootVoting = IncendioLoot:NewModule("LootVoting", "AceConsole-3.0", "AceEvent-3.0", "AceSerializer-3.0")
 local LootVotingGUI = LibStub("AceGUI-3.0")
+local L = addon.L
+
+local FrameOpen
 local ChildCount = 0
-local rollStates = {
-    {type = "BIS", name = "BIS"},
-    {type = "UPGRADE", name = "Upgrade"},
-    {type = "SECOND", name = "Secondspeck"},
-    {type = "OTHER", name = "Anderes"},
-    {type = "TRANSMOG", name = "Transmog"},
-    {type = "PASS", name = "Passen"}
-}
+
+local lootTypes = { "BIS", "UPGRADE", "SECOND", "OTHER", "TRANSMOG", "PASS" }
+local rollStates = {}
+for _, type in ipairs(lootTypes) do
+    table.insert(rollStates, {type = type, name = L["VOTE_STATE_"..type]})
+end
+
 local VotingMainFrameClose
 local VotingButtonFrameCLose
 local ViableLootAvailable
@@ -57,7 +58,7 @@ local function AutoPass()
                 local ItemLink = Item.ItemLink
                 local Index = Item.Index
                 local _, AverageItemLevel = GetAverageItemLevel()
-                LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink,  rollType = IncendioLoot.STATICS.DID_AUTO_PASS, Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY")
+                LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink,  rollType = L["DID_AUTO_PASS"], Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY")
             else
                 ViableLootAvailable = true
             end
@@ -81,7 +82,7 @@ local function HandleLooted()
     end
 
     local LootVotingMainFrame = LootVotingGUI:Create("Window")
-    LootVotingMainFrame:SetTitle("Incendio Loot - Wir brauchen Meersälze!")
+    LootVotingMainFrame:SetTitle(L["VOTE_TITLE"])
     LootVotingMainFrame:EnableResize(false)
     VotingMainFrameClose = LootVotingMainFrame
 
@@ -135,7 +136,7 @@ local function HandleLooted()
                 end)
                 ChildCount = ChildCount + 1
                 for _, rollState in pairs(rollStates) do
-                    ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, Index, CloseButtonFrame))
+                    ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, Index))
                 end
             end
         end
@@ -193,7 +194,7 @@ function LootVoting:OnEnable()
             return
         end
         HandleLooted()
-    end, "Zeigt das Loot-Vote-Fenster an.")
+    end, L["COMMAND_SHOW"])
 end
 
 LootVoting:RegisterEvent("LOOT_OPENED", function (eventname, rollID)

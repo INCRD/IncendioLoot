@@ -8,6 +8,7 @@ IncendioLootFunctions = {}
 
 local ReceivedOutOfDateMessage = false
 local AceConsole = LibStub("AceConsole-3.0")
+local L = addon.L
 
 --[[
     ["subcommand"] = {
@@ -34,30 +35,12 @@ IncendioLoot.EVENTS = {
 }
 
 --[[
-    Static Text Constants
-]] --
-IncendioLoot.STATICS = {
-    NO_VOTE = "Kein Vote",
-    ASSIGN_ITEM = "Möchtest du das Item zuweisen",
-    END_SESSION = "Möchtest du die Sitzung beenden?",
-    WIPE_DATABASE = "Möchtest du WIRKLICH die Lootdatenbank löschen?",
-    DATABASE_WIPED = "Die Lootdatenbank wurde gelöscht.",
-    DOUBLE_USE_WARNING = "WARNUNG, ein weiteres LootAddon ist aktiv! Dies kann zu Problemen führen.",
-    OUT_OF_DATE_ADDON = "Achtung, deine Version von IncendioLoot ist nicht aktuell. Aktuelle Version: ",
-    SELECT_PLAYER_FIRST = "Bitte erst einen Spieler auswählen!",
-    ITEM_ALREADY_ASSIGNED = "Das Item wurde bereits zugewiesen.",
-    DO_AUTOPASS = "Möchtest du automatisch auf Loot passen, der durch das Standardinterface angeboten wird?",
-    COUNCIL_FRAME_CHECK = "Das Council-Fenster ist bereits geöffnet oder es ist keine Session aktiv.",
-    DID_AUTO_PASS = "Automatisch gepasst"
-}
-
---[[
     local Dialogs
 ]]
 StaticPopupDialogs["IL_DOAUTOPASS"] = {
-    text = IncendioLoot.STATICS.DO_AUTOPASS,
-    button1 = "Ja",
-    button2 = "Nein",
+    text = L["DO_AUTOPASS"],
+    button1 = L["YES"],
+    button2 = L["NO"],
     OnAccept = function(self)
         IncendioLoot.ILOptions.profile.options.general.autopass = true
     end,
@@ -98,7 +81,7 @@ local function HandleVersionCheckEvent(prefix, str, distribution, sender)
     end
     local ver, msg = tonumber(IncendioLoot.Version), tonumber(str)
     if (msg and ver < msg and not ReceivedOutOfDateMessage) then
-        AceConsole:Print(IncendioLoot.STATICS.OUT_OF_DATE_ADDON..str)
+        AceConsole:Print(L["OUT_OF_DATE_ADDON"]..str)
         ReceivedOutOfDateMessage = true
     end
 end
@@ -115,7 +98,7 @@ function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
             description = description
         }
     else
-        AceConsole:Print("Chat command "..subcommand.." was already registered, therefore it's being ignored. Callstack is "..debugstack())
+        AceConsole:Print(string.format(L["ERROR_COMMAND_ALREADY_REGISTERED"], subommand, debugstack()))
     end
 end
 
@@ -123,7 +106,7 @@ local function PrintChatCommands()
     AceConsole:Print(WrapTextInColorCode("/il", C.LIGHTBLUE).." - IncendioLoot [v"..WrapTextInColorCode(IncendioLoot.Version, C.LIGHTBLUE).."]")
     for command, tbl in pairs(CommandCallbacks) do
         AceConsole:Print("  "..WrapTextInColorCode(command, C.LIGHTBLUE).." - "..tbl.description)
-    end
+    end 
 end
 
 
@@ -221,7 +204,7 @@ local function SetUpCommandHandler()
         end
     end)
 
-    IncendioLoot:RegisterSubCommand("help", PrintChatCommands, "Zeigt diese Befehls-Liste an.")
+    IncendioLoot:RegisterSubCommand("help", PrintChatCommands, L["COMMAND_HELP"])
 end
 
 local function EnterRaidInstance()
@@ -250,7 +233,7 @@ end
 local function CheckOtherLootAddons()
     local _,_,_,Enabled = GetAddOnInfo("RCLootCouncil")
     if Enabled then 
-        print(WrapTextInColorCode(IncendioLoot.STATICS.DOUBLE_USE_WARNING, "FFFF0000"))
+        print(WrapTextInColorCode(L["DOUBLE_USE_WARNING"], "FFFF0000"))
     end
 end
 
