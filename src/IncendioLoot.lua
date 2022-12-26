@@ -104,8 +104,12 @@ local function HandleVersionCheckEvent(prefix, str, distribution, sender)
 end
 
 local function HandleGroupRosterUpdate()
-    IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_CHECK,
-                                IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
+    local _, _, _, _, _, _, _, _, _, LfgDungeonID = GetInstanceInfo()
+	if LfgDungeonID == nil then 
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_CHECK,
+                                    IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
+	end
+
 end
 
 function IncendioLoot:RegisterSubCommand(subcommand, callback, description)

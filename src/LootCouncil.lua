@@ -200,8 +200,11 @@ local function UpdateExternalAssignItem(prefix, str, distribution, sender)
     local Index = CouncilAssign.Index
     local NewPlayerName = CouncilAssign.NewPlayerName
     local NewRollType = CouncilAssign.NewRollType
+    local ItemLink = CouncilAssign.ItemLink
     local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
     local PlayerInformation = PlayerTable[NewPlayerName]
+    local InstanceName, _, DifficultyIndex, DifficultyName, _, _, _, InstanceMapeID, _ = GetInstanceInfo()
+    IncendioLootLootDatabase.AddItemToDatabase(NewPlayerName,InstanceMapeID,PlayerInformation.class, InstanceName, PlayerInformation.rollType, ItemLink, PlayerInformation.vote, PlayerInformation.roll,DifficultyIndex,DifficultyName)
     PlayerInformation.rollType = NewRollType
     IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
 
@@ -242,7 +245,7 @@ function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
             IncendioLootLootDatabase.AddItemToDatabase(PlayerName,InstanceMapeID,PlayerInformation.class, InstanceName, PlayerInformation.rollType, value["ItemLink"], PlayerInformation.vote, PlayerInformation.roll,DifficultyIndex,DifficultyName)
             PlayerInformation.rollType = "Zugewiesen"
             IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_ASSIGN_ITEM_COUNCIL, 
-                        LootCouncil:Serialize({Index = Index, NewPlayerName = PlayerName, NewRollType = "Zugewiesen"}), 
+                        LootCouncil:Serialize({Index = Index, NewPlayerName = PlayerName, NewRollType = "Zugewiesen", ItemLink = value["ItemLink"]}), 
                         IsInRaid() and "RAID" or "PARTY")
             IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
             IncendioLootLootCouncil.SetItemAssignedIcon(Index)
