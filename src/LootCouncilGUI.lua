@@ -39,8 +39,8 @@ end
 
 StaticPopupDialogs["IL_ENDSESSION"] = {
     text = L["END_SESSION"],
-    button1 = "Yes",
-    button2 = "No",
+    button1 = L["YES"],
+    button2 = L["NO"],
     OnAccept = function(self)
         IncendioLootLootCouncilGUI.CloseGUI()
         IncendioLootLootCouncil.SetSessionInactive()

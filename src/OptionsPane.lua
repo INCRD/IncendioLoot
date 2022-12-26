@@ -7,8 +7,8 @@ local L = addon.L
 
 StaticPopupDialogs["IL_WIPEDATABASE"] = {
     text = L["WIPE_DATABASE"],
-    button1 = "Yes",
-    button2 = "No",
+    button1 = L["YES"],
+    button2 = L["NO"],
     OnAccept = function(self)
         IncendioLoot.ILHistory:ResetDB()
         print(L["DATABASE_WIPED"])

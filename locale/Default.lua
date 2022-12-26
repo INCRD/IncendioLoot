@@ -1,6 +1,9 @@
 local _, addon = ...
 local L = addon.L
 
+L["YES"] = "Yes"
+L["NO"] = "No"
+
 L["NO_VOTE"] = "No vote"
 L["ASSIGN_ITEM"] = "Would you like to assign the item?"
 L["END_SESSION"] = "Would you like to end the session?"
