@@ -1,6 +1,6 @@
 local _, addon = ...
 local L = addon.L
--- default locale, so no lang check
+
 if GetLocale() == "deDE" then
     L["YES"] = "Ja"
     L["NO"] = "Nein"
