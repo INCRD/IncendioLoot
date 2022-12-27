@@ -5,10 +5,11 @@ if GetLocale() == "deDE" then
     L["YES"] = "Ja"
     L["NO"] = "Nein"
 
-    L["NO_VOTE"] = "Kein Vote"
+    L["NO_VOTE"] = "?"
     L["ASSIGN_ITEM"] = "Möchtest du das Item zuweisen"
     L["END_SESSION"] = "Möchtest du die Sitzung beenden?"
     L["WIPE_DATABASE"] = "Möchtest du WIRKLICH die Datenbank löschen?"
+    L["IL_ACTIVATEADDONAUTOPASS"] = "Diese Option führt womöglich zu fehlern! Es wird nicht empfohlen, diese zu aktivieren. Fortfahren?"
     L["DATABASE_WIPED"] = "Die Lootdatenbank wurde gelöscht."
     L["DOUBLE_USE_WARNING"] = "WARNUNG, ein weiteres LootAddon ist aktiv! Dies kann zu Problemen führen."
     L["OUT_OF_DATE_ADDON"] = "Achtung, deine Version von IncendioLoot ist nicht aktuell. Aktuelle Version: %s"
@@ -25,7 +26,7 @@ if GetLocale() == "deDE" then
     L["VOTE_STATE_SECOND"] = "Second-Spec"
     L["VOTE_STATE_TRANSMOG"] = "Transmog"
     L["VOTE_STATE_OTHER"] = "Anderes"
-    L["VOTE_STATE_PASS"] = "Passen"
+    L["VOTE_STATE_PASS"] = "-"
 
     -- Loot council
     L["COUNCIL_ASSIGNED_ITEM"] = "Das Item %s wurde an %s vergeben."
@@ -47,8 +48,10 @@ if GetLocale() == "deDE" then
     L["OPTION_DEBUGMODE_DESCRIPTION"] = "Aktiviert / Deaktiviert den Debug-Modus"
     
     L["OPTION_AUTOPASS"] = "Autopass"
-    L["OPTION_AUTOPASS_DESCRIPTION"] = "Aktiviert / Deaktiviert automatisches passen"
+    L["OPTION_AUTOPASS_DESCRIPTION"] = "Aktiviert / Deaktiviert automatisches passen auf Loot, der durch WoW angeboten wird."
     
+    L["OPTION_ADDONAUTOPASS"] = "Addon Autopass"
+    L["OPTION_ADDONAUTOPASS_DESCRIPTION"] = "Aktiviert / Deaktiviert automatisches passen auf Loot, der durch IncendioLoot angeboten wird."
  
     L["OPTION_AUTOPASS_ASK"] = "Nach Autopass fragen"
     L["OPTION_AUTOPASS_ASK_DESCRIPTION"] = "Aktiviert / Deaktiviert die Frage beim betreten des Raids"

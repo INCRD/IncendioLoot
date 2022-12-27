@@ -4,10 +4,11 @@ local L = addon.L
 L["YES"] = "Yes"
 L["NO"] = "No"
 
-L["NO_VOTE"] = "No vote"
+L["NO_VOTE"] = "?"
 L["ASSIGN_ITEM"] = "Would you like to assign the item?"
 L["END_SESSION"] = "Would you like to end the session?"
 L["WIPE_DATABASE"] = "Do you REALLY want to wipe the loot database?"
+L["IL_ACTIVATEADDONAUTOPASS"] = "This functon is currently in an instable state and will cause errors. Are you sure to proceed?"
 L["DATABASE_WIPED"] = "The loot database has been wiped."
 L["DOUBLE_USE_WARNING"] = "WARNING another loot addon is active! This may cause issues."
 L["OUT_OF_DATE_ADDON"] = "Warning your version of IncendioLoot is not up to date. Current version: %s"
@@ -24,7 +25,7 @@ L["VOTE_STATE_UPGRADE"] = "Upgrade"
 L["VOTE_STATE_SECOND"] = "Secondary"
 L["VOTE_STATE_TRANSMOG"] = "Transmog"
 L["VOTE_STATE_OTHER"] = "Other"
-L["VOTE_STATE_PASS"] = "Pass"
+L["VOTE_STATE_PASS"] = "-"
 
 -- loot council
 L["COUNCIL_ASSIGNED_ITEM"] = "The item %s was assigned to %s."
@@ -45,7 +46,10 @@ L["OPTION_DEBUGMODE"] = "Debug mode"
 L["OPTION_DEBUGMODE_DESCRIPTION"] = "Enables/Disables debug mode"
 
 L["OPTION_AUTOPASS"] = "Autopass"
-L["OPTION_AUTOPASS_DESCRIPTION"] = "Enables/Disables automatic passing"
+L["OPTION_AUTOPASS_DESCRIPTION"] = "Enables/Disables automatic passing on Loot provided by the WoW Interface"
+
+L["OPTION_ADDONAUTOPASS"] = "Addon Autopass"
+L["OPTION_ADDONAUTOPASS_DESCRIPTION"] = "Enables/Disables automatic passing on Loot provided by IncendioLoot"
 
 L["OPTION_AUTOPASS_ASK"] = "Ask for autopass"
 L["OPTION_AUTOPASS_ASK_DESCRIPTION"] = "Enables/Disables asking for autopass on joining a raid"

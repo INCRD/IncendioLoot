@@ -18,6 +18,18 @@ StaticPopupDialogs["IL_WIPEDATABASE"] = {
     hideOnEscape = true,
 }
 
+StaticPopupDialogs["IL_ACTIVATEADDONAUTOPASS"] = {
+    text = L["IL_ACTIVATEADDONAUTOPASS"],
+    button1 = L["YES"],
+    button2 = L["NO"],
+    OnAccept = function(self, data)
+        IncendioLoot.ILOptions.profile.options.general.addonAutopass = data
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+}
+
 function IncendioLootOptions:OnEnable()
     local IncendioLootOptions = {
         type = "group",
@@ -69,9 +81,26 @@ function IncendioLootOptions:OnEnable()
                                 type = "toggle",
                                 set = function (info, value)
                                     IncendioLoot.ILOptions.profile.options.general.askForAutopass = value
+                                    print("Bla")
                                 end,
                                 get = function (info)
                                     return IncendioLoot.ILOptions.profile.options.general.askForAutopass
+                                end
+                            },
+                            AddonAutopass = {
+                                name =  L["OPTION_ADDONAUTOPASS"],
+                                desc = L["OPTION_ADDONAUTOPASS_DESCRIPTION"],
+                                type = "toggle",
+                                set = function (info, value)
+                                    if value == true then
+                                        local ActivateAutopassDialog = StaticPopup_Show("IL_ACTIVATEADDONAUTOPASS")
+                                        ActivateAutopassDialog.data = value
+                                    else
+                                        IncendioLoot.ILOptions.profile.options.general.addonAutopass = value
+                                    end
+                                end,
+                                get = function (info)
+                                    return IncendioLoot.ILOptions.profile.options.general.addonAutopass
                                 end
                             }
                         }

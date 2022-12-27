@@ -31,7 +31,8 @@ IncendioLoot.EVENTS = {
     EVENT_LOOT_ANNOUNCE_MLS = "IL.AnnounceMLs", -- Announces Masterlooters to all addonusers
     EVENT_LOOT_VOTE_COUNCIL = "IL.AnnounceVote", -- Announces the own vote to Council
     EVENT_LOOT_ASSIGN_ITEM_COUNCIL = "IL.AssignItem",
-    EVENT_DATA_RECEIVED = "IL.DataReceived"
+    EVENT_DATA_RECEIVED = "IL.DataReceived",
+    EVENT_DATA_AUTODECISION = "IL.AutoDecision"
 }
 
 --[[
@@ -56,7 +57,13 @@ StaticPopupDialogs["IL_DOAUTOPASS"] = {
     UwU pretty colors
 ]]
 IncendioLoot.COLORS = {
-    LIGHTBLUE = 'FF00CCFF'
+    LIGHTBLUE = 'FF00CCFF',
+    GREEN = 'FF03E83D',
+    ORANGE = 'FFED8505',
+    BLUE = 'FF046DFF',
+    YELLOW = 'FFE1F40D',
+    PURPLE = 'FFA301F9',
+    GREY = 'FF898989'
 }
 
 local C = IncendioLoot.COLORS
@@ -115,15 +122,26 @@ end
 
 
 
-local function CreateScrollCol(ColName, Width, sort)
-    if sort then
+local function CreateScrollCol(ColName, Width, sort, SortNext)
+    if sort and (SortNext == 0) then
         return {
             ["name"] = ColName,
             ["width"] = Width,
             ["align"] = "LEFT",
             ["colorargs"] = nil,
-            ["defaultsort"] = "dsc",
-            ["sortnext"]= 4,
+            ["defaultsort"] = "dcs",
+            ["DoCellUpdate"] = nil,
+        }
+    end
+    print(SortNext)
+    if sort and (SortNext > 0) then
+        return {
+            ["name"] = ColName,
+            ["width"] = Width,
+            ["align"] = "LEFT",
+            ["colorargs"] = nil,
+            ["defaultsort"] = "acs",
+            ["sortnext"]= SortNext,
             ["DoCellUpdate"] = nil,
         }
     end
@@ -133,9 +151,8 @@ local function CreateScrollCol(ColName, Width, sort)
         ["align"] = "LEFT",
         ["colorargs"] = nil,
         ["defaultsort"] = "dsc",
-        ["sortnext"]= 4,
         ["comparesort"] = function (cella, cellb, column)
-            --maybe build own search function?
+            --function?
         end,
         ["DoCellUpdate"] = nil,
     }
@@ -143,29 +160,29 @@ end
 
 local function BuildBasicData()
     local ScrollCols = {}
-    table.insert(ScrollCols, CreateScrollCol("Name", 80, true))
-    table.insert(ScrollCols, CreateScrollCol("Class", 80, true))
-    table.insert(ScrollCols, CreateScrollCol("Zone", 80))
-    table.insert(ScrollCols, CreateScrollCol("Online", 80))
-    table.insert(ScrollCols, CreateScrollCol("Answer", 80, true))
-    table.insert(ScrollCols, CreateScrollCol("Itemlevel", 80))
-    table.insert(ScrollCols, CreateScrollCol("Roll", 80, true))
-    table.insert(ScrollCols, CreateScrollCol("Votes", 80))
-    table.insert(ScrollCols, CreateScrollCol("Gewichtung", 80, true))
+    table.insert(ScrollCols, CreateScrollCol("Name", 80, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Zone", 80, false, 0))
+    table.insert(ScrollCols, CreateScrollCol("Online", 80, false, 0))
+    table.insert(ScrollCols, CreateScrollCol("Answer", 80, true, 8))
+    table.insert(ScrollCols, CreateScrollCol("Itemlevel", 80, false, 0))
+    table.insert(ScrollCols, CreateScrollCol("Roll", 80, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Votes", 80, false, 0))
+    table.insert(ScrollCols, CreateScrollCol("Gewichtung %", 80, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Notiz", 80, false, 0))
 
     return(ScrollCols)
 end
 
 local function BuildBasicHistoryData()
     local ScrollCols = {}
-    table.insert(ScrollCols, CreateScrollCol("Name", 80, true))
-    table.insert(ScrollCols, CreateScrollCol("Klasse", 100, true))
-    table.insert(ScrollCols, CreateScrollCol("Antwort", 80))
-    table.insert(ScrollCols, CreateScrollCol("Roll", 50))
-    table.insert(ScrollCols, CreateScrollCol("Item", 120, true))
-    table.insert(ScrollCols, CreateScrollCol("Instanz", 100))
-    table.insert(ScrollCols, CreateScrollCol("Datum", 100, true))
-    table.insert(ScrollCols, CreateScrollCol("Uhrzeit", 100, true))
+    table.insert(ScrollCols, CreateScrollCol("Name", 80, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Klasse", 100, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Antwort", 80, false, 0))
+    table.insert(ScrollCols, CreateScrollCol("Roll", 50, false, 0))
+    table.insert(ScrollCols, CreateScrollCol("Item", 120, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Instanz", 100, false, 0))
+    table.insert(ScrollCols, CreateScrollCol("Datum", 100, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Uhrzeit", 100, true, 0))
 
     return(ScrollCols)
 end
@@ -249,7 +266,8 @@ function IncendioLoot:OnInitialize()
                     active = false,
                     debug = false,
                     autopass = false,
-                    askForAutopass = true
+                    askForAutopass = true,
+                    addonAutopass = false
                 },
                 masterlooters = {
                     ml1 = "",
