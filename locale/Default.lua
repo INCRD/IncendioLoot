@@ -61,6 +61,8 @@ L["OPTION_MASTER_LOOTER"] = "Master Looter"
 L["OPTION_MASTER_LOOTER_1"] = "Master Looter 1"
 L["OPTION_MASTER_LOOTER_2"] = "Master Looter 2"
 L["OPTION_MASTER_LOOTER_3"] = "Master Looter 3"
+L["OPTION_MASTER_LOOTER_4"] = "Master Looter 4"
+L["OPTION_MASTER_LOOTER_5"] = "Master Looter 5"
 
 -- commands
 L["COMMAND_HELP"] = "Displays this command list."

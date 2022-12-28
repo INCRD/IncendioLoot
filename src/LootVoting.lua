@@ -22,7 +22,6 @@ for _, type in ipairs(lootTypes) do
 end
 
 local VotingMainFrameClose
-local VotingButtonFrameCLose
 local ViableLootAvailable
 IncendioLootLootVoting = {}
 
@@ -51,7 +50,6 @@ local function CloseGUIManual()
         return
     end
     LootVotingGUI:Release(VotingMainFrameClose)
-    LootVotingGUI:Release(VotingButtonFrameCLose)
     FrameOpen = false
     ChildCount = 0
 end
@@ -63,7 +61,6 @@ function IncendioLootLootVoting.CloseGUI()
     if VotingMainFrameClose:IsShown() then
         FrameOpen = false
         LootVotingGUI:Release(VotingMainFrameClose)
-        LootVotingGUI:Release(VotingButtonFrameCLose)
     end
     ChildCount = 0
 end
@@ -104,26 +101,10 @@ local function HandleLooted()
         end
     end
 
-    local LootVotingMainFrame = LootVotingGUI:Create("Window")
+    local LootVotingMainFrame = LootVotingGUI:Create("Frame")
     LootVotingMainFrame:SetTitle(L["VOTE_TITLE"])
     LootVotingMainFrame:EnableResize(false)
     VotingMainFrameClose = LootVotingMainFrame
-
-    local CloseButtonFrame = LootVotingGUI:Create("InlineGroup")
-    CloseButtonFrame:SetTitle("")
-    CloseButtonFrame:SetLayout("Fill")
-    VotingButtonFrameCLose = CloseButtonFrame
-
-    local CloseButton = LootVotingGUI:Create("Button")
-    CloseButton:SetText("Close")
-    CloseButton:SetCallback("OnClick", function ()
-        IncendioLootLootVoting.CloseGUI()
-    end)
-    CloseButtonFrame:AddChild(CloseButton)
-    CloseButtonFrame.frame:SetPoint("BOTTOMRIGHT",LootVotingMainFrame.frame,"BOTTOMRIGHT",0,-45)
-    CloseButtonFrame.frame:SetWidth(150)
-    CloseButtonFrame.frame:SetHeight(60)
-    CloseButtonFrame.frame:Show()
 
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
         if type(Item) == "table" then
@@ -138,7 +119,7 @@ local function HandleLooted()
                 local ItemGroup = LootVotingGUI:Create("InlineGroup")
                 ItemGroup:SetLayout("Flow") 
                 ItemGroup:SetFullWidth(true)
-                ItemGroup:SetHeight(70)
+                ItemGroup:SetHeight(150)
                 LootVotingMainFrame:AddChild(ItemGroup)
 
                 local IconWidget1 = LootVotingGUI:Create("InteractiveLabel")
@@ -171,21 +152,21 @@ local function HandleLooted()
         end
     end
 
+    print("BLUBL")
     LootVotingMainFrame:SetLayout("ILVooting")
     LootVotingMainFrame:SetCallback("OnClose", CloseGUIManual)
-    LootVotingMainFrame.frame:Show()
     FrameOpen = true
 end
 
 LootVotingGUI:RegisterLayout("ILVooting", 
     function(content, children)
-        local VotingFrameHeight = 170
+        local VotingFrameHeight = 270
 
         FrameContent = content["obj"] 
         FrameObject = FrameContent["frame"]
         for i = 1, #children do
             if (i > 1) then
-                VotingFrameHeight = VotingFrameHeight + 140
+                VotingFrameHeight = VotingFrameHeight + 146
             end
         end
 

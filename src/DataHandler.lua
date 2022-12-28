@@ -107,6 +107,8 @@ function IncendioLootDataHandler.BuildAndSetMLTable()
     table.insert(MasterLooter, IncendioLoot.ILOptions.profile.options.masterlooters.ml1)
     table.insert(MasterLooter, IncendioLoot.ILOptions.profile.options.masterlooters.ml2)
     table.insert(MasterLooter, IncendioLoot.ILOptions.profile.options.masterlooters.ml3)
+    table.insert(MasterLooter, IncendioLoot.ILOptions.profile.options.masterlooters.ml4)
+    table.insert(MasterLooter, IncendioLoot.ILOptions.profile.options.masterlooters.ml5)
     IncendioLootLootCouncil.AnnounceMLs()
 end
 

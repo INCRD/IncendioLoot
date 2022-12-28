@@ -72,13 +72,13 @@ function IncendioLootFunctions.CheckIfMasterLooter()
     if UnitIsGroupLeader("player") then 
         return(true)
     end
+    
     local MasterLooter = IncendioLootDataHandler.GetExternalMasterLooter()
     
     for i, MasterLooter in pairs(MasterLooter) do
         if (UnitName("player") == MasterLooter) then
             return(true)
         end
-        
     end
 end
 
@@ -272,7 +272,9 @@ function IncendioLoot:OnInitialize()
                 masterlooters = {
                     ml1 = "",
                     ml2 = "",
-                    ml3 = ""
+                    ml3 = "",
+                    ml4 = "",
+                    ml5 = ""
                 }
             }
         }

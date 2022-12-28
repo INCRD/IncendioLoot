@@ -102,7 +102,7 @@ local function BuildData()
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED, 
             LootCouncil:Serialize(Payload), 
             IsInRaid() and "RAID" or "PARTY")
-        if WaitForCouncilMembercount = 0 then
+        if WaitForCouncilMembercount == 0 then
             IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
             LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()),
             IsInRaid() and "RAID" or "PARTY")

@@ -159,6 +159,30 @@ function IncendioLootOptions:OnEnable()
                         get = function (info)
                             return IncendioLoot.ILOptions.profile.options.masterlooters.ml3
                         end
+                    },
+                    ML4 = {
+                        name = L["OPTION_MASTER_LOOTER_4"],
+                        type = "input",
+                        multiline = false,
+                        set = function (info, value)
+                            IncendioLoot.ILOptions.profile.options.masterlooters.ml4 = value
+                            IncendioLootDataHandler.BuildAndSetMLTable()
+                        end,
+                        get = function (info)
+                            return IncendioLoot.ILOptions.profile.options.masterlooters.ml4
+                        end
+                    },
+                    ML5 = {
+                        name = L["OPTION_MASTER_LOOTER_5"],
+                        type = "input",
+                        multiline = false,
+                        set = function (info, value)
+                            IncendioLoot.ILOptions.profile.options.masterlooters.ml5 = value
+                            IncendioLootDataHandler.BuildAndSetMLTable()
+                        end,
+                        get = function (info)
+                            return IncendioLoot.ILOptions.profile.options.masterlooters.ml5
+                        end
                     }
                 }
             }
