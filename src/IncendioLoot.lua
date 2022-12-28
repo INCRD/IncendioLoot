@@ -106,8 +106,7 @@ function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
     if not CommandCallbacks[subcommand] then
         CommandCallbacks[subcommand] = {
             callback = callback,
-            description = description,
-            name = subcommand -- just for easier sorting
+            description = description
         }
     else
         AceConsole:Print(string.format(L["ERROR_COMMAND_ALREADY_REGISTERED"], subommand, debugstack()))
@@ -115,7 +114,7 @@ function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
 end
 
 --[[
-    Returns an iterator function that 
+    Returns an iterator function that sorts a table alphabetically by its keys
 ]]--
 local function pairsByKeys (t, f)
     local a = {}
