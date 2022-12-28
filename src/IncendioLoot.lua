@@ -106,16 +106,34 @@ function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
     if not CommandCallbacks[subcommand] then
         CommandCallbacks[subcommand] = {
             callback = callback,
-            description = description
+            description = description,
+            name = subcommand -- just for easier sorting
         }
     else
         AceConsole:Print(string.format(L["ERROR_COMMAND_ALREADY_REGISTERED"], subommand, debugstack()))
     end
 end
 
+--[[
+    Returns an iterator function that 
+]]--
+local function pairsByKeys (t, f)
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0      -- iterator variable
+    local iter = function ()   -- iterator function
+        i = i + 1
+        if a[i] == nil then return nil
+        else return a[i], t[a[i]]
+        end
+    end
+    return iter
+end
+
 local function PrintChatCommands()
     AceConsole:Print(WrapTextInColorCode("/il", C.LIGHTBLUE).." - IncendioLoot [v"..WrapTextInColorCode(IncendioLoot.Version, C.LIGHTBLUE).."]")
-    for command, tbl in pairs(CommandCallbacks) do
+    for command, tbl in pairsByKeys(CommandCallbacks) do
         AceConsole:Print("  "..WrapTextInColorCode(command, C.LIGHTBLUE).." - "..tbl.description)
     end 
 end
@@ -242,6 +260,7 @@ local function RegisterCommsAndEvents()
     SetSessionInactive)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
     IncendioLoot:RegisterEvent("RAID_INSTANCE_WELCOME", EnterRaidInstance)
+    IncendioLoot:RegisterSubCommand("options", function() Settings.OpenToCategory('IncendioLoot') end, L["COMMAND_OPTIONS"])
 end
 
 local function BuildBasics()

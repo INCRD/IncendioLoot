@@ -69,6 +69,7 @@ L["COMMAND_HELP"] = "Displays this command list."
 L["COMMAND_COUNCIL"] = "Displays the loot council window."
 L["COMMAND_HISTORY"] = "Displays the loot history."
 L["COMMAND_SHOW"] = "Displays the loot vote frame."
+L["COMMAND_OPTIONS"] = "Opens the AddOn settings."
 
 -- errors etc
 L["ERROR_COMMAND_ALREADY_REGISTERED"] = "Chat command '%s' has already been registered, and is therefore being ignored. Callstack is %s"

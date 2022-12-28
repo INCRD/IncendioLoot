@@ -71,6 +71,7 @@ if GetLocale() == "deDE" then
     L["COMMAND_COUNCIL"] = "Zeigt das Council-Fenster an."
     L["COMMAND_HISTORY"] = "Zeigt die Loothistorie an."
     L["COMMAND_SHOW"] = "Zeigt das Loot-Vote-Fenster an."
+    L["COMMAND_OPTIONS"] = "Öffnet die AddOn-Einstellungen."
 
     -- errors etc
     L["ERROR_COMMAND_ALREADY_REGISTERED"] = "Chat-Befehl '%s' wurde bereits registriert, und wird daher ignoriert. Callstack ist %s"
