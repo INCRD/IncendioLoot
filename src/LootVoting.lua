@@ -104,7 +104,6 @@ local function HandleLooted()
     local LootVotingMainFrame = LootVotingGUI:Create("Frame")
     LootVotingMainFrame:SetTitle(L["VOTE_TITLE"])
     LootVotingMainFrame:EnableResize(false)
-    LootVotingMainFrame:SetWidth(750)
     VotingMainFrameClose = LootVotingMainFrame
 
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
@@ -119,12 +118,13 @@ local function HandleLooted()
 
                 local ItemGroup = LootVotingGUI:Create("InlineGroup")
                 ItemGroup:SetLayout("Flow") 
-                ItemGroup:SetFullWidth(true)
-                ItemGroup:SetHeight(150)
+                ItemGroup:SetHeight(100)
+                ItemGroup:SetWidth(60 + (#rollStates * 92) + 200 ) --Basewidth + rollstatesAmount * fixedwidth + Notebox
+                ItemGroup:SetAutoAdjustHeight(false)
                 LootVotingMainFrame:AddChild(ItemGroup)
 
                 local IconWidget1 = LootVotingGUI:Create("InteractiveLabel")
-                IconWidget1:SetWidth(100)
+                IconWidget1:SetWidth(60)
                 IconWidget1:SetHeight(40)
                 IconWidget1:SetImageSize(40,40)
                 IconWidget1:SetImage(TexturePath)
@@ -144,6 +144,7 @@ local function HandleLooted()
                 local NoteBox = LootVotingGUI:Create("EditBox")
                 NoteBox:SetLabel("Notiz")
                 NoteBox:SetMaxLetters(20)
+                NoteBox:SetWidth(150)
                 for _, rollState in pairs(rollStates) do
                     ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, Index, NoteBox))
                 end
@@ -160,17 +161,26 @@ end
 
 LootVotingGUI:RegisterLayout("ILVooting", 
     function(content, children)
-        local VotingFrameHeight = 270
+        local VotingFrameHeight = 165
 
         FrameContent = content["obj"] 
         FrameObject = FrameContent["frame"]
         for i = 1, #children do
-            if (i > 1) then
-                VotingFrameHeight = VotingFrameHeight + 146
+            if (i > 1) and (i ~= 1) then
+                VotingFrameHeight = VotingFrameHeight + 90
             end
         end
 
+        local y = 0
+        for i, child in ipairs(children) do
+            child:SetPoint("TOPLEFT", 0, -y)
+            y = y + 86 + 2 
+        end
+
         FrameObject:SetHeight(VotingFrameHeight)
+        FrameObject:SetWidth(830)
+        FrameObject:SetBackdropColor(0,0,0,0)
+        FrameObject:SetBackdropBorderColor(0,0,0,0)
     end
 )
 

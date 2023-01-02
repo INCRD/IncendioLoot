@@ -148,19 +148,21 @@ function IncendioLootLootCouncil.BuildScrollData(VoteData, ItemIndex)
 
     PlayerTable = VoteData[ItemIndex]
     for index, PlayerInformation in pairs(PlayerTable) do
-        local cols = {
-            { ["value"] = PlayerInformation.name },
-            { ["value"] = PlayerInformation.zone },
-            { ["value"] = tostring(PlayerInformation.online) },
-            { ["value"] = tostring(PlayerInformation.rollType) },
-            { ["value"] = tostring(PlayerInformation.iLvl) },
-            { ["value"] = tostring(PlayerInformation.roll) },
-            { ["value"] = PlayerInformation.vote },
-            { ["value"] = PlayerInformation.autodecision },
-            { ["value"] = PlayerInformation.note }
-        }
-        rows[i] = { ["cols"] = cols }
-        i = i + 1
+        if (tostring(PlayerInformation.rollType) ~= WrapTextInColorCode("PASS", IncendioLoot.COLORS.GREY)) then
+            local cols = {
+                { ["value"] = PlayerInformation.name },
+                { ["value"] = PlayerInformation.zone },
+                { ["value"] = tostring(PlayerInformation.online) },
+                { ["value"] = tostring(PlayerInformation.rollType) },
+                { ["value"] = tostring(PlayerInformation.iLvl) },
+                { ["value"] = tostring(PlayerInformation.roll) },
+                { ["value"] = PlayerInformation.vote },
+                { ["value"] = PlayerInformation.autodecision },
+                { ["value"] = PlayerInformation.note }
+            }
+            rows[i] = { ["cols"] = cols }
+            i = i + 1
+        end
     end
     IncendioLootDataHandler.SetScrollRows(rows)
 end
