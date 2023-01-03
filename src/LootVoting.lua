@@ -33,9 +33,20 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, Index, NoteBox)
         LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ItemLink = ItemLink, rollType = WrapTextInColorCode(rollState.type, lootTypeColor[rollState.type]), Index = Index, iLvl = AverageItemLevel, Note = NoteBox:GetText()}), IsInRaid() and "RAID" or "PARTY") 
         ChildCount = ChildCount - 1
         if (ChildCount == 0) then 
-            IncendioLootLootVoting.CloseGUI()
+            for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
+                if (Item.Index == Index) then 
+                    Item.Rolled = true
+                    IncendioLootLootVoting.CloseGUI()
+                end
+            end
         else
-            ItemGroup.frame:Hide()
+            for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
+                if (Item.Index == Index) then 
+                    Item.Rolled = true
+                    IncendioLootLootVoting.CloseGUI()
+                    LootVoting.ReOpenGUI()
+                end
+            end
         end
     end)
     button:SetWidth(92)
@@ -107,7 +118,7 @@ local function HandleLooted()
     VotingMainFrameClose = LootVotingMainFrame
 
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
-        if type(Item) == "table" then
+        if (type(Item) == "table") and (Item.Rolled == false or Item.Rolled == nil) then
             local TexturePath = Item.TexturePath
             local ItemName = Item.ItemName
             local ItemLink = Item.ItemLink
@@ -157,6 +168,10 @@ local function HandleLooted()
     LootVotingMainFrame:SetLayout("ILVooting")
     LootVotingMainFrame:SetCallback("OnClose", CloseGUIManual)
     FrameOpen = true
+end
+
+function LootVoting.ReOpenGUI()
+    HandleLooted()
 end
 
 LootVotingGUI:RegisterLayout("ILVooting", 
@@ -214,6 +229,9 @@ function LootVoting:OnEnable()
     IncendioLoot:RegisterSubCommand("show", function ()
         if not IncendioLootDataHandler.GetSessionActive() or FrameOpen then
             return
+        end
+        for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
+            Item.Rolled = false
         end
         HandleLooted()
     end, L["COMMAND_SHOW"])
