@@ -45,13 +45,17 @@ local function BuildLootTable()
                 Item["LootQuality"] = LootQuality
                 Item["Assigned"] = false
                 IncendioLootDataHandler.AddItemToLootTable(Item)
-                IncendioLootDataHandler.AddItemIndexToVoteData(Item.Index)
             end
         end
     end
+    return(true)
 end
 
 local function BuildVoteData()
+    for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do 
+        IncendioLootDataHandler.AddItemIndexToVoteData(Item.Index)
+    end
+
     local VoteData = IncendioLootDataHandler.GetVoteData()
     for index, VoteDataValue in pairs(VoteData) do
         PlayerTable = VoteData[index]
@@ -65,13 +69,6 @@ local function BuildVoteData()
         end
     end
     IncendioLootDataHandler.SetVoteData(VoteData)
-end
-
-local function BuildLootAndVoteTable()
-    BuildLootTable()
-    BuildVoteData()
-
-    return(true)
 end
 
 local function BuildData()
@@ -88,24 +85,23 @@ local function BuildData()
         local numGroupMembers = GetNumGroupMembers()
         for i = 1, numGroupMembers do
             local name = GetUnitName("raid" .. i)
-            if (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml1) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml2) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml3) then
+            if (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml1) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml2) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml3) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml4) or (name == IncendioLoot.ILOptions.profile.options.masterlooters.ml4) then
                 WaitForCouncilMembercount = WaitForCouncilMembercount + 1
             end
         end
         IncendioLootDataHandler.WipeData()
-        IncendioLootDataHandler.SetSessionActiveInactive(BuildLootAndVoteTable())
+        IncendioLootDataHandler.SetSessionActiveInactive(BuildLootTable())
         local Payload = {
             LootTable = IncendioLootDataHandler.GetLootTable(),
-            VoteTable = IncendioLootDataHandler.GetVoteData(),
             SessionActive = IncendioLootDataHandler.GetSessionActive()
         }
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED, 
             LootCouncil:Serialize(Payload), 
-            IsInRaid() and "RAID" or "PARTY")
+            IsInRaid() and "RAID")
         if WaitForCouncilMembercount == 0 then
             IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
             LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()),
-            IsInRaid() and "RAID" or "PARTY")
+            IsInRaid() and "RAID")
         end
     end
 end
@@ -136,7 +132,7 @@ function IncendioLootLootCouncil.AnnounceMLs()
     end
 
     if UnitIsGroupLeader("player") then
-        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_ANNOUNCE_MLS, LootCouncil:Serialize(MasterLooter), IsInRaid() and "RAID" or "PARTY")
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_ANNOUNCE_MLS, LootCouncil:Serialize(MasterLooter), IsInRaid() and "RAID")
     end
 end
 
@@ -176,13 +172,13 @@ local function ReceiveLootDataAndStartGUI(prefix, str, distribution, sender)
     if (not CheckIfSenderIsPlayer(sender)) and isDebugOrCM then 
         local _, Payload = LootCouncil:Deserialize(str)
         IncendioLootDataHandler.SetLootTable(Payload.LootTable)
-        IncendioLootDataHandler.SetVoteData(Payload.VoteTable)
         IncendioLootDataHandler.SetSessionActiveInactive(Payload.SessionActive)
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_DATA_RECEIVED,
         " ",
-        IsInRaid() and "RAID" or "PARTY")
+        IsInRaid() and "RAID")
     end
     if isDebugOrCM then
+        BuildVoteData()
         IncendioLootLootCouncilGUI.HandleLootLootedEvent()
     end
 end
@@ -191,7 +187,7 @@ function IncendioLootLootCouncil.SetSessionInactive()
     if UnitIsGroupLeader("player") then
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
         " ",
-        IsInRaid() and "RAID" or "PARTY")
+        IsInRaid() and "RAID")
     end
 end
 
@@ -210,7 +206,7 @@ local function UpdateVoteData(Index, PlayerName, RollType, Ilvl, Note)
 
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_DATA_AUTODECISION, 
                                     LootCouncil:Serialize({AutoDecisionResult = AutoDecisionResult, Index = Index, PlayerName = PlayerName}), 
-        IsInRaid() and "RAID" or "PARTY")
+        IsInRaid() and "RAID")
     end
 end
 
@@ -293,7 +289,7 @@ function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
             PlayerInformation.rollType = "Zugewiesen"
             IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_ASSIGN_ITEM_COUNCIL, 
                         LootCouncil:Serialize({Index = Index, NewPlayerName = PlayerName, NewRollType = "Zugewiesen", ItemLink = value["ItemLink"]}), 
-                        IsInRaid() and "RAID" or "PARTY")
+                        IsInRaid() and "RAID")
             IncendioLootLootCouncilGUI.CreateScrollFrame(Index)
             IncendioLootLootCouncil.SetItemAssignedIcon(Index)
         end
@@ -313,7 +309,7 @@ local function CheckAndBuildOwnVoted(Index, PlayerName, PlayerTable)
                     OwnVoteData[LocIndex] = PlayerName
                     IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_COUNCIL, 
                         LootCouncil:Serialize({Index = Index, OldPlayerName = value, NewPlayerName = PlayerName}), 
-                        IsInRaid() and "RAID" or "PARTY")
+                        IsInRaid() and "RAID")
                     return(true)
                 end
             end
@@ -322,7 +318,7 @@ local function CheckAndBuildOwnVoted(Index, PlayerName, PlayerTable)
     IncendioLootDataHandler.SetOwnVoteData(OwnVoteData)
     IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_COUNCIL, 
                         LootCouncil:Serialize({Index = Index, OldPlayerName = "none", NewPlayerName = PlayerName}), 
-                        IsInRaid() and "RAID" or "PARTY")
+                        IsInRaid() and "RAID")
     return(true)
 end
 
@@ -360,7 +356,7 @@ local function ReceiveDataAndCheck(prefix, str, distribution, sender)
         end
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
             LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()),
-            IsInRaid() and "RAID" or "PARTY")
+            IsInRaid() and "RAID")
     end
 end
 
