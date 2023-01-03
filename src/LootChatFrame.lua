@@ -26,12 +26,16 @@ function IncendioLootChatFrames.CreateChatFrame(itemIndex)
         return
     end
 
-    local ChatFrame = AceGUI:Create("Frame")
+    local ChatFrame = AceGUI:Create("Window")
     ChatFrame:SetLayout("Flow")
-    ChatFrame:SetTitle("Chatbox")
+    ChatFrame:SetTitle("")
     ChatFrame:SetWidth(230)
     ChatFrame:SetHeight(350)
     ChatFrame:EnableResize(false)
+    
+    ChatFrame.frame:SetMovable(false)
+    ChatFrame.frame:SetScript("OnMouseDown", nil)
+    ChatFrame.frame:SetScript("OnMouseUp", nil)
 
     local ScrollFrame = AceGUI:Create("ScrollFrame")
     ScrollFrame:SetWidth(230)
@@ -94,7 +98,6 @@ function IncendioLootChatFrames.CreateChatFrame(itemIndex)
         lastTextMessageFrame = TextMessage ]]
     end
 
-    print(itemIndex)
     ChatFrames[itemIndex] = ChatFrame
     TargetScrollFrame = ScrollFrame
     
