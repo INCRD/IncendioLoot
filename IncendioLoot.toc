@@ -17,3 +17,4 @@ src/LootCouncilGUI.lua
 src/OptionsPane.lua
 src/LootDatabase.lua
 src/LootHistoryGUI.lua
+src/LootChatFrame.lua

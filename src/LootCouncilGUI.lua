@@ -251,6 +251,9 @@ local function CreateItemFrame(ItemFrame)
                     CurrentIndex = Item.Index
                     IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
                     IconWidget1:SetImage(Item.TexturePath)
+                    local ChatFrame = IncendioLootChatFrames.CreateChatFrame(Item.Index)
+                    ChatFrame.frame:SetParent(MainFrameClose.frame)
+                    ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",385,0)
                     isFirst = false
                 end
             end

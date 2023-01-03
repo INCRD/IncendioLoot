@@ -32,7 +32,8 @@ IncendioLoot.EVENTS = {
     EVENT_LOOT_VOTE_COUNCIL = "IL.AnnounceVote", -- Announces the own vote to Council
     EVENT_LOOT_ASSIGN_ITEM_COUNCIL = "IL.AssignItem",
     EVENT_DATA_RECEIVED = "IL.DataReceived",
-    EVENT_DATA_AUTODECISION = "IL.AutoDecision"
+    EVENT_DATA_AUTODECISION = "IL.AutoDecision",
+    EVENT_CHAT_SENT = "IL.ChatSent"
 }
 
 --[[
