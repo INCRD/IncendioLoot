@@ -118,7 +118,7 @@ local function HandleLooted()
     VotingMainFrameClose = LootVotingMainFrame
 
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
-        if (type(Item) == "table") and (Item.Rolled == false or Item.Rolled == nil) then
+        if (type(Item) == "table") and (not Item.Rolled or Item.Rolled == nil) then
             local TexturePath = Item.TexturePath
             local ItemName = Item.ItemName
             local ItemLink = Item.ItemLink
@@ -181,7 +181,7 @@ LootVotingGUI:RegisterLayout("ILVooting",
         FrameContent = content["obj"] 
         FrameObject = FrameContent["frame"]
         for i = 1, #children do
-            if (i > 1) and (i ~= 1) then
+            if (i > 1) then
                 VotingFrameHeight = VotingFrameHeight + 90
             end
         end
