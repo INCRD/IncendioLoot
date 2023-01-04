@@ -248,6 +248,9 @@ local function EnterRaidInstance()
     if not IncendioLoot.ILOptions.profile.options.general.active or not IncendioLoot.ILOptions.profile.options.general.askForAutopass then 
         return
     end
+    if InstanceType ~= "raid" then
+        return
+    end
 
     StaticPopup_Show("IL_DOAUTOPASS")
 end
