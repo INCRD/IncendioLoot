@@ -13,7 +13,7 @@ local lastTextMessage
 local lastTextMessageFrame
 
 local ChatFrames = {}
-local TargetScrollFrame
+local ChatMessages = {}
 IncendioLootChatFrames = {}
 
 --[[
@@ -21,21 +21,22 @@ IncendioLootChatFrames = {}
     hooks up handler functions to it.
 --]]
 
+function IncendioLootChatFrames.CloseGUI()
+    for k, value in pairs(ChatFrames) do
+        value.frame:Hide()
+    end
+end
+
 function IncendioLootChatFrames.CreateChatFrame(itemIndex)
     if not IsInRaid() then 
         return
     end
 
-    local ChatFrame = AceGUI:Create("Window")
+    local ChatFrame = AceGUI:Create("InlineGroup")
     ChatFrame:SetLayout("Flow")
     ChatFrame:SetTitle("")
     ChatFrame:SetWidth(230)
     ChatFrame:SetHeight(350)
-    ChatFrame:EnableResize(false)
-    
-    ChatFrame.frame:SetMovable(false)
-    ChatFrame.frame:SetScript("OnMouseDown", nil)
-    ChatFrame.frame:SetScript("OnMouseUp", nil)
 
     local ScrollFrame = AceGUI:Create("ScrollFrame")
     ScrollFrame:SetWidth(230)
@@ -56,59 +57,30 @@ function IncendioLootChatFrames.CreateChatFrame(itemIndex)
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_CHAT_SENT,
                                       LootChatFrame:Serialize(data), "RAID")
     end
-
     InputText:SetCallback("OnEnterPressed", SendEvent)
-
     InputFrame:SetLayout("Flow")
     InputFrame:AddChild(InputText)
-
     ChatFrame:AddChild(InputFrame)
-
-    ChatFrame.AddChatMessage = function(self, sender, timestamp, message)
-        local NewLabel = AceGUI:Create("Label")
-        local NewMsgContent = ""
-        for i = 1, #message, 30 do
-            NewMsgContent = NewMsgContent .. string.sub(message, i, i+29) .. "\n"
-        end
-        local _, ClassFilename = UnitClass(sender)
-        local _, _, _, ClassColor = GetClassColor(ClassFilename)
-        local ColoredName = WrapTextInColorCode(sender, ClassColor)
-
-        local NewMsg = ColoredName .. ": " .. NewMsgContent
-
-        NewLabel:SetText(NewMsg)
-        TargetScrollFrame:AddChild(NewLabel)
-
-        --[[ if lastTextMessageFrame then
-            lastTextMessageFrame:Hide()
-        end
-        local TextMessage = self.frame:CreateFontString(nil, "OVERLAY",
-                                                  "GameFontNormal")
-        if lastTextMessage == nil then 
-            lastTextMessage = "[" .. date("%H:%M", timestamp) .. "] " .. sender ..
-            ": " .. message
-        else
-            lastTextMessage = lastTextMessage .. "\n" .. "[" .. date("%H:%M", timestamp) .. "] " .. sender ..
-            ": " .. message
-        end
-        TextMessage:SetPoint("LEFT")
-        TextMessage:SetJustifyH("LEFT")
-        TextMessage:SetText(lastTextMessage)
-        lastTextMessage = TextMessage:GetText()
-        lastTextMessageFrame = TextMessage ]]
-    end
-
     ChatFrames[itemIndex] = ChatFrame
-    TargetScrollFrame = ScrollFrame
-    
+    ChatMessages[itemIndex] = ""
     return ChatFrame
 end
 
---[[
-    Releases a chat frame from memory
---]]
-function IncendioLootChatFrames.Release(itemIndex) 
-    ChatFrames[itemIndex] = nil 
+local function AddChatMessage (self, sender, timestamp, message)
+    local NewLabel = AceGUI:Create("Label")
+    local NewMsgContent = ""
+    for i = 1, #message, 30 do
+        NewMsgContent = NewMsgContent .. string.sub(message, i, i+29) .. "\n"
+    end
+    local _, ClassFilename = UnitClass(sender)
+    local _, _, _, ClassColor = GetClassColor(ClassFilename)
+    local ColoredName = WrapTextInColorCode(sender, ClassColor)
+
+    local NewMsg = ColoredName .. ": " .. NewMsgContent
+    local FontObject = CreateFont("ILChat")
+
+    NewLabel:SetText(NewMsg)
+    TargetScrollFrame:AddChild(NewLabel)
 end
 
 local function HandleChatSentEvent(prefix, str, distribution, sender)
@@ -118,7 +90,7 @@ local function HandleChatSentEvent(prefix, str, distribution, sender)
 
     local TargetChatFrame = ChatFrames[itemIndex]
     if not TargetChatFrame then
-        -- raise error
+        -- raise error - alex: WHY?!
         return
     end
 
@@ -129,4 +101,9 @@ end
 function LootChatFrame:OnEnable()
     LootChatFrame:RegisterComm(IncendioLoot.EVENTS.EVENT_CHAT_SENT, HandleChatSentEvent)
     print("done")
+end
+
+function IncendioLootChatFrames.WipeData()
+    ChatFrames = {}
+    ChatMessages = {}
 end

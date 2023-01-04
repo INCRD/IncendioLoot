@@ -16,6 +16,7 @@ local ScrollingFrame
 local ScrollingFrameSet
 local SelectedPlayerName
 local IconChilds = {}
+local ChatFrame
 
 IncendioLootLootCouncilGUI = {}
 
@@ -48,6 +49,7 @@ local function CloseGUIManual()
     LootCouncilAceGUI:Release(ButtonFrameCLose)
     LootCouncilAceGUI:Release(ItemFrameClose)
     LootCouncilAceGUI:Release(MainFrameClose)
+    ChatFrame.frame:Hide()
     ResetMainFrameStatus()
     IconChilds = {}
 end
@@ -65,6 +67,7 @@ function IncendioLootLootCouncilGUI.CloseGUI()
         LootCouncilAceGUI:Release(ButtonFrameCLose)
         LootCouncilAceGUI:Release(ItemFrameClose)
         LootCouncilAceGUI:Release(MainFrameClose)
+        ChatFrame.frame:Hide()
     end
     IconChilds = {}
 end
@@ -251,9 +254,9 @@ local function CreateItemFrame(ItemFrame)
                     CurrentIndex = Item.Index
                     IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
                     IconWidget1:SetImage(Item.TexturePath)
-                    local ChatFrame = IncendioLootChatFrames.CreateChatFrame(Item.Index)
+                    ChatFrame = IncendioLootChatFrames.CreateChatFrame(Item.Index)
                     ChatFrame.frame:SetParent(MainFrameClose.frame)
-                    ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",385,0)
+                    ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
                     isFirst = false
                 end
             end
