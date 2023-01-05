@@ -163,11 +163,11 @@ local function CreateWindow()
             if realrow == nil then 
                 return
             end
-            local celldata = data[realrow].cols[column]
-            
             if (column ~= 5) then --5 = Item
                 return
             end
+                
+            local celldata = data[realrow].cols[column]
 
             GameTooltip:SetOwner(HistoryTable.frame, "ANCHOR_RIGHT")
             GameTooltip:ClearLines()
