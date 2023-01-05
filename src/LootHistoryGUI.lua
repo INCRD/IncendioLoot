@@ -2,9 +2,9 @@ local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootHistoryGUI = IncendioLoot:NewModule("LootHistoryGUI", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local L = addon.L
-
 local HistoryTable
 local HistoryOpen
+local LastPosition = {point = "CENTER", relativeTo = UIParent, relativeToPoint = "CENTER", x = 0, y = 0}
 
 
 
@@ -110,10 +110,15 @@ local function CreateWindow()
         return
     end
 
+    if not IncendioLoot.ILHistory.factionrealm.history then 
+        print(L["HISTORY_NOT_AVAILABLE"])
+        return
+    end
+
     local HistoryMainFrame = CreateFrame("Frame", "HistoryMainFrame", UIParent, "BackdropTemplate")
 
     HistoryMainFrame:SetSize(800, 400)
-    HistoryMainFrame:SetPoint("CENTER")
+    HistoryMainFrame:SetPoint(LastPosition.point, LastPosition.relativeTo, LastPosition.relativeToPoint, LastPosition.x, LastPosition.y)
     HistoryMainFrame:SetBackdrop({
       bgFile = "Interface/Tooltips/UI-Tooltip-Background",
       edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -152,6 +157,38 @@ local function CreateWindow()
     HistoryTable.frame:SetPoint("CENTER", HistoryMainFrame, "CENTER", 0, -40)
     HistoryTable.frame:SetBackdropColor(0, 0, 0, 0)
     HistoryTable:SetData(GetDataRows())
+
+    HistoryTable:RegisterEvents({
+        ["OnEnter"] = function (rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, button)
+            if realrow == nil then 
+                return
+            end
+            local celldata = data[realrow].cols[column]
+            
+            if (column ~= 5) then --5 = Item
+                return
+            end
+
+            GameTooltip:SetOwner(HistoryTable.frame, "ANCHOR_RIGHT")
+            GameTooltip:ClearLines()
+            GameTooltip:SetHyperlink(celldata["value"])
+            GameTooltip:Show()
+        end,
+    });
+
+    HistoryTable:RegisterEvents({
+        ["OnLeave"] = function (rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, button)
+            if (column ~= 5) then --5 = Item
+                return
+            end
+
+            GameTooltip:Hide();
+        end,
+    });
+
+    HistoryMainFrame:SetScript("OnHide", function ()
+        LastPosition.point, LastPosition.relativeTo, LastPosition.relativeToPoint, LastPosition.x, LastPosition.y = HistoryMainFrame:GetPoint()
+    end)
 
     local DateFilterBox = CreateDateFilterBox(HistoryMainFrame)
     local ItemFilterBox = CreateItemFilterBox(HistoryMainFrame, DateFilterBox)
