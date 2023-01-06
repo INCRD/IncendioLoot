@@ -38,8 +38,6 @@ local function AddChatMessage(Index)
     end
     for _, k in pairs(sortedKeys(ChatMessages[Index])) do
         if (k > LastChatMsg) then
-            print(k)
-            print(LastChatMsg)
             local NewLabel = AceGUI:Create("Label")
             local NewMsgContent = ""
             for i = 1, #ChatMessages[Index][k], 40 do
