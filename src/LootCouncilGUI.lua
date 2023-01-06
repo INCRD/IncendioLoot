@@ -100,6 +100,10 @@ local function CollapseFrame()
         CloseButtonFrame.frame:SetHeight(60)
         CloseButtonFrame.frame:Show()
 
+        ChatFrame = IncendioLootChatFrames.CreateChatFrame(CurrentIndex)
+        ChatFrame.frame:SetParent(MainFrameClose.frame)
+        ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
+
         Collapsed = true
     end
 end
@@ -215,6 +219,13 @@ function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
     });
 end
 
+local function CreateChatFrame(Index)
+    ChatFrame = IncendioLootChatFrames.CreateChatFrame(Index)
+    ChatFrame.frame:SetParent(MainFrameClose.frame)
+    ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
+end
+
+
 local function CreateItemFrame(ItemFrame)
     local isFirst = true
     local LootTable = IncendioLootDataHandler.GetLootTable()
@@ -246,6 +257,9 @@ local function CreateItemFrame(ItemFrame)
                             value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Green Checkmark"))
                         end
                     end
+                    if CurrentIndex ~= Item.Index then
+                        CreateChatFrame(Item.Index)
+                    end
                     IconWidget1:SetImage(Item.TexturePath)
                     CurrentIndex = Item.Index
                     IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
@@ -254,9 +268,7 @@ local function CreateItemFrame(ItemFrame)
                     CurrentIndex = Item.Index
                     IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
                     IconWidget1:SetImage(Item.TexturePath)
-                    ChatFrame = IncendioLootChatFrames.CreateChatFrame(Item.Index)
-                    ChatFrame.frame:SetParent(MainFrameClose.frame)
-                    ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
+                    CreateChatFrame(Item.Index)
                     isFirst = false
                 end
             end

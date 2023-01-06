@@ -9,11 +9,12 @@ local IncendioLoot = _G[addonName]
 local LootChatFrame = IncendioLoot:NewModule("LootChatFrame", "AceComm-3.0", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 
-local lastTextMessage
-local lastTextMessageFrame
-
-local ChatFrames = {}
 local ChatMessages = {}
+local ChatFrameSet
+local ChatFrame
+local TargetScrollFrame
+local CurrentIndex
+local LastChatMsg
 IncendioLootChatFrames = {}
 
 --[[
@@ -21,27 +22,66 @@ IncendioLootChatFrames = {}
     hooks up handler functions to it.
 --]]
 
-function IncendioLootChatFrames.CloseGUI()
-    for k, value in pairs(ChatFrames) do
-        value.frame:Hide()
+local function sortedKeys(query, sortFunction)
+    local keys, len = {}, 0
+    for k,_ in pairs(query) do
+      len = len + 1
+      keys[len] = k
+    end
+    table.sort(keys, sortFunction)
+    return keys
+end
+
+local function AddChatMessage(Index)
+    if not ChatMessages[Index] then 
+        return
+    end
+    for _, k in pairs(sortedKeys(ChatMessages[Index])) do
+        if (k > LastChatMsg) then
+            print(k)
+            print(LastChatMsg)
+            local NewLabel = AceGUI:Create("Label")
+            local NewMsgContent = ""
+            for i = 1, #ChatMessages[Index][k], 40 do
+                NewMsgContent = NewMsgContent .. string.sub(ChatMessages[Index][k], i, i+39) .. "\n"
+            end
+
+            NewLabel:SetText(NewMsgContent)
+            TargetScrollFrame:AddChild(NewLabel)
+            LastChatMsg = k
+        end
+        if #ChatMessages[Index][k] > 20 then
+            TargetScrollFrame:SetScroll(#ChatMessages[Index][k] * 50)
+        end
     end
 end
 
-function IncendioLootChatFrames.CreateChatFrame(itemIndex)
+function IncendioLootChatFrames.WipdeData()
+    ChatMessages = {}
+end
+
+function IncendioLootChatFrames.CreateChatFrame(ItemIndex)
     if not IsInRaid() then 
         return
     end
 
-    local ChatFrame = AceGUI:Create("InlineGroup")
+    if ChatFrameSet then
+        ChatFrame.frame:Hide()
+    end
+
+    ChatFrame = AceGUI:Create("InlineGroup")
     ChatFrame:SetLayout("Flow")
     ChatFrame:SetTitle("")
     ChatFrame:SetWidth(230)
     ChatFrame:SetHeight(350)
 
+    ChatFrame.frame:SetScript("OnHide", function ()
+        ChatFrameSet = false
+    end)
+
     local ScrollFrame = AceGUI:Create("ScrollFrame")
     ScrollFrame:SetWidth(230)
     ScrollFrame:SetHeight(300)
-    ScrollFrame:SetScroll(1)
     ChatFrame:AddChild(ScrollFrame)
 
     local InputFrame = AceGUI:Create("InlineGroup")
@@ -50,8 +90,8 @@ function IncendioLootChatFrames.CreateChatFrame(itemIndex)
     InputText:SetWidth(180)
     local SendEvent = function()
         local data = {
-            itemIndex = itemIndex,
-            message = InputText:GetText(),
+            NewIndex = ItemIndex,
+            Message = InputText:GetText(),
         }
         InputText:SetText("")
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_CHAT_SENT,
@@ -61,49 +101,40 @@ function IncendioLootChatFrames.CreateChatFrame(itemIndex)
     InputFrame:SetLayout("Flow")
     InputFrame:AddChild(InputText)
     ChatFrame:AddChild(InputFrame)
-    ChatFrames[itemIndex] = ChatFrame
-    ChatMessages[itemIndex] = ""
+
+    ChatFrameSet = true
+    TargetScrollFrame = ScrollFrame
+    CurrentIndex = ItemIndex
+    LastChatMsg = 0
+    AddChatMessage(ItemIndex)
     return ChatFrame
 end
 
-local function AddChatMessage (self, sender, timestamp, message)
-    local NewLabel = AceGUI:Create("Label")
-    local NewMsgContent = ""
-    for i = 1, #message, 30 do
-        NewMsgContent = NewMsgContent .. string.sub(message, i, i+29) .. "\n"
-    end
+local function AddChatMessageToQueue(sender, msg, Index)
     local _, ClassFilename = UnitClass(sender)
     local _, _, _, ClassColor = GetClassColor(ClassFilename)
     local ColoredName = WrapTextInColorCode(sender, ClassColor)
+    local NewMsg = ColoredName .. ": " .. msg
+    
+    if not ChatMessages[Index] then
+        ChatMessages[Index] = {}
+    end
 
-    local NewMsg = ColoredName .. ": " .. NewMsgContent
-    local FontObject = CreateFont("ILChat")
+    ChatMessages[Index][#ChatMessages[Index]+1] = NewMsg
+    if CurrentIndex ~= Index then
+        return
+    end
 
-    NewLabel:SetText(NewMsg)
-    TargetScrollFrame:AddChild(NewLabel)
+    AddChatMessage(Index)
 end
 
 local function HandleChatSentEvent(prefix, str, distribution, sender)
     local _, data = LootChatFrame:Deserialize(str)
-    local itemIndex = data.itemIndex
-    local msg = data.message
-
-    local TargetChatFrame = ChatFrames[itemIndex]
-    if not TargetChatFrame then
-        -- raise error - alex: WHY?!
-        return
-    end
-
-    TargetChatFrame:AddChatMessage(sender, time(), msg)
+    AddChatMessageToQueue(sender, data.Message, data.NewIndex)
 end
 
 -- tbd how to initialize
 function LootChatFrame:OnEnable()
     LootChatFrame:RegisterComm(IncendioLoot.EVENTS.EVENT_CHAT_SENT, HandleChatSentEvent)
     print("done")
-end
-
-function IncendioLootChatFrames.WipeData()
-    ChatFrames = {}
-    ChatMessages = {}
 end

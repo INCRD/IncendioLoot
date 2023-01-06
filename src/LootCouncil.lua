@@ -163,6 +163,8 @@ function IncendioLootLootCouncil.BuildScrollData(VoteData, ItemIndex)
                 { ["value"] = tostring(PlayerInformation.online) },
                 { ["value"] = tostring(PlayerInformation.rollType) },
                 { ["value"] = tostring(PlayerInformation.iLvl) },
+                { ["value"] = " " },
+                { ["value"] = " " },
                 { ["value"] = tostring(PlayerInformation.roll) },
                 { ["value"] = PlayerInformation.vote },
                 { ["value"] = PlayerInformation.autodecision },

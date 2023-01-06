@@ -6,8 +6,6 @@ local L = addon.L
 local HistoryTable
 local HistoryOpen
 
-
-
 local function GetDataRows()
     local i = 1
     local rows = {}
