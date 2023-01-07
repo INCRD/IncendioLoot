@@ -55,6 +55,8 @@ function IncendioLootChatFrames.AddChatMessage(Index)
 end
 
 function IncendioLootChatFrames.WipdeData()
+    ChatFrame.frame:Hide()
+    ChatFrameSet = false
     ChatMessages = {}
 end
 
@@ -107,7 +109,6 @@ function IncendioLootChatFrames.CreateChatFrame(ItemIndex)
     TargetScrollFrame = ScrollFrame
     CurrentIndex = ItemIndex
     LastChatMsg = 0
-    print("Frame set")
     return ChatFrame
 end
 

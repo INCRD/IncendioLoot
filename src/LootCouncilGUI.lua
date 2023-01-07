@@ -49,7 +49,8 @@ local function CloseGUIManual()
     LootCouncilAceGUI:Release(ButtonFrameCLose)
     LootCouncilAceGUI:Release(ItemFrameClose)
     LootCouncilAceGUI:Release(MainFrameClose)
-    ChatFrame.frame:Hide()
+    
+    IncendioLootChatFrames.WipdeData()
     ResetMainFrameStatus()
     IconChilds = {}
 end
@@ -67,7 +68,7 @@ function IncendioLootLootCouncilGUI.CloseGUI()
         LootCouncilAceGUI:Release(ButtonFrameCLose)
         LootCouncilAceGUI:Release(ItemFrameClose)
         LootCouncilAceGUI:Release(MainFrameClose)
-        ChatFrame.frame:Hide()
+        IncendioLootChatFrames.WipdeData()
     end
     IconChilds = {}
 end
@@ -245,6 +246,8 @@ end
 
 local function CreateChatFrame(Index)
     ChatFrame = IncendioLootChatFrames.CreateChatFrame(Index)
+    print(MainFrameClose.frame)
+    print(ChatFrame)
     ChatFrame.frame:SetParent(MainFrameClose.frame)
     ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
     IncendioLootChatFrames.AddChatMessage(Index)
@@ -282,12 +285,17 @@ local function CreateItemFrame(ItemFrame)
                             value.IconWidget:SetImage(LootCouncilShareMedia:Fetch("texture", "Green Checkmark"))
                         end
                     end
-                    if CurrentIndex ~= Item.Index then
-                        CreateChatFrame(Item.Index)
-                    end
                     IconWidget1:SetImage(Item.TexturePath)
+
+                    local CreateFrame = false
+                    if CurrentIndex ~= Item.Index then
+                        CreateFrame = true
+                    end
                     CurrentIndex = Item.Index
                     IncendioLootLootCouncilGUI.CreateScrollFrame(Item.Index)
+                    if CreateFrame then
+                        CreateChatFrame(Item.Index)
+                    end
                 end);
                 if isFirst then
                     CurrentIndex = Item.Index
