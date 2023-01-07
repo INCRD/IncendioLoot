@@ -189,6 +189,7 @@ local function ReceiveLootDataAndStartGUI(prefix, str, distribution, sender)
     local isDebugOrCM = IncendioLootFunctions.CheckIfMasterLooter() or IncendioLoot.ILOptions.profile.options.general.debug
     if (not CheckIfSenderIsPlayer(sender)) and isDebugOrCM then 
         local _, Payload = LootCouncil:Deserialize(str)
+        IncendioLootDataHandler.WipeData()
         IncendioLootDataHandler.SetLootTable(Payload.LootTable)
         IncendioLootDataHandler.SetSessionActiveInactive(Payload.SessionActive)
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_DATA_RECEIVED,
