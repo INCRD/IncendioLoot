@@ -100,9 +100,7 @@ local function CollapseFrame()
         CloseButtonFrame.frame:SetHeight(60)
         CloseButtonFrame.frame:Show()
 
-        ChatFrame = IncendioLootChatFrames.CreateChatFrame(CurrentIndex)
-        ChatFrame.frame:SetParent(MainFrameClose.frame)
-        ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
+        ChatFrame.frame:Hide()
 
         Collapsed = true
     end
@@ -217,12 +215,39 @@ function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
             ScrollFrameMenu(button)
         end,
     });
+
+    ScrollingFrame:RegisterEvents({
+        ["OnEnter"] = function (rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, button)
+            if realrow == nil then 
+                return
+            end
+            if (column == 6) or (column == 7) then --6,7 = Item1 and Item2
+                
+                local celldata = data[realrow].cols[column]
+                if celldata["value"] then
+                    GameTooltip:SetOwner(ScrollingFrame.frame, "ANCHOR_RIGHT")
+                    GameTooltip:ClearLines()
+                    GameTooltip:SetHyperlink(celldata["value"])
+                    GameTooltip:Show()
+                end
+            end
+        end,
+    });
+
+    ScrollingFrame:RegisterEvents({
+        ["OnLeave"] = function (rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, button)
+            if (column == 6) or (column == 7) then --6,7 = Item1 and Item2
+                GameTooltip:Hide();
+            end
+        end,
+    });
 end
 
 local function CreateChatFrame(Index)
     ChatFrame = IncendioLootChatFrames.CreateChatFrame(Index)
     ChatFrame.frame:SetParent(MainFrameClose.frame)
     ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
+    IncendioLootChatFrames.AddChatMessage(Index)
 end
 
 

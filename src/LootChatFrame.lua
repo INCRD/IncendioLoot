@@ -32,7 +32,7 @@ local function sortedKeys(query, sortFunction)
     return keys
 end
 
-local function AddChatMessage(Index)
+function IncendioLootChatFrames.AddChatMessage(Index)
     if not ChatMessages[Index] then 
         return
     end
@@ -59,12 +59,14 @@ function IncendioLootChatFrames.WipdeData()
 end
 
 function IncendioLootChatFrames.CreateChatFrame(ItemIndex)
+    local OldChatFrame
     if not IsInRaid() then 
         return
     end
 
     if ChatFrameSet then
-        ChatFrame.frame:Hide()
+        OldChatFrame = ChatFrame
+        OldChatFrame.frame:Hide()
     end
 
     ChatFrame = AceGUI:Create("InlineGroup")
@@ -80,6 +82,7 @@ function IncendioLootChatFrames.CreateChatFrame(ItemIndex)
     local ScrollFrame = AceGUI:Create("ScrollFrame")
     ScrollFrame:SetWidth(230)
     ScrollFrame:SetHeight(300)
+    ScrollFrame:SetScroll(1)
     ChatFrame:AddChild(ScrollFrame)
 
     local InputFrame = AceGUI:Create("InlineGroup")
@@ -104,7 +107,7 @@ function IncendioLootChatFrames.CreateChatFrame(ItemIndex)
     TargetScrollFrame = ScrollFrame
     CurrentIndex = ItemIndex
     LastChatMsg = 0
-    AddChatMessage(ItemIndex)
+    print("Frame set")
     return ChatFrame
 end
 
@@ -122,8 +125,8 @@ local function AddChatMessageToQueue(sender, msg, Index)
     if CurrentIndex ~= Index then
         return
     end
-
-    AddChatMessage(Index)
+    
+    IncendioLootChatFrames.AddChatMessage(Index)
 end
 
 local function HandleChatSentEvent(prefix, str, distribution, sender)

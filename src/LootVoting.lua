@@ -17,8 +17,45 @@ local lootTypeColor = {
     ["TRANSMOG"] = IncendioLoot.COLORS.PURPLE,
     ["PASS"] = IncendioLoot.COLORS.GREY
 }
+
+local itemSlotTable = {
+    -- Source: http://wowwiki.wikia.com/wiki/ItemEquipLoc
+    ["INVTYPE_AMMO"] =           { 0 },
+    ["INVTYPE_HEAD"] =           { 1 },
+    ["INVTYPE_NECK"] =           { 2 },
+    ["INVTYPE_SHOULDER"] =       { 3 },
+    ["INVTYPE_BODY"] =           { 4 },
+    ["INVTYPE_CHEST"] =          { 5 },
+    ["INVTYPE_ROBE"] =           { 5 },
+    ["INVTYPE_WAIST"] =          { 6 },
+    ["INVTYPE_LEGS"] =           { 7 },
+    ["INVTYPE_FEET"] =           { 8 },
+    ["INVTYPE_WRIST"] =          { 9 },
+    ["INVTYPE_HAND"] =           { 10 },
+    ["INVTYPE_FINGER"] =         { 11, 12 },
+    ["INVTYPE_TRINKET"] =        { 13, 14 },
+    ["INVTYPE_CLOAK"] =          { 15 },
+    ["INVTYPE_WEAPON"] =         { 16, 17 },
+    ["INVTYPE_SHIELD"] =         { 17 },
+    ["INVTYPE_2HWEAPON"] =       { 16, 17 },
+    ["INVTYPE_WEAPONMAINHAND"] = { 16, 17 },
+    ["INVTYPE_WEAPONOFFHAND"] =  { 16, 17 },
+    ["INVTYPE_HOLDABLE"] =       { 17 },
+    ["INVTYPE_RANGED"] =         { 18 },
+    ["INVTYPE_THROWN"] =         { 18 },
+    ["INVTYPE_RANGEDRIGHT"] =    { 18 },
+    ["INVTYPE_RELIC"] =          { 18 },
+    ["INVTYPE_TABARD"] =         { 19 },
+    ["INVTYPE_BAG"] =            { 20, 21, 22, 23 },
+    ["INVTYPE_QUIVER"] =         { 20, 21, 22, 23 }
+  };
+
 for _, type in ipairs(lootTypes) do
     table.insert(rollStates, {type = type, name = WrapTextInColorCode(L["VOTE_STATE_"..type], lootTypeColor[type])})
+end
+
+local function GetSlotID(itemEquipLoc)
+    return itemSlotTable[itemEquipLoc] or nil
 end
 
 local VotingMainFrameClose
@@ -30,7 +67,27 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, Index, NoteBox)
     button:SetText(rollState.name)
     button:SetCallback("OnClick", function() 
         local _, AverageItemLevel = GetAverageItemLevel()
-        LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ItemLink = ItemLink, rollType = WrapTextInColorCode(rollState.type, lootTypeColor[rollState.type]), Index = Index, iLvl = AverageItemLevel, Note = NoteBox:GetText()}), IsInRaid() and "RAID" or "PARTY") 
+        local ItemEquipLoc = select(9, GetItemInfo(ItemLink)) or nil
+        local ItemSlotID
+        local ItemEquipped1
+        local ItemEquipped2
+        print(ItemEquipLoc)
+            if ItemEquipLoc ~= nil then
+                ItemSlotID = GetSlotID(ItemEquipLoc)
+            end
+        if ItemSlotID ~= nil then
+            local First = true
+            for k, value in pairs(ItemSlotID) do
+                if First then
+                    ItemEquipped1 = GetInventoryItemLink("player", value)
+                    First = false
+                else
+                    ItemEquipped2 = GetInventoryItemLink("player", value)
+                end
+            end
+        end
+
+        LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ItemLink = ItemLink, rollType = WrapTextInColorCode(rollState.type, lootTypeColor[rollState.type]), Index = Index, iLvl = AverageItemLevel, Note = NoteBox:GetText(), ItemEquipped1 = ItemEquipped1, ItemEquipped2 = ItemEquipped2}), IsInRaid() and "RAID" or "PARTY") 
         ChildCount = ChildCount - 1
         if (ChildCount == 0) then 
             for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
@@ -123,7 +180,7 @@ local function HandleLooted()
             local ItemName = Item.ItemName
             local ItemLink = Item.ItemLink
             local Index = Item.Index
-
+            
             if (IncendioLootDataHandler.GetViableLoot()[ItemName] ~= nil) or 
             not IncendioLoot.ILOptions.profile.options.general.addonAutopass then
 

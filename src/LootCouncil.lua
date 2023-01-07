@@ -163,8 +163,8 @@ function IncendioLootLootCouncil.BuildScrollData(VoteData, ItemIndex)
                 { ["value"] = tostring(PlayerInformation.online) },
                 { ["value"] = tostring(PlayerInformation.rollType) },
                 { ["value"] = tostring(PlayerInformation.iLvl) },
-                { ["value"] = " " },
-                { ["value"] = " " },
+                { ["value"] = PlayerInformation.itemEquipped1},
+                { ["value"] = PlayerInformation.itemEquipped2},
                 { ["value"] = tostring(PlayerInformation.roll) },
                 { ["value"] = PlayerInformation.vote },
                 { ["value"] = PlayerInformation.autodecision },
@@ -209,7 +209,7 @@ function IncendioLootLootCouncil.SetSessionInactive()
     end
 end
 
-local function UpdateVoteData(Index, PlayerName, RollType, Ilvl, Note)
+local function UpdateVoteData(Index, PlayerName, RollType, Ilvl, Note, ItemEquipped1, ItemEquipped2)
     if not IsInRaid() then 
         return
     end
@@ -219,6 +219,8 @@ local function UpdateVoteData(Index, PlayerName, RollType, Ilvl, Note)
     PlayerInformation.rollType = tostring(RollType)
     PlayerInformation.iLvl = Ilvl
     PlayerInformation.note = Note
+    PlayerInformation.itemEquipped1 = ItemEquipped1
+    PlayerInformation.itemEquipped2 = ItemEquipped2
 
     if UnitIsGroupLeader("player") then 
         local BasePlayerValue = 20000;
@@ -402,11 +404,13 @@ local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
     local NewIndex = LootVote.Index
     local ILvl = round(LootVote.iLvl)
     local Note = LootVote.Note
+    local ItemEquipped1 = LootVote.ItemEquipped1
+    local ItemEquipped2 = LootVote.ItemEquipped2
     local _, ClassFilename = UnitClass(sender)
     local _, _, _, ClassColor = GetClassColor(ClassFilename)
     local ColoredName = WrapTextInColorCode(sender, ClassColor)
 
-    UpdateVoteData(NewIndex, ColoredName, NewRollType, ILvl, Note)
+    UpdateVoteData(NewIndex, ColoredName, NewRollType, ILvl, Note, ItemEquipped1, ItemEquipped2)
     IncendioLootLootCouncilGUI.CreateScrollFrame(NewIndex)
 end
 
