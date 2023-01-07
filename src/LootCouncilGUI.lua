@@ -246,8 +246,6 @@ end
 
 local function CreateChatFrame(Index)
     ChatFrame = IncendioLootChatFrames.CreateChatFrame(Index)
-    print(MainFrameClose.frame)
-    print(ChatFrame)
     ChatFrame.frame:SetParent(MainFrameClose.frame)
     ChatFrame.frame:SetPoint("CENTER",MainFrameClose.frame,"CENTER",378,-30)
     IncendioLootChatFrames.AddChatMessage(Index)
