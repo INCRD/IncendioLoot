@@ -19,4 +19,5 @@
   <Include file="Libs\LibDialog-1.0\LibDialog-1.0.xml"/>
   <Include file="libs\LibCompress\lib.xml"/>
   <Include file="libs\lib-st\lib-st.xml"/>
+  <Include file="libs\LibDeflate\lib.xml"/>
 </Ui>

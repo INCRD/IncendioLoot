@@ -4,6 +4,7 @@ local L = addon.L
 if GetLocale() == "deDE" then
     L["YES"] = "Ja"
     L["NO"] = "Nein"
+    L["HISTORY_NOT_AVAILABLE"] = "Es ist keine Historie vorhanden"
 
     L["NO_VOTE"] = "?"
     L["ASSIGN_ITEM"] = "Möchtest du das Item zuweisen"
@@ -29,7 +30,7 @@ if GetLocale() == "deDE" then
     L["VOTE_STATE_PASS"] = "Passen"
 
     -- Loot council
-    L["COUNCIL_ASSIGNED_ITEM"] = "Das Item %s wurde an %s vergeben."
+    L["COUNCIL_ASSIGNED_ITEM"] = " wurde vergeben an "
         
     -- loot history
     L["HISTORY"] = "Loot-Historie"
@@ -72,7 +73,18 @@ if GetLocale() == "deDE" then
     L["COMMAND_HISTORY"] = "Zeigt die Loothistorie an."
     L["COMMAND_SHOW"] = "Zeigt das Loot-Vote-Fenster an."
     L["COMMAND_OPTIONS"] = "Öffnet die AddOn-Einstellungen."
+    L["COMMAND_SYNCDB"] = "Synchronisiert die Datenbank. WIP"
 
     -- errors etc
     L["ERROR_COMMAND_ALREADY_REGISTERED"] = "Chat-Befehl '%s' wurde bereits registriert, und wird daher ignoriert. Callstack ist %s"
+
+    --RandomAssignMessages
+    L["RANDOM_ASSIGN_MESSAGE_1"] = "Juhu!"
+    L["RANDOM_ASSIGN_MESSAGE_2"] = "Leider Geil!"
+    L["RANDOM_ASSIGN_MESSAGE_3"] = "Ist das denn die Möglichkeit?!"
+    L["RANDOM_ASSIGN_MESSAGE_4"] = "Hier könnte Ihre Werbung stehen!"
+    L["RANDOM_ASSIGN_MESSAGE_5"] = "Wubdidooh!"
+    L["RANDOM_ASSIGN_MESSAGE_6"] = "Absolut Klasse!"
+    L["RANDOM_ASSIGN_MESSAGE_7"] = "Megakrass!"
+    L["RANDOM_ASSIGN_MESSAGE_8"] = "Digga!"
 end

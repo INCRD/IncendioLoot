@@ -17,6 +17,7 @@ local ScrollingFrameSet
 local SelectedPlayerName
 local IconChilds = {}
 local ChatFrame
+local RandomShoutOut = {L["RANDOM_ASSIGN_MESSAGE_1"], L["RANDOM_ASSIGN_MESSAGE_2"], L["RANDOM_ASSIGN_MESSAGE_3"], L["RANDOM_ASSIGN_MESSAGE_4"], L["RANDOM_ASSIGN_MESSAGE_5"], L["RANDOM_ASSIGN_MESSAGE_6"], L["RANDOM_ASSIGN_MESSAGE_7"], L["RANDOM_ASSIGN_MESSAGE_8"]}
 
 IncendioLootLootCouncilGUI = {}
 
@@ -134,7 +135,6 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
         if data2 == nil then
             return
         end
-
         local LootTable = IncendioLootDataHandler.GetLootTable()
         for i, value in pairs(LootTable) do
             if (value["Index"] == data) then 
@@ -143,7 +143,13 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
                     return
                 else
                     value["Assigend"] = true
-                    SendChatMessage("Item:" .. value.ItemLink.. "wurde vergeben", "RAID")
+                    local CleanedName = string.gsub(data2, "|cff%x+", "")
+                    CleanedName = string.gsub(CleanedName, "|r", "")
+                    
+                    local max = #RandomShoutOut
+                    local RandomIndex = math.random(1, max)
+
+                    SendChatMessage(value.ItemLink.. L["COUNCIL_ASSIGNED_ITEM"] .. CleanedName .. ". ".. RandomShoutOut[RandomIndex] , "RAID")
                 end
             end
         end

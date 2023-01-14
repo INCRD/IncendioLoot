@@ -15,6 +15,7 @@ local ChatFrame
 local TargetScrollFrame
 local CurrentIndex
 local LastChatMsg
+local ChatFrameActive = false
 IncendioLootChatFrames = {}
 
 --[[
@@ -55,9 +56,13 @@ function IncendioLootChatFrames.AddChatMessage(Index)
 end
 
 function IncendioLootChatFrames.WipdeData()
+    if not ChatFrameActive  then 
+        return
+    end
     ChatFrame.frame:Hide()
     ChatFrameSet = false
     ChatMessages = {}
+    ChatFrameActive = false
 end
 
 function IncendioLootChatFrames.CreateChatFrame(ItemIndex)
@@ -109,6 +114,7 @@ function IncendioLootChatFrames.CreateChatFrame(ItemIndex)
     TargetScrollFrame = ScrollFrame
     CurrentIndex = ItemIndex
     LastChatMsg = 0
+    ChatFrameActive = true
     return ChatFrame
 end
 
@@ -138,5 +144,4 @@ end
 -- tbd how to initialize
 function LootChatFrame:OnEnable()
     LootChatFrame:RegisterComm(IncendioLoot.EVENTS.EVENT_CHAT_SENT, HandleChatSentEvent)
-    print("done")
 end

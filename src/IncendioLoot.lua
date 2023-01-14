@@ -30,10 +30,11 @@ IncendioLoot.EVENTS = {
     EVENT_LOOT_LOOTDATA_BUILDED = "IL.LootBuild", -- Lootdata has been builded and structured
     EVENT_LOOT_ANNOUNCE_MLS = "IL.AnnounceMLs", -- Announces Masterlooters to all addonusers
     EVENT_LOOT_VOTE_COUNCIL = "IL.AnnounceVote", -- Announces the own vote to Council
-    EVENT_LOOT_ASSIGN_ITEM_COUNCIL = "IL.AssignItem",
-    EVENT_DATA_RECEIVED = "IL.DataReceived",
-    EVENT_DATA_AUTODECISION = "IL.AutoDecision",
-    EVENT_CHAT_SENT = "IL.ChatSent"
+    EVENT_LOOT_ASSIGN_ITEM_COUNCIL = "IL.AssignItem", --Announces the assigned item to the council
+    EVENT_DATA_RECEIVED = "IL.DataReceived", --Council confirms when data is received
+    EVENT_DATA_AUTODECISION = "IL.AutoDecision", --ML sends AutoDecision to Council
+    EVENT_CHAT_SENT = "IL.ChatSent", --ChatEvent triggers when the chat is used
+    EVENT_GET_DB_SYNC = "IL.DBSync" --Triggers if a DB-Sync starts
 }
 
 --[[
@@ -309,6 +310,11 @@ function IncendioLoot:OnInitialize()
     local DefaultDBOptions = {
         profile = {
             history = {
+            }
+        },
+        factionrealm = {
+            history = {
+                
             }
         }
     }

@@ -17,9 +17,9 @@ local lootTypeColor = {
     ["TRANSMOG"] = IncendioLoot.COLORS.PURPLE,
     ["PASS"] = IncendioLoot.COLORS.GREY
 }
-
 local itemSlotTable = {
     -- Source: http://wowwiki.wikia.com/wiki/ItemEquipLoc
+    -- Source has been adjusted (for e.g. INVTYPE_RANGED has now the same ID as INTYPE_2HWEAPON)
     ["INVTYPE_AMMO"] =           { 0 },
     ["INVTYPE_HEAD"] =           { 1 },
     ["INVTYPE_NECK"] =           { 2 },
@@ -71,7 +71,6 @@ local function CreateRollButton(ItemGroup, rollState, ItemLink, Index, NoteBox)
         local ItemSlotID
         local ItemEquipped1
         local ItemEquipped2
-        print(ItemEquipLoc)
             if ItemEquipLoc ~= nil then
                 ItemSlotID = GetSlotID(ItemEquipLoc)
             end
@@ -329,7 +328,7 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
         if (pendingLootRolls ~= nil) then
             local _, ItemName, _, _, _, CanNeed = GetLootRollItemInfo(pendingLootRolls[i])
             if DoAutopass then
-                RollOnLoot(pendingLootRolls[i], 0)
+                C_Timer.After(0.5, function() RollOnLoot(pendingLootRolls[i], 0) end)
             end
             if CanNeed then
                 ViableLootRolls[ItemName] = CanNeed

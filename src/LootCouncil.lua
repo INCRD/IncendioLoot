@@ -84,13 +84,25 @@ end
 
 
 local function BuildData()
+    --Addon must be active
     if not IncendioLoot.ILOptions.profile.options.general.active then 
         return
     end
+    --Session must be inactive and Loot must be viable
     if IncendioLootDataHandler.GetSessionActive() or not CheckIfViableLootAvailable() or not IsInRaid() then
         return
     end
-    if UnitIsGroupLeader("player") then
+
+    --We don't want to use IL in LFG
+    local LfgDungeonID = select(10, GetInstanceInfo())
+    if LfgDungeonID ~= nil then
+        return
+    end
+
+    --We use InstanceID for now, to determine of we should start the council
+    local InstanceID = select(8, GetInstanceInfo())
+
+    if UnitIsGroupLeader("player") and IncendioLootDataHandler.GetRaidIDs()[InstanceID] ~= nil then
         WaitForCouncilMembercount = 0
         local numGroupMembers = GetNumGroupMembers()
         for i = 1, numGroupMembers do
@@ -223,7 +235,7 @@ local function UpdateVoteData(Index, PlayerName, RollType, Ilvl, Note, ItemEquip
     PlayerInformation.itemEquipped1 = ItemEquipped1
     PlayerInformation.itemEquipped2 = ItemEquipped2
 
-    if UnitIsGroupLeader("player") then 
+    if UnitIsGroupLeader("player") and (tostring(PlayerInformation.rollType) ~= WrapTextInColorCode("PASS", IncendioLoot.COLORS.GREY)) then 
         local BasePlayerValue = 20000;
         local NumOfItems = IncendioLootLootDatabase.ReturnItemsLastTwoWeeksPlayer(PlayerName, tostring(RollType)) * 1000
         local AutoDecisionResult = roundTwoDecimals(((BasePlayerValue - NumOfItems - Ilvl + PlayerInformation.roll) / 10000) / 2 * 100)
