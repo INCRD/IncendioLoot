@@ -295,7 +295,8 @@ function IncendioLoot:OnInitialize()
                     debug = false,
                     autopass = false,
                     askForAutopass = true,
-                    addonAutopass = false
+                    addonAutopass = false,
+                    allowDBSync = false
                 },
                 masterlooters = {
                     ml1 = "",

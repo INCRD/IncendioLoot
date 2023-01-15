@@ -65,6 +65,8 @@ L["OPTION_MASTER_LOOTER_3"] = "Master Looter 3"
 L["OPTION_MASTER_LOOTER_4"] = "Master Looter 4"
 L["OPTION_MASTER_LOOTER_5"] = "Master Looter 5"
 
+L["OPTION_ALLOW_DBSYNC"] = "Allow Databasesync"
+
 -- commands
 L["COMMAND_HELP"] = "Displays this command list."
 L["COMMAND_COUNCIL"] = "Displays the loot council window."

@@ -64,6 +64,16 @@ function IncendioLootOptions:OnEnable()
                                     return IncendioLoot.ILOptions.profile.options.general.debug
                                 end
                             },
+                            DBSync = {
+                                name = L["OPTION_ALLOW_DBSYNC"],
+                                type = "toggle",
+                                set = function (info, value)
+                                    IncendioLoot.ILOptions.profile.options.general.allowDBSync = value
+                                end,
+                                get = function (info)
+                                    return IncendioLoot.ILOptions.profile.options.general.allowDBSync
+                                end
+                            },
                             autopass = {
                                 name = L["OPTION_AUTOPASS"],
                                 desc = L["OPTION_AUTOPASS_DESCRIPTION"],

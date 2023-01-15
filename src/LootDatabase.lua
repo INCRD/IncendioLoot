@@ -47,7 +47,7 @@ function IncendioLootLootDatabase.ReturnItemsLastTwoWeeksPlayer(PlayerName, Roll
     return count
 end
 
-local function SyncData()
+local function SyncData(PlayerNameToSend)
     for i, value in pairs(IncendioLoot.ILHistory.factionrealm.history) do
         print(i)
         local Serialized = LootDatabase:Serialize({PlayerName = i, Data = IncendioLoot.ILHistory.factionrealm.history[i]})
@@ -56,14 +56,21 @@ local function SyncData()
         local EncodedForWoW = LootDatabaseDeflate:EncodeForWoWAddonChannel(compressed)
         
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_GET_DB_SYNC, 
-        EncodedForWoW, "WHISPER", "Addontestlol", "BULK")
+        EncodedForWoW, "WHISPER", PlayerNameToSend[3], "BULK")
     end
 end
 
 local function HandleSync(prefix, str, distribution, sender)
     if sender == GetUnitName("Player") then 
         print("Nöl")
+        return
     end
+
+    if not IncendioLoot.ILOptions.profile.options.general.allowDBSync then 
+        print("Jemand hat versucht eine Datenbank zu synchronisieren. Doch die Funktkion ist nicht aktiv.")
+        return
+    end
+
     local DataReceived = LootDatabaseDeflate:DecodeForWoWAddonChannel(str)
     local uncompressed = LootDatabaseDeflate:DecompressDeflate(DataReceived)
     local _, DeSerialized = LootDatabase:Deserialize(uncompressed)
@@ -76,7 +83,7 @@ end
 function LootDatabase:OnInitialize()
     LibStub("AceComm-3.0"):Embed(LootDatabase)
     LootDatabaseDeflate = LibStub("LibDeflate")
-    IncendioLoot:RegisterSubCommand("syncdb", SyncData, L["COMMAND_COUNCIL"])
+    IncendioLoot:RegisterSubCommand("syncdb", SyncData, L["COMMAND_SYNCDB"])
 end
 
 function LootDatabase:OnEnable()

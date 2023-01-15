@@ -67,6 +67,8 @@ if GetLocale() == "deDE" then
     L["OPTION_MASTER_LOOTER_4"] = "Master Looter 4"
     L["OPTION_MASTER_LOOTER_5"] = "Master Looter 5"
 
+    L["OPTION_ALLOW_DBSYNC"] = "Datenbanksync zulassen"
+
     -- commands
     L["COMMAND_HELP"] = "Zeigt diese Befehls-Liste an."
     L["COMMAND_COUNCIL"] = "Zeigt das Council-Fenster an."
