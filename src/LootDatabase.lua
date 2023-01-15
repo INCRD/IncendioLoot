@@ -2,6 +2,7 @@ local addonName, addon = ...
 local IncendioLoot = _G[addonName]
 local LootDatabase = IncendioLoot:NewModule("LootDatabase", "AceEvent-3.0", "AceSerializer-3.0", "AceConsole-3.0")
 local L = addon.L
+local IsPlayerInRaid = false
 IncendioLootLootDatabase = {}
 
 function IncendioLootLootDatabase.AddItemToDatabase(PlayerName, MapID, Class, Instance, RollType, ItemLink, Votes, Roll, DifficultyIndex, DifficultyName)
@@ -49,7 +50,6 @@ end
 
 local function SyncData(PlayerNameToSend)
     for i, value in pairs(IncendioLoot.ILHistory.factionrealm.history) do
-        print(i)
         local Serialized = LootDatabase:Serialize({PlayerName = i, Data = IncendioLoot.ILHistory.factionrealm.history[i]})
         local configForDeflate = {level = 5}
         local compressed = LootDatabaseDeflate:CompressDeflate(Serialized, configForDeflate)
@@ -61,8 +61,25 @@ local function SyncData(PlayerNameToSend)
 end
 
 local function HandleSync(prefix, str, distribution, sender)
-    if sender == GetUnitName("Player") then 
+    --[[ if sender == GetUnitName("Player") then 
         print("Nöl")
+        return
+    end ]]
+
+    local numGroupMembers = GetNumGroupMembers()
+    if numGroupMembers == 0 then 
+        return
+    end
+
+    IsPlayerInRaid = false
+    for i = 1, numGroupMembers do
+        local name = GetUnitName("raid" .. i)
+        if name == sender then 
+            IsPlayerInRaid = true
+        end
+    end
+
+    if not IsPlayerInRaid then 
         return
     end
 
@@ -78,6 +95,8 @@ local function HandleSync(prefix, str, distribution, sender)
         IncendioLoot.ILHistory.factionrealm.history[DeSerialized.PlayerName] = {}
     end
     IncendioLoot.ILHistory.factionrealm.history[DeSerialized.PlayerName] = DeSerialized.Data
+
+    print("Sync erfolgreich für" .. DeSerialized.PlayerName)
 end
 
 function LootDatabase:OnInitialize()
