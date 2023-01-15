@@ -48,8 +48,7 @@ function IncendioLootLootDatabase.ReturnItemsLastTwoWeeksPlayer(PlayerName, Roll
 end
 
 local function SyncData()
-    print("WIP")
-    --[[ for i, value in pairs(IncendioLoot.ILHistory.factionrealm.history) do
+    for i, value in pairs(IncendioLoot.ILHistory.factionrealm.history) do
         print(i)
         local Serialized = LootDatabase:Serialize({PlayerName = i, Data = IncendioLoot.ILHistory.factionrealm.history[i]})
         local configForDeflate = {level = 5}
@@ -57,11 +56,14 @@ local function SyncData()
         local EncodedForWoW = LootDatabaseDeflate:EncodeForWoWAddonChannel(compressed)
         
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_GET_DB_SYNC, 
-        EncodedForWoW, "WHISPER", "Addontestlol",  "BULK")
-    end ]]
+        EncodedForWoW, "WHISPER", "Addontestlol", "BULK")
+    end
 end
 
 local function HandleSync(prefix, str, distribution, sender)
+    if sender == GetUnitName("Player") then 
+        print("Nöl")
+    end
     local DataReceived = LootDatabaseDeflate:DecodeForWoWAddonChannel(str)
     local uncompressed = LootDatabaseDeflate:DecompressDeflate(DataReceived)
     local _, DeSerialized = LootDatabase:Deserialize(uncompressed)
