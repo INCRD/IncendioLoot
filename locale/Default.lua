@@ -29,13 +29,17 @@ L["VOTE_STATE_OTHER"] = "Other"
 L["VOTE_STATE_PASS"] = "Pass"
 
 -- loot council
-L["COUNCIL_ASSIGNED_ITEM"] = " has been assigned to "
+L["COUNCIL_ASSIGNED_ITEM"] = "Item %s has been assigned to %s.  %s"
 
 -- loot history
 L["HISTORY"] = "Loot history"
 L["HISTORY_FILTER_DATE"] = "Filter date:"
 L["HISTORY_FILTER_ITEM"] = "Filter item:"
 L["HISTORY_FILTER_PLAYER"] = "Filter player:"
+
+--Loot database
+L["SYNC_NOT_ACTIVATED"] = "Someone has tried to sync a database with you, but the function is not active."
+L["SYNC_SUCCESS"] = "%s has been synchronized to the database."
 
 -- options
 L["OPTION_GENERAL"] = "General"

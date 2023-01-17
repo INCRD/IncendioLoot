@@ -149,7 +149,7 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
                     local max = #RandomShoutOut
                     local RandomIndex = math.random(1, max)
 
-                    SendChatMessage(value.ItemLink.. L["COUNCIL_ASSIGNED_ITEM"] .. CleanedName .. ". ".. RandomShoutOut[RandomIndex] , "RAID")
+                    SendChatMessage(string.format(L["COUNCIL_ASSIGNED_ITEM"], value.ItemLink, CleanedName, L["RANDOM_ASSIGN_MESSAGE_"..random(1,8)], "RAID"))
                 end
             end
         end

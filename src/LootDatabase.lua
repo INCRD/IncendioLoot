@@ -50,8 +50,8 @@ end
 
 local function SyncData(PlayerNameToSend)
     for i, value in pairs(IncendioLoot.ILHistory.factionrealm.history) do
-        local Serialized = LootDatabase:Serialize({PlayerName = i, Data = IncendioLoot.ILHistory.factionrealm.history[i]})
-        local configForDeflate = {level = 5}
+        local Serialized = LootDatabase:Serialize({PlayerName = i, Data = value})
+        local configForDeflate = {level = 9}
         local compressed = LootDatabaseDeflate:CompressDeflate(Serialized, configForDeflate)
         local EncodedForWoW = LootDatabaseDeflate:EncodeForWoWAddonChannel(compressed)
         
@@ -61,10 +61,9 @@ local function SyncData(PlayerNameToSend)
 end
 
 local function HandleSync(prefix, str, distribution, sender)
-    --[[ if sender == GetUnitName("Player") then 
-        print("Nöl")
+    if sender == GetUnitName("Player") then 
         return
-    end ]]
+    end
 
     local numGroupMembers = GetNumGroupMembers()
     if numGroupMembers == 0 then 
@@ -84,7 +83,7 @@ local function HandleSync(prefix, str, distribution, sender)
     end
 
     if not IncendioLoot.ILOptions.profile.options.general.allowDBSync then 
-        print("Jemand hat versucht eine Datenbank zu synchronisieren. Doch die Funktkion ist nicht aktiv.")
+        print(L["SYNC_NOT_ACTIVATED"])
         return
     end
 
@@ -94,9 +93,10 @@ local function HandleSync(prefix, str, distribution, sender)
     if IncendioLoot.ILHistory.factionrealm.history[DeSerialized.PlayerName] == nil then
         IncendioLoot.ILHistory.factionrealm.history[DeSerialized.PlayerName] = {}
     end
+
     IncendioLoot.ILHistory.factionrealm.history[DeSerialized.PlayerName] = DeSerialized.Data
 
-    print("Sync erfolgreich für" .. DeSerialized.PlayerName)
+    print(string.format(L["SYNC_SUCCESS"], DeSerialized.PlayerName))
 end
 
 function LootDatabase:OnInitialize()

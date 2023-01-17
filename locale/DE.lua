@@ -30,7 +30,7 @@ if GetLocale() == "deDE" then
     L["VOTE_STATE_PASS"] = "Passen"
 
     -- Loot council
-    L["COUNCIL_ASSIGNED_ITEM"] = " wurde vergeben an "
+    L["COUNCIL_ASSIGNED_ITEM"] = "Das Item %s wurde an %s vergeben. %s"
         
     -- loot history
     L["HISTORY"] = "Loot-Historie"
@@ -38,6 +38,9 @@ if GetLocale() == "deDE" then
     L["HISTORY_FILTER_ITEM"] = "Gegenstand filtern:"
     L["HISTORY_FILTER_PLAYER"] = "Spieler filtern:"
 
+    --Loot database
+    L["SYNC_NOT_ACTIVATED"] = "Jemand hat versucht eine Datenbank zu synchronisieren. Doch die Funktkion ist nicht aktiv."
+    L["SYNC_SUCCESS"] = "%s wurde in die Datenbank synchronisiert"
 
     -- options
     L["OPTION_GENERAL"] = "Allgemein"

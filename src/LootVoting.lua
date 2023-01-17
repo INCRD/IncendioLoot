@@ -328,7 +328,7 @@ LootVoting:RegisterEvent("START_LOOT_ROLL", function (eventname, rollID)
         if (pendingLootRolls ~= nil) then
             local _, ItemName, _, _, _, CanNeed = GetLootRollItemInfo(pendingLootRolls[i])
             if DoAutopass then
-                C_Timer.After(0.5, function() RollOnLoot(pendingLootRolls[i], 0) end)
+                C_Timer.After(0.3, function() RollOnLoot(pendingLootRolls[i], 0) end)
             end
             if CanNeed then
                 ViableLootRolls[ItemName] = CanNeed
