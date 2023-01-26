@@ -1,7 +1,7 @@
-## Interface: 10002
+## Interface: 100005
 ## Titel: Incendio Loot
 ## Notes: Lootaddon for EU Antonidas Incendio Guild
-## Version: 0.8.2
+## Version: 0.8.3
 ## SavedVariables: IncendioLootHistoryDB, IncendioLootOptionsDB
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, lib-st, LibSharedMedia-3.0
 
