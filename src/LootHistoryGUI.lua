@@ -109,7 +109,7 @@ local function CreateWindow()
     end
 
     if not IncendioLoot.ILHistory.factionrealm.history then 
-        print(L["HISTORY_NOT_AVAILABLE"])
+        DEFAULT_CHAT_FRAME:AddMessage(L["HISTORY_NOT_AVAILABLE"], 1, 1, 0)
         return
     end
 

@@ -18,6 +18,7 @@ L["ITEM_ALREADY_ASSIGNED"] = "The item has already been assigned."
 L["DO_AUTOPASS"] = "Would you like to automatically pass on loot offered through the default interface?"
 L["COUNCIL_FRAME_CHECK"] = "The council window is already open or there is no active session."
 L["DID_AUTO_PASS"] = "Automatically passed"
+L["CANNOT_ADD_ITEM"] = "Item cannot be added manually, since a loot session is still active."
 
 -- loot voting
 L["VOTE_TITLE"] = "IncendioLoot - We are't troxic, I swear!"
@@ -78,6 +79,7 @@ L["COMMAND_HISTORY"] = "Displays the loot history."
 L["COMMAND_SHOW"] = "Displays the loot vote frame."
 L["COMMAND_OPTIONS"] = "Opens the AddOn settings."
 L["COMMAND_SYNCDB"] = "Synchronize the Database. WIP"
+L["COMMAND_ADDITEM"] = "Adds an item to the loot council."
 
 -- errors etc
 L["ERROR_COMMAND_ALREADY_REGISTERED"] = "Chat command '%s' has already been registered, and is therefore being ignored. Callstack is %s"

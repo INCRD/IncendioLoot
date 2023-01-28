@@ -19,6 +19,7 @@ if GetLocale() == "deDE" then
     L["DO_AUTOPASS"] = "Möchtest du automatisch auf Loot passen, der durch das Standardinterface angeboten wird?"
     L["COUNCIL_FRAME_CHECK"] = "Das Council-Fenster ist bereits geöffnet oder es ist keine Session aktiv."
     L["DID_AUTO_PASS"] = "Automatisch gepasst"
+    L["CANNOT_ADD_ITEM"] = "Das Item kann nicht hinzugefügt werden, da noch eine Session aktiv ist."
 
     -- loot voting
     L["VOTE_TITLE"] = "IncendioLoot - Wir brauchen Meersälze!"
@@ -79,6 +80,7 @@ if GetLocale() == "deDE" then
     L["COMMAND_SHOW"] = "Zeigt das Loot-Vote-Fenster an."
     L["COMMAND_OPTIONS"] = "Öffnet die AddOn-Einstellungen."
     L["COMMAND_SYNCDB"] = "Synchronisiert die Datenbank. WIP"
+    L["COMMAND_ADDITEM"] = "Fügt ein Item zum verollen hinzu."
 
     -- errors etc
     L["ERROR_COMMAND_ALREADY_REGISTERED"] = "Chat-Befehl '%s' wurde bereits registriert, und wird daher ignoriert. Callstack ist %s"

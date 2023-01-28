@@ -213,7 +213,7 @@ local function SetSessionInactive()
     IncendioLootLootCouncilGUI.CloseGUI()
     IncendioLootDataHandler.WipeData()
     IncendioLootChatFrames.WipdeData()
-    print("The Session has been closed")
+    DEFAULT_CHAT_FRAME:AddMessage("The Session has been closed", 1, 1, 0)
 end
 
 local function trim(str)

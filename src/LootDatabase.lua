@@ -83,7 +83,7 @@ local function HandleSync(prefix, str, distribution, sender)
     end
 
     if not IncendioLoot.ILOptions.profile.options.general.allowDBSync then 
-        print(L["SYNC_NOT_ACTIVATED"])
+        DEFAULT_CHAT_FRAME:AddMessage(L["SYNC_NOT_ACTIVATED"], 1, 1, 0)
         return
     end
 
@@ -96,7 +96,7 @@ local function HandleSync(prefix, str, distribution, sender)
 
     IncendioLoot.ILHistory.factionrealm.history[DeSerialized.PlayerName] = DeSerialized.Data
 
-    print(string.format(L["SYNC_SUCCESS"], DeSerialized.PlayerName))
+    DEFAULT_CHAT_FRAME:AddMessage(string.format(L["SYNC_SUCCESS"], DeSerialized.PlayerName), 1, 1, 0)
 end
 
 function LootDatabase:OnInitialize()

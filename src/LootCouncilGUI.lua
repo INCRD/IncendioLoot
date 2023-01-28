@@ -128,7 +128,7 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
     button2 = "No",
     OnAccept = function(self, data, data2)
         if not UnitIsGroupLeader("player") then
-            print("Dies darf nur der Masterlooter tun!")
+            DEFAULT_CHAT_FRAME:AddMessage("Dies darf nur der Masterlooter tun!", 1, 0, 0)
             return
         end
 
@@ -139,17 +139,14 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
         for i, value in pairs(LootTable) do
             if (value["Index"] == data) then 
                 if value["Assigend"] == true then
-                    print(L["ITEM_ALREADY_ASSIGNED"])
+                    DEFAULT_CHAT_FRAME:AddMessage(L["ITEM_ALREADY_ASSIGNED"], 1, 1, 0)
                     return
                 else
                     value["Assigend"] = true
                     local CleanedName = string.gsub(data2, "|cff%x+", "")
                     CleanedName = string.gsub(CleanedName, "|r", "")
                     
-                    local max = #RandomShoutOut
-                    local RandomIndex = math.random(1, max)
-
-                    SendChatMessage(string.format(L["COUNCIL_ASSIGNED_ITEM"], value.ItemLink, CleanedName, L["RANDOM_ASSIGN_MESSAGE_"..random(1,8)], "RAID"))
+                    SendChatMessage(string.format(L["COUNCIL_ASSIGNED_ITEM"], value.ItemLink, CleanedName, L["RANDOM_ASSIGN_MESSAGE_"..random(1,8)]), "RAID")
                 end
             end
         end
@@ -327,7 +324,7 @@ end
 
 function IncendioLootLootCouncilGUI.HandleLootLootedEvent()
     if not (IncendioLootDataHandler.GetSessionActive()) or MainFrameInit then
-        print(L["COUNCIL_FRAME_CHECK"])
+        DEFAULT_CHAT_FRAME:AddMessage(L["COUNCIL_FRAME_CHECK"], 1, 1, 0)
         return
     end
 

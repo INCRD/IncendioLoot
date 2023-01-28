@@ -51,6 +51,26 @@ local function BuildLootTable()
     return(true)
 end
 
+local function BuildLootTableManually(ItemLink)
+    local ItemName = GetItemInfo(ItemLink)
+    local ItemID = string.match(ItemLink, "item:(%d+):")
+    if (ItemName == nil) or (ItemName == "") then
+        return
+    end
+
+    local TexturePath = GetItemIcon(ItemID)
+    local Item = {}
+    Item["TexturePath"] = TexturePath
+    Item["ItemName"] = ItemName
+    Item["ItemLink"] = ItemLink
+    Item["Index"] = 1
+    Item["LootQuality"] = 4
+    Item["Assigned"] = false
+    IncendioLootDataHandler.AddItemToLootTable(Item)
+
+    return(true)
+end
+
 local function BuildVoteData()
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do 
         IncendioLootDataHandler.AddItemIndexToVoteData(Item.Index)
@@ -82,14 +102,13 @@ local function CheckIfML(MasterLooterTable, Name)
     return found
 end
 
-
-local function BuildData()
+local function BuildData(FromEvent, ItemLink)
     --Addon must be active
     if not IncendioLoot.ILOptions.profile.options.general.active then 
         return
     end
     --Session must be inactive and Loot must be viable
-    if IncendioLootDataHandler.GetSessionActive() or not CheckIfViableLootAvailable() or not IsInRaid() then
+    if (IncendioLootDataHandler.GetSessionActive() or not CheckIfViableLootAvailable() or not IsInRaid()) and FromEvent then
         return
     end
 
@@ -112,7 +131,11 @@ local function BuildData()
             end
         end
         IncendioLootDataHandler.WipeData()
-        IncendioLootDataHandler.SetSessionActiveInactive(BuildLootTable())
+        if FromEvent then
+            IncendioLootDataHandler.SetSessionActiveInactive(BuildLootTable())
+        else
+            IncendioLootDataHandler.SetSessionActiveInactive(BuildLootTableManually(ItemLink))
+        end
         local Payload = {
             LootTable = IncendioLootDataHandler.GetLootTable(),
             SessionActive = IncendioLootDataHandler.GetSessionActive()
@@ -124,6 +147,18 @@ local function BuildData()
             LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()), "RAID")
         end
     end
+end
+
+local function BuildDataFromEvent()
+    BuildData(true)
+end
+
+local function BuildDataFromChat(ItemLink)
+    if IncendioLootDataHandler.GetSessionActive() then
+        DEFAULT_CHAT_FRAME:AddMessage(L["CANNOT_ADD_ITEM"], 1, 1, 0)
+        return
+    end
+    BuildData(false, ItemLink[3])
 end
 
 local function ReceiveMLs(prefix, str, distribution, sender)
@@ -315,7 +350,7 @@ function IncendioLootLootCouncil.PrepareAndAddItemToHistory(Index, PlayerName)
         return
     end
     if not UnitIsGroupLeader("player") then
-        print("Dies darf nur der Masterlooter tun!")
+        DEFAULT_CHAT_FRAME:AddMessage("Dies darf nur der Masterlooter tun!", 1, 1, 0)
         return
     end
     local PlayerTable = IncendioLootDataHandler.GetVoteData()[Index]
@@ -427,9 +462,13 @@ local function HandleLootVotePlayerEvent(prefix, str, distribution, sender)
     IncendioLootLootCouncilGUI.CreateScrollFrame(NewIndex)
 end
 
+function LootCouncil:OnInitialize()
+    IncendioLoot:RegisterSubCommand("additem", BuildDataFromChat, L["COMMAND_ADDITEM"])
+end
+
 function LootCouncil:OnEnable()
     LootCouncil:RegisterEvent("GROUP_ROSTER_UPDATE", IncendioLootLootCouncil.AnnounceMLs)
-    LootCouncil:RegisterEvent("LOOT_OPENED", BuildData)
+    LootCouncil:RegisterEvent("LOOT_OPENED", BuildDataFromEvent)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_ANNOUNCE_MLS,
                             ReceiveMLs)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED,
