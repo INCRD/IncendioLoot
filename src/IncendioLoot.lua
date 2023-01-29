@@ -5,8 +5,8 @@ _G[addonName] = IncendioLoot
 IncendioLoot.Version = GetAddOnMetadata(addonName, 'Version')
 IncendioLoot.AddonActive = false
 IncendioLootFunctions = {}
+IncendioLoot.L = addon.L
 
-local ReceivedOutOfDateMessage = false
 local AceConsole = LibStub("AceConsole-3.0")
 local L = addon.L
 
@@ -23,6 +23,7 @@ local CommandCallbacks = {}
 ]] --
 IncendioLoot.EVENTS = {
     EVENT_VERSION_CHECK = "IL.VerChk", -- version comparison
+    EVENT_VERSION_REQUEST = "IL.VerReq", -- version request
     EVENT_LOOT_LOOTED = "IL.LLooted", -- whenever a member loots an item
     EVENT_LOOT_VOTE_PLAYER = "IL.LVotedPlayer", -- whenever a player sets a vote on an item
     EVENT_LOOT_ANNOUNCE_COUNCIL = "IL.Council", -- announces the council as raidlead
@@ -34,7 +35,7 @@ IncendioLoot.EVENTS = {
     EVENT_DATA_RECEIVED = "IL.DataReceived", --Council confirms when data is received
     EVENT_DATA_AUTODECISION = "IL.AutoDecision", --ML sends AutoDecision to Council
     EVENT_CHAT_SENT = "IL.ChatSent", --ChatEvent triggers when the chat is used
-    EVENT_GET_DB_SYNC = "IL.DBSync" --Triggers if a DB-Sync starts
+    EVENT_GET_DB_SYNC = "IL.DBSync", --Triggers if a DB-Sync starts
 }
 
 --[[
@@ -84,21 +85,10 @@ function IncendioLootFunctions.CheckIfMasterLooter()
     end
 end
 
-local function HandleVersionCheckEvent(prefix, str, distribution, sender)
-    if (sender == UnitName("player")) then
-        return 
-    end
-    local ver, msg = tonumber(IncendioLoot.Version), tonumber(str)
-    if (msg and ver < msg and not ReceivedOutOfDateMessage) then
-        AceConsole:Print(L["OUT_OF_DATE_ADDON"]..str)
-        ReceivedOutOfDateMessage = true
-    end
-end
-
 local function HandleGroupRosterUpdate()
-    local _, _, _, _, _, _, _, _, _, LfgDungeonID = GetInstanceInfo()
+    local LfgDungeonID = select(10, GetInstanceInfo())
 	if LfgDungeonID == nil then 
-        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_CHECK,
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_SEND,
                                     IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
 	end
 
@@ -264,9 +254,7 @@ local function EnterRaidInstance()
 end
 
 local function RegisterCommsAndEvents()
-    IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
-    IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE,
-    SetSessionInactive)
+    IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE, SetSessionInactive)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
     IncendioLoot:RegisterEvent("RAID_INSTANCE_WELCOME", EnterRaidInstance)
     IncendioLoot:RegisterSubCommand("options", function() Settings.OpenToCategory('IncendioLoot') end, L["COMMAND_OPTIONS"])

@@ -80,6 +80,7 @@ L["COMMAND_SHOW"] = "Displays the loot vote frame."
 L["COMMAND_OPTIONS"] = "Opens the AddOn settings."
 L["COMMAND_SYNCDB"] = "Synchronize the Database. WIP"
 L["COMMAND_ADDITEM"] = "Adds an item to the loot council."
+L["COMMAND_VERSION_CHECK"] = "List IncendioLoot verisons of your group."
 
 -- errors etc
 L["ERROR_COMMAND_ALREADY_REGISTERED"] = "Chat command '%s' has already been registered, and is therefore being ignored. Callstack is %s"
