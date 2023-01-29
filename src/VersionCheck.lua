@@ -9,83 +9,165 @@ local E = IncendioLoot.EVENTS
 local L = IncendioLoot.L
 local C = IncendioLoot.COLORS
 local _V = IncendioLoot.Version
+local O
 
 local ReceivedOutOfDateMessage = false
-local VersionTable = {} -- { [ player=version ] }
+local VersionTable = {} -- { [ player={ version=string, isActive=bool } ] }
 
-local ScrollingTableHolder
+local FrameHolder
+
+
+--[[
+    returns true if v1str is less than v2str
+    assumes number are in SEMVER (x.y.z) format
+
+    e.g.:
+        0.8.3, 0.9.0 -> true
+        0.8.3, 0.8.3 -> false
+        0.8.3, 0.3.0 -> false
+        0.3, 0.9.3 -> false
+        0.3, nil -> nil
+]]--
+local function VersionCompare(v1str, v2str)
+    if not v1str or not v2str then return end
+
+	local major1, minor1, patch1 = string.split(".", v1str)
+	local major2, minor2, patch2 = string.split(".", v2str)
+    
+    if patch1 == nil or patch2 == nil then return false end
+
+	if major1 ~= major2 then
+		return tonumber(major1) < tonumber(major2)
+	elseif minor1 ~= minor2 then
+		return tonumber(minor1) < tonumber(minor2)
+	else
+		return tonumber(patch1) < tonumber(patch2)
+	end
+end
 
 local function CreateScrollingTable()
-    if ScrollingTableHolder then
-        ScrollingTableHolder:Hide()
+    if FrameHolder ~= nil then
+        FrameHolder:Hide()
+    else
+        FrameHolder = CreateFrame("Frame", "VersionCheckFrameHolder", UIParent, "BackdropTemplate")
+        FrameHolder:SetSize(290, 400)
+        FrameHolder:SetPoint("CENTER")
+        FrameHolder:SetBackdrop({
+            bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+            --edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+            tile = true,
+            tileSize = 32,
+            --edgeSize = 16,
+            insets = { left = 5, right = 5, top = 5, bottom = 5 }
+          })
+        FrameHolder:SetBackdropColor(0, 0, 0, 0.25)
+        FrameHolder:SetMovable(true)
+        FrameHolder:EnableMouse(true)
+        FrameHolder:RegisterForDrag("LeftButton")
+        FrameHolder:SetScript("OnDragStart", function(self) self:StartMoving() end)
+        FrameHolder:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+        FrameHolder:SetFrameStrata("FULLSCREEN_DIALOG")
+        tinsert(UISpecialFrames, "VersionCheckFrameHolder")
     end
 
-    local numRows = select("#", GetNumGroupMembers())
+    local numRows = GetNumGroupMembers()
 
-    ScrollingTableHolder = ScrollingTable:CreateST(cols, numRows, 20)
+    FrameHolder.st = ScrollingTable:CreateST({
+        {
+            ["name"] = L["VCHK_NAME"],
+            ["width"] = 120
+        },
+        {
+            ["name"] = L["VCHK_VERSION"],
+            ["width"] = 50,
+            ["align"] = "CENTER"
+        },
+        {
+            ["name"] = L["VCHK_ACTIVE"],
+            ["width"] = 50,
+            ["align"] = "CENTER"
+        }
+    }, numRows, 20, nil, FrameHolder)
 
     local data = {}
 
-    local ver = tonumber(_V)
     for memberIdx = 1, numRows, 1 do 
         local name = select(1, GetRaidRosterInfo(memberIdx))
-        table.insert(data, {
+        local row = {
             ["cols"] = {
                 { ["value"] = name },
                 { ["value"] = function() 
-                    local memberVersion = VersionTable[name] or "nil"
-                    local hasValidVersion = memberVersion ~= nil and type(memberVersion) ~= "string"
-                    local color = hasValidVersion and C.GREEN or ((memberVersion ~= nil and memberVersion < ver) and C.ORANGE or C.GREY)
-                    return WrapTextInColorCode(memberVersion, C.ORANGE) 
+                    local lookup = VersionTable[name]
+                    local memberVersion = lookup ~= nil and lookup.version or "?"
+                    local hasValidVersion = memberVersion ~= nil and memberVersion ~= "?"
+                    local hasOldVersion = VersionCompare(memberVersion, _V)
+                    local color = hasValidVersion and (hasOldVersion and C.ORANGE or C.GREEN) or C.GREY
+                    return WrapTextInColorCode(memberVersion, color)
+                end },
+                { ["value"] = function()
+                    local lookup = VersionTable[name]
+                    return (lookup and (lookup.isActive and "+")) or (lookup ~= nil and "-" or "?")
                 end }
             }
-        })
+        }
+        
+        table.insert(data, row)
     end
 
-    ScrollingTableHolder:SetData(data)
-    ScrollingTableHolder:SortData()
-    ScrollingTableHolder:Show()
+    FrameHolder.st:SetData(data)
+    FrameHolder.st:SortData()
+    FrameHolder.st.frame:SetPoint("TOP", FrameHolder, "TOP", 0, -50)
+    FrameHolder:Show()
+end
+
+local function InsertVersion(player, version, isActive)
+    VersionTable[player] = { version = version, isActive = isActive }
 end
 
 
 local function HandleVersionCheckCommand()
     if not IsInRaid() then
-        return
+        --return
     end
 
     VersionCheck:SendCommMessage(E.EVENT_VERSION_REQUEST, "r!!", IsInRaid() and "RAID" or "GROUP", nil, "BULK")
+    InsertVersion(UnitName("player"), _V, O.general.active)
     CreateScrollingTable()
 end
 
-local function HandleVersionCheckEvent(_, str, _, sender)
-    if (sender == UnitName("player")) then
+local function HandleVersionCompareEvent(_, str, _, sender)
+    if sender == UnitName("player") then
         return 
     end
 
-    local ver, msg = tonumber(IncendioLoot.Version), tonumber(str)
-    if (msg and ver < msg and not ReceivedOutOfDateMessage) then
-        AceConsole:Print(string.format(L["OUT_OF_DATE_ADDON"], msg))
+    if (str and VersionCompare(_V, str) and not ReceivedOutOfDateMessage) then
+        AceConsole:Print(string.format(L["OUT_OF_DATE_ADDON"], str))
         ReceivedOutOfDateMessage = true
     end
-
-    VersionTable[sender] = ver
 end
 
 local function HandleVersionRequestEvent(_, data, _, sender)
-    if sender == UnitName("player") or data:match("^s!!") then
-        -- either we're ourselves, so we don't need to answer, or we got an answer to our request
-        VersionCheck[sender] = data
-        if ScrollingTableHolder then
-            ScrollingTableHolder:SortData()
+    if UnitName("player") == sender then return end
+
+    local filteredData = data:match("^s!!") and data:gsub("^s!!", "") or nil
+    if filteredData ~= nil then
+        local ver, isActive = string.split("|", filteredData)
+        InsertVersion(sender, ver, isActive)
+
+        if FrameHolder and FrameHolder.st then
+            FrameHolder.st:SortData()
         end
     else
         -- respond to request
-        VersionCheck:SendCommMessage(E.EVENT_VERSION_REQUEST, "s!!".._V, "WHISPER", sender)
+        VersionCheck:SendCommMessage(E.EVENT_VERSION_REQUEST, 
+            "s!!".._V.."|"..(O.general.active and "1" or "0"), 
+            "WHISPER", sender)
     end
 end
 
 function VersionCheck:OnEnable()
-    VersionCheck:RegisterComm(E.EVENT_VERSION_CHECK, HandleVersionCheckEvent)
+    O = IncendioLoot.ILOptions.profile.options
+    VersionCheck:RegisterComm(E.EVENT_VERSION_COMPARE, HandleVersionCompareEvent)
     VersionCheck:RegisterComm(E.EVENT_VERSION_REQUEST, HandleVersionRequestEvent)
     IncendioLoot:RegisterSubCommand("vchk", HandleVersionCheckCommand, L["COMMAND_VERSION_CHECK"])
 end

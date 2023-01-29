@@ -22,7 +22,7 @@ local CommandCallbacks = {}
     The event names cannot exceed 16 bytes
 ]] --
 IncendioLoot.EVENTS = {
-    EVENT_VERSION_CHECK = "IL.VerChk", -- version comparison
+    EVENT_VERSION_COMPARE = "IL.VerComp", -- version comparison
     EVENT_VERSION_REQUEST = "IL.VerReq", -- version request
     EVENT_LOOT_LOOTED = "IL.LLooted", -- whenever a member loots an item
     EVENT_LOOT_VOTE_PLAYER = "IL.LVotedPlayer", -- whenever a player sets a vote on an item
@@ -88,7 +88,7 @@ end
 local function HandleGroupRosterUpdate()
     local LfgDungeonID = select(10, GetInstanceInfo())
 	if LfgDungeonID == nil then 
-        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_SEND,
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_COMPARE,
                                     IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
 	end
 

@@ -94,3 +94,8 @@ L["RANDOM_ASSIGN_MESSAGE_5"] = "Wubdidooh!"
 L["RANDOM_ASSIGN_MESSAGE_6"] = "Excellent!"
 L["RANDOM_ASSIGN_MESSAGE_7"] = "Outstanding!"
 L["RANDOM_ASSIGN_MESSAGE_8"] = "Marvellous!"
+
+-- Version Check
+L["VCHK_NAME"] = "Player"
+L["VCHK_VERSION"] = "Version"
+L["VCHK_ACTIVE"] = "Active"

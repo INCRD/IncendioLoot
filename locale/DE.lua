@@ -94,4 +94,9 @@ if GetLocale() == "deDE" then
     L["RANDOM_ASSIGN_MESSAGE_6"] = "Absolut Klasse!"
     L["RANDOM_ASSIGN_MESSAGE_7"] = "Megakrass!"
     L["RANDOM_ASSIGN_MESSAGE_8"] = "Digga!"
+    
+    -- Version Check
+    L["VCHK_NAME"] = "Spieler"
+    L["VCHK_VERSION"] = "Version"
+    L["VCHK_ACTIVE"] = "Aktiv"
 end
