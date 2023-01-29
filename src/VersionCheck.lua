@@ -7,9 +7,13 @@ local ScrollingTable = LibStub("ScrollingTable")
 
 local E = IncendioLoot.EVENTS
 local L = IncendioLoot.L
+
 local C = IncendioLoot.COLORS
-local _V = IncendioLoot.Version
-local O
+local O -- options, init in :OnEnable
+local V = IncendioLoot.Version
+local I
+local D
+--    19
 
 local ReceivedOutOfDateMessage = false
 local VersionTable = {} -- { [ player={ version=string, isActive=bool } ] }
@@ -100,7 +104,7 @@ local function CreateScrollingTable()
                     local lookup = VersionTable[name]
                     local memberVersion = lookup ~= nil and lookup.version or "?"
                     local hasValidVersion = memberVersion ~= nil and memberVersion ~= "?"
-                    local hasOldVersion = VersionCompare(memberVersion, _V)
+                    local hasOldVersion = VersionCompare(memberVersion, V)
                     local color = hasValidVersion and (hasOldVersion and C.ORANGE or C.GREEN) or C.GREY
                     return WrapTextInColorCode(memberVersion, color)
                 end },
@@ -131,7 +135,7 @@ local function HandleVersionCheckCommand()
     end
 
     VersionCheck:SendCommMessage(E.EVENT_VERSION_REQUEST, "r!!", IsInRaid() and "RAID" or "GROUP", nil, "BULK")
-    InsertVersion(UnitName("player"), _V, O.general.active)
+    InsertVersion(UnitName("player"), V, O.general.active)
     CreateScrollingTable()
 end
 
@@ -140,7 +144,7 @@ local function HandleVersionCompareEvent(_, str, _, sender)
         return 
     end
 
-    if (str and VersionCompare(_V, str) and not ReceivedOutOfDateMessage) then
+    if (str and VersionCompare(V, str) and not ReceivedOutOfDateMessage) then
         AceConsole:Print(string.format(L["OUT_OF_DATE_ADDON"], str))
         ReceivedOutOfDateMessage = true
     end
@@ -160,7 +164,7 @@ local function HandleVersionRequestEvent(_, data, _, sender)
     else
         -- respond to request
         VersionCheck:SendCommMessage(E.EVENT_VERSION_REQUEST, 
-            "s!!".._V.."|"..(O.general.active and "1" or "0"), 
+            "s!!"..V.."|"..(O.general.active and "1" or "0"), 
             "WHISPER", sender)
     end
 end
