@@ -127,7 +127,7 @@ end
 
 local function HandleVersionCheckCommand()
     if not IsInRaid() then
-        --return
+        return
     end
 
     VersionCheck:SendCommMessage(E.EVENT_VERSION_REQUEST, "r!!", IsInRaid() and "RAID" or "GROUP", nil, "BULK")
