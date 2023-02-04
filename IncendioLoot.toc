@@ -19,3 +19,4 @@ src/LootDatabase.lua
 src/LootHistoryGUI.lua
 src/LootChatFrame.lua
 src/VersionCheck.lua
+src/SessionStartGUI.lua

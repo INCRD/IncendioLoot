@@ -91,7 +91,6 @@ local function HandleGroupRosterUpdate()
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_VERSION_COMPARE,
                                     IncendioLoot.Version, IsInRaid() and "RAID" or "PARTY")
 	end
-
 end
 
 function IncendioLoot:RegisterSubCommand(subcommand, callback, description)
@@ -193,6 +192,7 @@ local function BuildBasicHistoryData()
     table.insert(ScrollCols, CreateScrollCol("Instanz", 100, false, 0))
     table.insert(ScrollCols, CreateScrollCol("Datum", 100, true, 0))
     table.insert(ScrollCols, CreateScrollCol("Uhrzeit", 100, true, 0))
+    table.insert(ScrollCols, CreateScrollCol("Index", 0, false, 0))
 
     return(ScrollCols)
 end

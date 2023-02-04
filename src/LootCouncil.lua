@@ -102,11 +102,57 @@ local function CheckIfML(MasterLooterTable, Name)
     return found
 end
 
+function IncendioLootLootCouncil.BuildDataFromSession(FromEvent, ItemLink)
+    --Addon must be active
+    if not IncendioLoot.ILOptions.profile.options.general.active then 
+        return
+    end
+    
+    --Session must be inactive and Loot must be viable
+    if (IncendioLootDataHandler.GetSessionActive() or not IsInRaid()) then
+        return
+    end
+
+    --We don't want to use IL in LFG
+    local LfgDungeonID = select(10, GetInstanceInfo())
+    if LfgDungeonID ~= nil then
+        return
+    end
+
+    --We use InstanceID for now, to determine of we should start the council
+    local InstanceID = select(8, GetInstanceInfo())
+
+    if UnitIsGroupLeader("player") and IncendioLootDataHandler.GetRaidIDs()[InstanceID] ~= nil then
+        WaitForCouncilMembercount = 0
+        local numGroupMembers = GetNumGroupMembers()
+        for i = 1, numGroupMembers do
+            local name = GetUnitName("raid" .. i)
+            if CheckIfML(IncendioLoot.ILOptions.profile.options.masterlooters, name) then
+                WaitForCouncilMembercount = WaitForCouncilMembercount + 1
+            end
+        end
+
+        IncendioLootDataHandler.SetSessionActiveInactive(true)
+        
+        local Payload = {
+            LootTable = IncendioLootDataHandler.GetLootTable(),
+            SessionActive = IncendioLootDataHandler.GetSessionActive()
+        }
+        IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED, 
+            LootCouncil:Serialize(Payload), "RAID")
+        if WaitForCouncilMembercount == 0 then
+            IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_LOOTED,
+            LootCouncil:Serialize(IncendioLootDataHandler.GetLootTable()), "RAID")
+        end
+    end
+end
+
 local function BuildData(FromEvent, ItemLink)
     --Addon must be active
     if not IncendioLoot.ILOptions.profile.options.general.active then 
         return
     end
+
     --Session must be inactive and Loot must be viable
     if (IncendioLootDataHandler.GetSessionActive() or not CheckIfViableLootAvailable() or not IsInRaid()) and FromEvent then
         return
@@ -190,7 +236,9 @@ function IncendioLootLootCouncil.AnnounceMLs()
         return
     end
 
-    if UnitIsGroupLeader("player") then
+    local LfgDungeonID = select(10, GetInstanceInfo())
+
+    if UnitIsGroupLeader("player") and LfgDungeonID == nil then
         IncendioLoot:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_ANNOUNCE_MLS, LootCouncil:Serialize(MasterLooter), "RAID")
     end
 end
@@ -467,8 +515,7 @@ function LootCouncil:OnInitialize()
 end
 
 function LootCouncil:OnEnable()
-    LootCouncil:RegisterEvent("GROUP_ROSTER_UPDATE", IncendioLootLootCouncil.AnnounceMLs)
-    LootCouncil:RegisterEvent("LOOT_OPENED", BuildDataFromEvent)
+    --LootCouncil:RegisterEvent("LOOT_OPENED", BuildDataFromEvent)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_ANNOUNCE_MLS,
                             ReceiveMLs)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED,

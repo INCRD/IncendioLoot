@@ -180,7 +180,7 @@ local function ScrollFrameMenu(button)
         local menu = CreateFrame("Frame", "ILScrollFrameMenu", UIParent, "UIDropDownMenuTemplate")
         EasyMenu(menuList, menu, "cursor", 0, 0, "MENU")
     end
-  end
+end
   
 
 function IncendioLootLootCouncilGUI.CreateScrollFrame(index)
@@ -260,7 +260,7 @@ local function CreateItemFrame(ItemFrame)
     local LootTable = IncendioLootDataHandler.GetLootTable()
     for Loot, Item in pairs(LootTable) do
         if type(Item) == "table" then
-            if (Item.LootQuality >= 3 ) then
+            if (Item.LootQuality >= 3 ) and Item.IsChecked then
                 local IconWidget1 = LootCouncilAceGUI:Create("Icon")
                 IconWidget1:SetLabel(Item.ItemName)
                 IconWidget1:SetImageSize(40,40)

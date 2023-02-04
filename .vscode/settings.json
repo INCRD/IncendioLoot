@@ -35,6 +35,7 @@
         "FauxScrollFrame_GetOffset",
         "EasyMenu",
         "PlayerName",
-        "WHISPER"
+        "WHISPER",
+        "UISpecialFrames"
     ]
 }

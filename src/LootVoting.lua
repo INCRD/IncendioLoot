@@ -174,7 +174,7 @@ local function HandleLooted()
     VotingMainFrameClose = LootVotingMainFrame
 
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
-        if (type(Item) == "table") and (not Item.Rolled or Item.Rolled == nil) then
+        if (type(Item) == "table") and (not Item.Rolled or Item.Rolled == nil) and Item.IsChecked then
             local TexturePath = Item.TexturePath
             local ItemName = Item.ItemName
             local ItemLink = Item.ItemLink

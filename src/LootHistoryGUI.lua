@@ -6,11 +6,26 @@ local HistoryTable
 local HistoryOpen
 local LastPosition = {point = "CENTER", relativeTo = UIParent, relativeToPoint = "CENTER", x = 0, y = 0}
 
+local lootTypes = { "BIS", "UPGRADE", "SECOND", "OTHER", "TRANSMOG", "PASS" }
+local rollStates = {}
+local lootTypeColor = {
+    ["BIS"] = IncendioLoot.COLORS.GREEN,
+    ["UPGRADE"] = IncendioLoot.COLORS.ORANGE,
+    ["SECOND"] = IncendioLoot.COLORS.BLUE,
+    ["OTHER"] = IncendioLoot.COLORS.YELLOW,
+    ["TRANSMOG"] = IncendioLoot.COLORS.PURPLE,
+    ["PASS"] = IncendioLoot.COLORS.GREY
+}
+
+for _, type in ipairs(lootTypes) do
+    table.insert(rollStates, {type = type, name = WrapTextInColorCode(L["VOTE_STATE_"..type], lootTypeColor[type])})
+end
+
 local function GetDataRows()
     local i = 1
     local rows = {}
     for _, Players in pairs(IncendioLoot.ILHistory.factionrealm.history) do
-        for _, Content in ipairs(Players) do
+        for Index, Content in ipairs(Players) do
             local cols = {
                 { ["value"] = Content.PlayerName },
                 { ["value"] = Content.Class },
@@ -18,7 +33,8 @@ local function GetDataRows()
                 { ["value"] = Content.ItemLink },
                 { ["value"] = Content.Instance },
                 { ["value"] = Content.Date },
-                { ["value"] = Content.Time }
+                { ["value"] = Content.Time },
+                { ["value"] = Index }
             }
             rows[i] = { ["cols"] = cols }
             i = i + 1
@@ -31,7 +47,7 @@ local function FilterLootHistory(filterText, columnName)
     local filteredData = {}
     local i = 1
     for PlayerName, Players in pairs(IncendioLoot.ILHistory.factionrealm.history) do
-        for _, Content in ipairs(Players) do
+        for Index, Content in ipairs(Players) do
             if string.find(string.lower(Content[columnName]), string.lower(filterText)) then
                 local cols = {
                     { ["value"] = PlayerName },
@@ -41,7 +57,8 @@ local function FilterLootHistory(filterText, columnName)
                     { ["value"] = Content.ItemLink },
                     { ["value"] = Content.Instance },
                     { ["value"] = Content.Date },
-                    { ["value"] = Content.Time }
+                    { ["value"] = Content.Time },
+                    { ["value"] = Index }
                 }
                 filteredData[i] = { ["cols"] = cols }
                 i = i + 1
@@ -49,6 +66,49 @@ local function FilterLootHistory(filterText, columnName)
         end
     end
     return filteredData
+end
+
+StaticPopupDialogs["IL_ASSIGNITEM"] = {
+    text = L["Möchtest du den Eintrag löschen?"],
+    button1 = "Ja",
+    button2 = "Nöl",
+    OnAccept = function(self, data, data2)
+        tremove(IncendioLoot.ILHistory.factionrealm.history[data2["value"]], data["value"])
+        HistoryTable:SetData(FilterLootHistory(data2["value"], "PlayerName"))
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+}
+
+local function ScrollFrameMenu(button, Celldata, PlayerName)
+    if button == "RightButton" then
+        local menuList = {
+            {text = "Eintrag löschen", func = function() 
+                    local ILAssignDialog = StaticPopup_Show("IL_ASSIGNITEM")
+                    ILAssignDialog.data = Celldata
+                    ILAssignDialog.data2 = PlayerName
+                end},
+            {text = "Antwort ändern", func = function()
+                    local menu = CreateFrame("Frame", "ILScrollFrameMenu", UIParent, "UIDropDownMenuTemplate") 
+                    local menuList = {}
+                    for _, value in ipairs(rollStates) do
+                        table.insert(menuList, {text = value.name, func = function ()
+                                for Index, HistoryEntry in pairs(IncendioLoot.ILHistory.factionrealm.history[PlayerName["value"]]) do
+                                    if Index == Celldata["value"] then
+                                        HistoryEntry.RollType = value.name
+                                        HistoryTable:SetData(FilterLootHistory(PlayerName["value"], "PlayerName"))
+                                    end
+                                end
+                            end
+                        })
+                    end
+                    EasyMenu(menuList, menu, "cursor", 0, 0, "Menu")
+                end}
+          }
+        local menu = CreateFrame("Frame", "ILScrollFrameMenu", UIParent, "UIDropDownMenuTemplate")
+        EasyMenu(menuList, menu, "cursor", 0, 0, "MENU")
+    end
 end
 
 local function CreateDateFilterBox(HistoryMainFrame)
@@ -171,6 +231,17 @@ local function CreateWindow()
             GameTooltip:ClearLines()
             GameTooltip:SetHyperlink(celldata["value"])
             GameTooltip:Show()
+        end,
+    });
+
+    HistoryTable:RegisterEvents({
+        ["OnClick"] = function (rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, button)
+            if realrow == nil then 
+                return
+            end
+            local TableIndex = data[realrow].cols[9]
+            local PlayerName = data[realrow].cols[1]
+            ScrollFrameMenu(button, TableIndex, PlayerName)
         end,
     });
 
