@@ -132,25 +132,6 @@ function IncendioLootLootVoting.CloseGUI()
     ChildCount = 0
 end
 
-local function AutoPass()
-    ViableLootAvailable = false;
-    local AutoPassLootTable = IncendioLootDataHandler.GetLootTable()
-    local AutoPassViableLoot = IncendioLootDataHandler.GetViableLoot()
-    for key, Item in pairs(AutoPassLootTable) do
-        if type(Item) == "table" then
-            local ItemName = Item.ItemName
-            if AutoPassViableLoot[ItemName] == nil then
-                local ItemLink = Item.ItemLink
-                local Index = Item.Index
-                local _, AverageItemLevel = GetAverageItemLevel()
-                LootVoting:SendCommMessage(IncendioLoot.EVENTS.EVENT_LOOT_VOTE_PLAYER, LootVoting:Serialize({ ItemLink = ItemLink,  rollType = L["DID_AUTO_PASS"], Index = Index, iLvl = AverageItemLevel }), IsInRaid() and "RAID" or "PARTY")
-            else
-                ViableLootAvailable = true
-            end
-        end
-    end
-end
-
 local function HandleLooted()
     ChildCount = 0
 
@@ -161,63 +142,52 @@ local function HandleLooted()
         return
     end
 
-    if IncendioLoot.ILOptions.profile.options.general.addonAutopass then
-        AutoPass()
-        if not ViableLootAvailable then 
-            return
-        end
-    end
-
     local LootVotingMainFrame = LootVotingGUI:Create("Frame")
     LootVotingMainFrame:SetTitle(L["VOTE_TITLE"])
     LootVotingMainFrame:EnableResize(false)
     VotingMainFrameClose = LootVotingMainFrame
 
     for key, Item in pairs(IncendioLootDataHandler.GetLootTable()) do
-        if (type(Item) == "table") and (not Item.Rolled or Item.Rolled == nil) and Item.IsChecked then
+        if (type(Item) == "table") and (not Item.Rolled or Item.Rolled == nil) then
             local TexturePath = Item.TexturePath
             local ItemName = Item.ItemName
             local ItemLink = Item.ItemLink
             local Index = Item.Index
             
-            if (IncendioLootDataHandler.GetViableLoot()[ItemName] ~= nil) or 
-            not IncendioLoot.ILOptions.profile.options.general.addonAutopass then
+            local ItemGroup = LootVotingGUI:Create("InlineGroup")
+            ItemGroup:SetLayout("Flow") 
+            ItemGroup:SetHeight(100)
+            ItemGroup:SetWidth(60 + (#rollStates * 92) + 200 ) --Basewidth + rollstatesAmount * fixedwidth + Notebox
+            ItemGroup:SetAutoAdjustHeight(false)
+            LootVotingMainFrame:AddChild(ItemGroup)
 
-                local ItemGroup = LootVotingGUI:Create("InlineGroup")
-                ItemGroup:SetLayout("Flow") 
-                ItemGroup:SetHeight(100)
-                ItemGroup:SetWidth(60 + (#rollStates * 92) + 200 ) --Basewidth + rollstatesAmount * fixedwidth + Notebox
-                ItemGroup:SetAutoAdjustHeight(false)
-                LootVotingMainFrame:AddChild(ItemGroup)
+            local IconWidget1 = LootVotingGUI:Create("InteractiveLabel")
+            IconWidget1:SetWidth(60)
+            IconWidget1:SetHeight(40)
+            IconWidget1:SetImageSize(40,40)
+            IconWidget1:SetImage(TexturePath)
+            IconWidget1:SetText(ItemName)
+            ItemGroup:AddChild(IconWidget1)
 
-                local IconWidget1 = LootVotingGUI:Create("InteractiveLabel")
-                IconWidget1:SetWidth(60)
-                IconWidget1:SetHeight(40)
-                IconWidget1:SetImageSize(40,40)
-                IconWidget1:SetImage(TexturePath)
-                IconWidget1:SetText(ItemName)
-                ItemGroup:AddChild(IconWidget1)
-
-                IconWidget1:SetCallback("OnEnter", function()
-                    GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
-                    GameTooltip:ClearLines()
-                    GameTooltip:SetHyperlink(ItemLink)
-                    GameTooltip:Show()
-                end)
-                IconWidget1:SetCallback("OnLeave", function()
-                    GameTooltip:Hide();
-                end)
-                ChildCount = ChildCount + 1
-                local NoteBox = LootVotingGUI:Create("EditBox")
-                NoteBox:SetLabel("Notiz")
-                NoteBox:SetMaxLetters(20)
-                NoteBox:SetWidth(150)
-                for _, rollState in pairs(rollStates) do
-                    ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, Index, NoteBox))
-                end
-
-                ItemGroup:AddChild(NoteBox)
+            IconWidget1:SetCallback("OnEnter", function()
+                GameTooltip:SetOwner(IconWidget1.frame, "ANCHOR_RIGHT")
+                GameTooltip:ClearLines()
+                GameTooltip:SetHyperlink(ItemLink)
+                GameTooltip:Show()
+            end)
+            IconWidget1:SetCallback("OnLeave", function()
+                GameTooltip:Hide();
+            end)
+            ChildCount = ChildCount + 1
+            local NoteBox = LootVotingGUI:Create("EditBox")
+            NoteBox:SetLabel("Notiz")
+            NoteBox:SetMaxLetters(20)
+            NoteBox:SetWidth(150)
+            for _, rollState in pairs(rollStates) do
+                ItemGroup:AddChild(CreateRollButton(ItemGroup, rollState, ItemLink, Index, NoteBox))
             end
+
+            ItemGroup:AddChild(NoteBox)
         end
     end
 

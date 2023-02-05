@@ -68,10 +68,10 @@ local function FilterLootHistory(filterText, columnName)
     return filteredData
 end
 
-StaticPopupDialogs["IL_ASSIGNITEM"] = {
-    text = L["Möchtest du den Eintrag löschen?"],
-    button1 = "Ja",
-    button2 = "Nöl",
+StaticPopupDialogs["IL_DELETEENTRY"] = {
+    text = L["DELETE_ENTRY"],
+    button1 = L["YES"],
+    button2 = L["NO"],
     OnAccept = function(self, data, data2)
         tremove(IncendioLoot.ILHistory.factionrealm.history[data2["value"]], data["value"])
         HistoryTable:SetData(FilterLootHistory(data2["value"], "PlayerName"))
@@ -81,15 +81,31 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
     hideOnEscape = true,
 }
 
+StaticPopupDialogs["IL_DELETEPLAYERENTRY"] = {
+    text = L["DELETE_PLAYER_ENTRY"],
+    button1 = L["YES"],
+    button2 = L["NO"],
+    OnAccept = function(self, data)
+        IncendioLoot.ILHistory.factionrealm.history[data["value"]] = nil
+        HistoryTable:SetData(FilterLootHistory("", "PlayerName"))
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+}
 local function ScrollFrameMenu(button, Celldata, PlayerName)
     if button == "RightButton" then
         local menuList = {
-            {text = "Eintrag löschen", func = function() 
-                    local ILAssignDialog = StaticPopup_Show("IL_ASSIGNITEM")
+            {text = L["CAPTION_DELETE_ENTRY"], func = function() 
+                    local ILAssignDialog = StaticPopup_Show("IL_DELETEENTRY")
                     ILAssignDialog.data = Celldata
                     ILAssignDialog.data2 = PlayerName
                 end},
-            {text = "Antwort ändern", func = function()
+            {text = L["CAPTION_DELETE_PLAYER_ENTRY"], func = function() 
+                    local ILAssignDialog = StaticPopup_Show("IL_DELETEPLAYERENTRY")
+                    ILAssignDialog.data = PlayerName
+                end},
+            {text = L["CAPTION_CHANGE_ROLLTYPE"], func = function()
                     local menu = CreateFrame("Frame", "ILScrollFrameMenu", UIParent, "UIDropDownMenuTemplate") 
                     local menuList = {}
                     for _, value in ipairs(rollStates) do

@@ -18,7 +18,7 @@ function CreateLootWindow()
 
     local SessionWindow = CreateFrame("Frame", "LootWindow", UIParent, "BackdropTemplate")
     SessionWindow:SetPoint(LastPosition.point, LastPosition.relativeTo, LastPosition.relativeToPoint, LastPosition.x, LastPosition.y)
-    SessionWindow:SetSize(300 * Scale, TotalHeight)
+    SessionWindow:SetSize(400 * Scale, TotalHeight)
     SessionWindow:SetMovable(true)
     SessionWindow:SetScale(Scale)
     SessionWindow:SetBackdrop({
@@ -68,7 +68,7 @@ function CreateLootWindow()
 
     local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("CENTER", titleBar, "CENTER")
-    title:SetText("Loot Window")
+    title:SetText(L["TITLE_SESSION_WINDOW"])
 
     -- Checkboxen und Namen für jedes Item
     for i = 1, #LootTable do
@@ -113,9 +113,23 @@ function CreateLootWindow()
     local OKButton = CreateFrame("Button", "LootOKButton", SessionWindow, "UIPanelButtonTemplate")
     OKButton:SetPoint("BOTTOM", SessionWindow, "BOTTOM", -70, 15)
     OKButton:SetSize(100, 25)
-    OKButton:SetText("OK")
+    OKButton:SetText(L["OK"])
     OKButton:SetScript("OnClick", function()
     -- Informationen über den Zustand der Checkboxen abrufen
+            local j = 1
+            for Index, Value in pairs(LootTable) do
+                if (Value.IsChecked) then
+                    -- Move i's kept value to j's position, if it's not already there.
+                    if (Index ~= j) then
+                        LootTable[j] = LootTable[Index];
+                        LootTable[Index] = nil;
+                    end
+                    j = j + 1; -- Increment position of where we'll place the next kept value.
+                    Value.IsChecked = nil
+                else
+                    LootTable[Index] = nil;
+                end
+            end
             IncendioLootDataHandler.SetLootTable(LootTable)
             SessionWindow:Hide()
             SessionWindow = nil
@@ -127,7 +141,7 @@ function CreateLootWindow()
     local CancelButton = CreateFrame("Button", nil, SessionWindow, "UIPanelButtonTemplate")
     CancelButton:SetPoint("BOTTOM", SessionWindow, "BOTTOM", 70, 15)
     CancelButton:SetSize(100, 25)
-    CancelButton:SetText("Abbrechen")
+    CancelButton:SetText(L["Cancel"])
     CancelButton:SetScript("OnClick", function()
         SessionWindow:Hide()
         SessionWindow = nil
@@ -169,13 +183,15 @@ local function BuildDataFromEvent()
     if not IncendioLoot.ILOptions.profile.options.general.active then 
         return
     end
-    --Session must be inactive and Loot must be viable
+
+    --Session must be inactive
     if IncendioLootDataHandler.GetSessionActive() then
         return
     end
 
     --We don't want to use IL in LFG
     local LfgDungeonID = select(10, GetInstanceInfo())
+
     if LfgDungeonID ~= nil then
         return
     end

@@ -4,12 +4,13 @@ local L = addon.L
 L["YES"] = "Yes"
 L["NO"] = "No"
 L["HISTORY_NOT_AVAILABLE"] = "No History available"
+L["OK"] = "OK"
+L["CANCEL"] = "Cancel"
 
 L["NO_VOTE"] = "?"
 L["ASSIGN_ITEM"] = "Would you like to assign the item?"
 L["END_SESSION"] = "Would you like to end the session?"
 L["WIPE_DATABASE"] = "Do you REALLY want to wipe the loot database?"
-L["IL_ACTIVATEADDONAUTOPASS"] = "This functon is currently in an instable state and will cause errors. Are you sure to proceed?"
 L["DATABASE_WIPED"] = "The loot database has been wiped."
 L["DOUBLE_USE_WARNING"] = "WARNING another loot addon is active! This may cause issues."
 L["OUT_OF_DATE_ADDON"] = "Warning your version of IncendioLoot is not up to date. Current version: %s"
@@ -37,10 +38,18 @@ L["HISTORY"] = "Loot history"
 L["HISTORY_FILTER_DATE"] = "Filter date:"
 L["HISTORY_FILTER_ITEM"] = "Filter item:"
 L["HISTORY_FILTER_PLAYER"] = "Filter player:"
+L["DELETE_ENTRY"] = "Would you like to delete the selected entry?"
+L["CAPTION_DELETE_ENTRY"] = "Delete Entry"
+L["CAPTION_CHANGE_ROLLTYPE"] = "Change Rolltype"
+L["CAPTION_DELETE_PLAYER_ENTRY"] = "Delete Playerdata"
+L["DELETE_PLAYER_ENTRY"] = "Would you like to delete all records for this player?"
 
 --Loot database
 L["SYNC_NOT_ACTIVATED"] = "Someone has tried to sync a database with you, but the function is not active."
 L["SYNC_SUCCESS"] = "%s has been synchronized to the database."
+
+ --Session Window
+ L["TITLE_SESSION_WINDOW"] = "Loot Session"
 
 -- options
 L["OPTION_GENERAL"] = "General"
@@ -53,9 +62,6 @@ L["OPTION_DEBUGMODE_DESCRIPTION"] = "Enables/Disables debug mode"
 
 L["OPTION_AUTOPASS"] = "Autopass"
 L["OPTION_AUTOPASS_DESCRIPTION"] = "Enables/Disables automatic passing on Loot provided by the WoW Interface"
-
-L["OPTION_ADDONAUTOPASS"] = "Addon Autopass"
-L["OPTION_ADDONAUTOPASS_DESCRIPTION"] = "Enables/Disables automatic passing on Loot provided by IncendioLoot"
 
 L["OPTION_AUTOPASS_ASK"] = "Ask for autopass"
 L["OPTION_AUTOPASS_ASK_DESCRIPTION"] = "Enables/Disables asking for autopass on joining a raid"

@@ -3,14 +3,15 @@ local L = addon.L
 
 if GetLocale() == "deDE" then
     L["YES"] = "Ja"
-    L["NO"] = "Nein"
+    L["NO"] = "Nöl"
     L["HISTORY_NOT_AVAILABLE"] = "Es ist keine Historie vorhanden"
+    L["OK"] = "OK"
+    L["Cancel"] = "Cancel"
 
     L["NO_VOTE"] = "?"
     L["ASSIGN_ITEM"] = "Möchtest du das Item zuweisen"
     L["END_SESSION"] = "Möchtest du die Sitzung beenden?"
     L["WIPE_DATABASE"] = "Möchtest du WIRKLICH die Datenbank löschen?"
-    L["IL_ACTIVATEADDONAUTOPASS"] = "Diese Option führt womöglich zu fehlern! Es wird nicht empfohlen, diese zu aktivieren. Fortfahren?"
     L["DATABASE_WIPED"] = "Die Lootdatenbank wurde gelöscht."
     L["DOUBLE_USE_WARNING"] = "WARNUNG, ein weiteres LootAddon ist aktiv! Dies kann zu Problemen führen."
     L["OUT_OF_DATE_ADDON"] = "Achtung, deine Version von IncendioLoot ist nicht aktuell. Aktuelle Version: %s"
@@ -38,10 +39,18 @@ if GetLocale() == "deDE" then
     L["HISTORY_FILTER_DATE"] = "Datum filtern:"
     L["HISTORY_FILTER_ITEM"] = "Gegenstand filtern:"
     L["HISTORY_FILTER_PLAYER"] = "Spieler filtern:"
+    L["DELETE_ENTRY"] = "Möchtest du den Eintrag löschen?"
+    L["CAPTION_DELETE_ENTRY"] = "Einträg löschen"
+    L["CAPTION_CHANGE_ROLLTYPE"] = "Antwort ändern"
+    L["CAPTION_DELETE_PLAYER_ENTRY"] = "Spielerdaten löschen"
+    L["DELETE_PLAYER_ENTRY"] = "Möchtest du alle Datensätze des Spielers löschen?"
 
     --Loot database
     L["SYNC_NOT_ACTIVATED"] = "Jemand hat versucht eine Datenbank zu synchronisieren. Doch die Funktkion ist nicht aktiv."
     L["SYNC_SUCCESS"] = "%s wurde in die Datenbank synchronisiert"
+
+    --Session Window
+    L["TITLE_SESSION_WINDOW"] = "Loot Session"
 
     -- options
     L["OPTION_GENERAL"] = "Allgemein"
@@ -54,9 +63,6 @@ if GetLocale() == "deDE" then
     
     L["OPTION_AUTOPASS"] = "Autopass"
     L["OPTION_AUTOPASS_DESCRIPTION"] = "Aktiviert / Deaktiviert automatisches passen auf Loot, der durch WoW angeboten wird."
-    
-    L["OPTION_ADDONAUTOPASS"] = "Addon Autopass"
-    L["OPTION_ADDONAUTOPASS_DESCRIPTION"] = "Aktiviert / Deaktiviert automatisches passen auf Loot, der durch IncendioLoot angeboten wird."
  
     L["OPTION_AUTOPASS_ASK"] = "Nach Autopass fragen"
     L["OPTION_AUTOPASS_ASK_DESCRIPTION"] = "Aktiviert / Deaktiviert die Frage beim betreten des Raids"

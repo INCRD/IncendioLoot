@@ -195,10 +195,6 @@ local function BuildData(FromEvent, ItemLink)
     end
 end
 
-local function BuildDataFromEvent()
-    BuildData(true)
-end
-
 local function BuildDataFromChat(ItemLink)
     if IncendioLootDataHandler.GetSessionActive() then
         DEFAULT_CHAT_FRAME:AddMessage(L["CANNOT_ADD_ITEM"], 1, 1, 0)
@@ -515,7 +511,6 @@ function LootCouncil:OnInitialize()
 end
 
 function LootCouncil:OnEnable()
-    --LootCouncil:RegisterEvent("LOOT_OPENED", BuildDataFromEvent)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_ANNOUNCE_MLS,
                             ReceiveMLs)
     LootCouncil:RegisterComm(IncendioLoot.EVENTS.EVENT_LOOT_LOOTDATA_BUILDED,
