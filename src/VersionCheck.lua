@@ -51,7 +51,7 @@ end
 
 local function CreateScrollingTable()
     if FrameHolder ~= nil then
-        FrameHolder.st = nil
+        FrameHolder.st:SetData({})
         FrameHolder:Hide()
     else
         FrameHolder = CreateFrame("Frame", "VersionCheckFrameHolder", UIParent, "BackdropTemplate")
@@ -72,27 +72,27 @@ local function CreateScrollingTable()
         FrameHolder:SetScript("OnDragStart", function(self) self:StartMoving() end)
         FrameHolder:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
         FrameHolder:SetFrameStrata("FULLSCREEN_DIALOG")
-        tinsert(UISpecialFrames, "VersionCheckFrameHolder")
+        tinsert(UISpecialFrames, "VersionCheckFrameHolder")        
+
+        FrameHolder.st = ScrollingTable:CreateST({
+            {
+                ["name"] = L["VCHK_NAME"],
+                ["width"] = 120
+            },
+            {
+                ["name"] = L["VCHK_VERSION"],
+                ["width"] = 50,
+                ["align"] = "CENTER"
+            },
+            {
+                ["name"] = L["VCHK_ACTIVE"],
+                ["width"] = 50,
+                ["align"] = "CENTER"
+            }
+        }, 15, 20, nil, FrameHolder)
     end
 
     local numRows = GetNumGroupMembers()
-
-    FrameHolder.st = ScrollingTable:CreateST({
-        {
-            ["name"] = L["VCHK_NAME"],
-            ["width"] = 120
-        },
-        {
-            ["name"] = L["VCHK_VERSION"],
-            ["width"] = 50,
-            ["align"] = "CENTER"
-        },
-        {
-            ["name"] = L["VCHK_ACTIVE"],
-            ["width"] = 50,
-            ["align"] = "CENTER"
-        }
-    }, 15, 20, nil, FrameHolder)
 
     local data = {}
 
@@ -134,6 +134,7 @@ local function HandleVersionCheckCommand()
         return
     end
 
+    VersionTable = {}
     VersionCheck:SendCommMessage(E.EVENT_VERSION_REQUEST, "r!!", IsInRaid() and "RAID" or "GROUP", nil, "BULK")
     InsertVersion(UnitName("player"), V, O.general.active)
     CreateScrollingTable()
