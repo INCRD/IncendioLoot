@@ -17,6 +17,7 @@ IncendioLootDataHandler = {}
 --Init RaidIDs [[
 local RaidIDs = {
     [34] = true, --The Stockade (this is my Testdungeon...)
+    [389] = true, --Ragefire Chasm (in case i'll ever do horde)
     [2522] = true --Vault of the Incarnates 
 }
 --]]
