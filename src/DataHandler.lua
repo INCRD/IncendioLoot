@@ -18,7 +18,8 @@ IncendioLootDataHandler = {}
 local RaidIDs = {
     [34] = true, --The Stockade (this is my Testdungeon...)
     [389] = true, --Ragefire Chasm (in case i'll ever do horde)
-    [2522] = true --Vault of the Incarnates 
+    [2522] = true, --Vault of the Incarnates
+    [2569] = true --Aberrus, the Shadowed Crucible  
 }
 --]]
 
