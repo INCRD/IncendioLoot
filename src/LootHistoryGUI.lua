@@ -285,6 +285,131 @@ local function CreateWindow()
     HistoryOpen = true
 end
 
+local function CreateAddHistoryWindow()
+    local SelectedClass
+    local SelectedRoll
+    local frame = CreateFrame("Frame", "MeinAddonFrame", UIParent, "UIPanelDialogTemplate")
+    frame:SetSize(300, 200)
+    frame:SetPoint("CENTER")
+    frame:SetMovable(true)
+    frame:EnableMouse(true)
+    frame:RegisterForDrag("LeftButton")
+    frame:SetScript("OnDragStart", frame.StartMoving)
+    frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+    frame:SetClampedToScreen(true)
+    frame:SetScript("OnShow", frame.StopMovingOrSizing)
+
+    local playerNameLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    playerNameLabel:SetPoint("TOPLEFT", 16, -40)
+    playerNameLabel:SetText("Spielername:")
+
+    local playerNameInput = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
+    playerNameInput:SetSize(150, 20)
+    playerNameInput:SetPoint("TOPLEFT", playerNameLabel, "TOPRIGHT", 10, 0)
+
+    local classLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    classLabel:SetPoint("TOPLEFT", playerNameLabel, "BOTTOMLEFT", 0, -20)
+    classLabel:SetText("Klasse:")
+
+    local classDropdown = CreateFrame("Frame", "MyClassDropdown", frame, "UIDropDownMenuTemplate")
+    classDropdown:SetPoint("TOPLEFT", classLabel, "TOPRIGHT", 10, -3)
+
+    local rollLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    rollLabel:SetPoint("TOPLEFT", classLabel, "BOTTOMLEFT", 0, -30)
+    rollLabel:SetText("Roll:")
+
+    local rollDropdown = CreateFrame("Frame", "MyRollDropdown", frame, "UIDropDownMenuTemplate")
+    rollDropdown:SetPoint("TOPLEFT", rollLabel, "TOPRIGHT", 10, -3)
+
+    local itemLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    itemLabel:SetPoint("TOPLEFT", rollLabel, "BOTTOMLEFT", 0, -20)
+    itemLabel:SetText("Itemname:")
+
+    local itemInput = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
+    itemInput:SetSize(150, 20)
+    itemInput:SetPoint("TOPLEFT", itemLabel, "TOPRIGHT", 10, 0)
+
+    local function ProcessInputs(playerName, class, roll, itemName)
+        local _, _, _, ClassColor = GetClassColor(class)
+        local ColoredName = WrapTextInColorCode(playerName, ClassColor)
+
+        DEFAULT_CHAT_FRAME:AddMessage(L["DATABASEINPUT_CONFIRMED"] , 1, 1, 0)
+        DEFAULT_CHAT_FRAME:AddMessage(playerName, 1, 1, 0)
+        DEFAULT_CHAT_FRAME:AddMessage(class, 1, 1, 0)
+        DEFAULT_CHAT_FRAME:AddMessage(roll, 1, 1, 0)
+        DEFAULT_CHAT_FRAME:AddMessage(itemName, 1, 1, 0)
+
+        IncendioLootLootDatabase.AddItemToDatabase(ColoredName, 0, class, 'Manual', roll, itemName, 0, 0, 0, 'Manual' )
+    end
+
+    local okButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    okButton:SetSize(80, 25)
+    okButton:SetPoint("BOTTOMRIGHT", -20, 20)
+    okButton:SetText("Einfügen")
+    okButton:SetScript("OnClick", function()
+        local playerName = playerNameInput:GetText()
+        local itemName = itemInput:GetText()
+
+        ProcessInputs(playerName, SelectedClass, SelectedRoll, itemName)
+    end)
+
+    local function ClassDropdown_OnClick(self)
+        local value = self.value
+        UIDropDownMenu_SetSelectedValue(classDropdown, value)
+        SelectedClass = value
+    end
+
+    local function InitializeClassDropdown(self, level)
+        local info = UIDropDownMenu_CreateInfo()
+        for classIndex = 1, GetNumClasses() do
+            local className, classTag = GetClassInfo(classIndex)
+            info.text = className
+            info.value = classTag
+            info.checked = nil
+            info.func = ClassDropdown_OnClick
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end
+
+    local function RollDropdown_OnClick(self)
+        local value = self.value
+        UIDropDownMenu_SetSelectedValue(rollDropdown, value)
+        SelectedRoll = value
+    end
+
+    local function InitializeRollDropdown(self, level)
+        local info = UIDropDownMenu_CreateInfo()
+
+        for index, rollState in ipairs(rollStates) do
+            info.text = rollState.name
+            info.value = rollState.name
+            info.checked = nil
+            info.func = RollDropdown_OnClick
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end
+
+    UIDropDownMenu_Initialize(classDropdown, InitializeClassDropdown)
+    UIDropDownMenu_Initialize(rollDropdown, InitializeRollDropdown)
+
+    UIDropDownMenu_Initialize(classDropdown, InitializeClassDropdown)
+    UIDropDownMenu_Initialize(rollDropdown, InitializeRollDropdown)
+    
+    UIDropDownMenu_SetSelectedValue(classDropdown, nil)
+    UIDropDownMenu_SetText(classDropdown, "Wähle eine Klasse")
+    
+    UIDropDownMenu_SetSelectedValue(rollDropdown, nil)
+    UIDropDownMenu_SetText(rollDropdown, "Wähle eine Roll-Option")
+    
+    UIDropDownMenu_SetWidth(classDropdown, 150)
+    UIDropDownMenu_SetWidth(rollDropdown, 150)
+    
+    UIDropDownMenu_JustifyText(classDropdown, "LEFT")
+    UIDropDownMenu_JustifyText(rollDropdown, "LEFT")
+
+    frame:Show()
+end
+
 function LootHistoryGUI:OnInitialize()
     LibStub("AceComm-3.0"):Embed(LootHistoryGUI)
     LootCouncilHistoryGUIST = LibStub("ScrollingTable")
@@ -292,4 +417,5 @@ end
 
 function LootHistoryGUI:OnEnable()
     IncendioLoot:RegisterSubCommand("history", CreateWindow, L["COMMAND_HISTORY"])
+    IncendioLoot:RegisterSubCommand("addhistory", CreateAddHistoryWindow, L["COMMAND_ADDHISTORY"])
 end

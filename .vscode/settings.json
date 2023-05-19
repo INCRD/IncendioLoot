@@ -94,6 +94,17 @@
         "GetLootRollItemInfo",
         "RollOnLoot",
         "GetInventoryItemLink",
-        "tinsert"
+        "tinsert",
+        "UIDropDownMenu_Initialize",
+        "UIDropDownMenu_SetText",
+        "GetNumClasses",
+        "UIDropDownMenu_AddButton",
+        "UIDropDownMenu_CreateInfo",
+        "UIDropDownMenu_GetText",
+        "GetClassInfo",
+        "UIDropDownMenu_SetSelectedValue",
+        "UIDropDownMenu_SetWidth",
+        "UIDropDownMenu_JustifyText",
+        "UIDropDownMenu_GetSelectedValue"
     ]
 }

@@ -83,6 +83,7 @@ if GetLocale() == "deDE" then
     L["COMMAND_HELP"] = "Zeigt diese Befehls-Liste an."
     L["COMMAND_COUNCIL"] = "Zeigt das Council-Fenster an."
     L["COMMAND_HISTORY"] = "Zeigt die Loothistorie an."
+    L["COMMAND_ADDHISTORY"] = "Fügt der Loothistorie ein Item hinzu."
     L["COMMAND_SHOW"] = "Zeigt das Loot-Vote-Fenster an."
     L["COMMAND_OPTIONS"] = "Öffnet die AddOn-Einstellungen."
     L["COMMAND_SYNCDB"] = "Synchronisiert die Datenbank. WIP"
@@ -106,4 +107,6 @@ if GetLocale() == "deDE" then
     L["VCHK_NAME"] = "Spieler"
     L["VCHK_VERSION"] = "Version"
     L["VCHK_ACTIVE"] = "Aktiv"
+
+    L["DATABASEINPUT_CONFIRMED"] = "Der folgende Datensatz wurde eingefügt:"
 end
