@@ -105,6 +105,6 @@
         "UIDropDownMenu_SetSelectedValue",
         "UIDropDownMenu_SetWidth",
         "UIDropDownMenu_JustifyText",
-        "UIDropDownMenu_GetSelectedValue"
+        "UIDropDownMenu_GetSelectedValue",
     ]
 }
