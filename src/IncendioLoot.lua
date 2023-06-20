@@ -239,10 +239,15 @@ local function SetUpCommandHandler()
     IncendioLoot:RegisterSubCommand("help", PrintChatCommands, L["COMMAND_HELP"])
 end
 
-local function EnterRaidInstance()
+local function EnterRaidInstanceTimerStart()		
     if not IncendioLoot.ILOptions.profile.options.general.active or not IncendioLoot.ILOptions.profile.options.general.askForAutopass then 
         return
     end
+    C_Timer.After(3, function() IL_EnterRaidInstance() end)		-- in some strange situations GetInstanceInfo() can be empty immediatly after entering - so we wait a little  
+end
+
+
+function IL_EnterRaidInstance()
 	
     local _, InstanceType = GetInstanceInfo()
 	
@@ -256,7 +261,7 @@ end
 local function RegisterCommsAndEvents()
     IncendioLoot:RegisterComm(IncendioLoot.EVENTS.EVENT_SET_VOTING_INACTIVE, SetSessionInactive)
     IncendioLoot:RegisterEvent("GROUP_ROSTER_UPDATE", HandleGroupRosterUpdate)
-    IncendioLoot:RegisterEvent("RAID_INSTANCE_WELCOME", EnterRaidInstance)
+    IncendioLoot:RegisterEvent("PLAYER_ENTERING_WORLD", EnterRaidInstanceTimerStart)	
     IncendioLoot:RegisterSubCommand("options", function() Settings.OpenToCategory('IncendioLoot') end, L["COMMAND_OPTIONS"])
 end
 

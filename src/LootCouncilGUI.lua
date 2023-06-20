@@ -143,7 +143,7 @@ StaticPopupDialogs["IL_ASSIGNITEM"] = {
                     return
                 else
                     value["Assigend"] = true
-                    local CleanedName = string.gsub(data2, "|cff%x+", "")
+                    local CleanedName = string.gsub(data2, "|cff%x%x%x%x%x%x", "")
                     CleanedName = string.gsub(CleanedName, "|r", "")
                     
                     SendChatMessage(string.format(L["COUNCIL_ASSIGNED_ITEM"], value.ItemLink, CleanedName, L["RANDOM_ASSIGN_MESSAGE_"..random(1,8)]), "RAID")
